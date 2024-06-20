@@ -1,0 +1,4 @@
+*.gch
+*.pyc
+firmware/_BUILD
+firmware/build*

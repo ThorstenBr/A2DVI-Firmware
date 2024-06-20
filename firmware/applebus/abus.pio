@@ -1,0 +1,47 @@
+.define public PHI0_GPIO 26
+
+; Apple II bus interface
+; Ref: Understanding the Apple II, pages 4-7, 7-8
+
+.program abus
+; Prerequisites:
+;  * Bus clock used is PHI0, wired to GPIO 26
+;  * JMP pin is mapped to the R/W signal
+;  * IN pins are mapped to ~DEVSEL, R/W, and Data[7:0]
+;  * SET pins are mapped to the transceiver enable signals
+;  * input shift left & autopush @ 26 bits
+;  * run at about 250MHz (4ns/instruction)
+;
+; SET bits for tranceiver control:
+;  0bxxx
+;    x    - select AddrHi, active low
+;     x   - select AddrLo, active low
+;      x  - select Data, active low
+.wrap_target
+next_bus_cycle:
+    set PINS, 0b011                     ; enable AddrHi tranceiver
+    wait 1 GPIO, PHI0_GPIO              ; wait for PHI0 to rise. Data propagation through the transceiver should
+                                        ; be complete by the time this happens.
+
+    ; the current time is P0+42ns (P0 + 18ns (buffer + clock input delays) + 2 clocks (input synchronizers) + 1 instruction)
+
+    in PINS, 8                          ; read AddrHi[7:0]
+    set PINS, 0b101  [10]               ; enable AddrLo tranceiver and delay for transceiver propagation delay
+    in PINS, 8                          ; read AddrLo[7:0]
+
+    jmp PIN, read_cycle                 ; jump based on the state of the R/W pin
+
+write_cycle:
+    ; the current time is P0+114ns (P0 + 18ns (buffer + clock input delays) + 2 clocks (input synchronizers) + 10 instructions)
+
+    set PINS, 0b110  [30]               ; enable Data tranceiver & wait until both ~DEVSEL and the written data are valid (P0+200ns)
+    in PINS, 10                         ; read R/W, ~DEVSEL, and Data[7:0], then autopush
+    wait 0 GPIO, PHI0_GPIO  [7]         ; wait for PHI0 to fall
+    jmp next_bus_cycle
+
+read_cycle:
+    ; the current time is P0+114ns (P0 + 18ns (buffer + clock input delays) + 2 clocks (input synchronizers) + 10 instructions)
+
+    in PINS, 10                         ; read R/W, ~DEVSEL, and dontcare[7:0], then autopush
+    wait 0 GPIO, PHI0_GPIO   [7]        ; wait for PHI0 to fall
+.wrap
