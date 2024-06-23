@@ -29,6 +29,7 @@ SOFTWARE.
 #include "abus_setup.h"
 #include "abus_pin_config.h"
 #include "buffers.h"
+#include "../debug/debug.h"
 #include "businterface.h"
 //#include "colors.h"
 //#include "device_regs.h"

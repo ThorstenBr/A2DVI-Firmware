@@ -35,14 +35,32 @@ SOFTWARE.
 #include "render.h"
 
 #define TMDS_SYMBOL_0_0     0x7fd00 // actually 00/01
-#define TMDS_SYMBOL_255_0   0x7fe00 // actually FF/01
-#define TMDS_SYMBOL_0_255   0x801ff // actually 01/FF
+#define TMDS_SYMBOL_255_0   0x402ff // actually FE/00
+#define TMDS_SYMBOL_0_255   0xbfd00 // actually 00/FE
 #define TMDS_SYMBOL_255_255 0xbfe00 // actually FF/FE
 
 #define character_rom A2E_US_ENHANCED_BIN
 
-uint32_t text_fore[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_0};
-uint32_t text_back[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0};
+uint32_t text40_fore[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_0};
+uint32_t text40_back[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0};
+
+#if 1
+// green
+uint32_t text80_colors[4*3] =
+{
+    /*R*/ TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,
+    /*G*/ TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_0,
+    /*B*/ TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0
+};
+#else
+// white
+uint32_t text80_colors[4*3] =
+{
+    /*R*/ TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_0,
+    /*G*/ TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_0,
+    /*B*/ TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_0
+};
+#endif
 
 volatile uint_fast32_t text_flasher_mask = 0;
 static uint64_t next_flash_tick = 0;
@@ -73,7 +91,7 @@ static inline uint_fast8_t char_text_bits(uint_fast8_t ch, uint_fast8_t glyph_li
 {
     uint_fast8_t bits, invert;
 
-    if((soft_switches & SOFTSW_ALTCHAR) || (ch & 0x80))
+    if((ch & 0x80) || (soft_switches & SOFTSW_ALTCHAR))
     {
         // normal / mousetext character
         invert = 0x00;
@@ -109,17 +127,50 @@ void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int lin
             {
                 if ((bits & 1) == 0)
                 {
-                    *(tmdsbuf_blue++)  = text_fore[2];
-                    *(tmdsbuf_green++) = text_fore[1];
-                    *(tmdsbuf_red++)   = text_fore[0];
+                    *(tmdsbuf_blue++)  = text40_fore[2];
+                    *(tmdsbuf_green++) = text40_fore[1];
+                    *(tmdsbuf_red++)   = text40_fore[0];
                 }
                 else
                 {
-                    *(tmdsbuf_blue++)  = text_back[2];
-                    *(tmdsbuf_green++) = text_back[1];
-                    *(tmdsbuf_red++)   = text_back[0];
+                    *(tmdsbuf_blue++)  = text40_back[2];
+                    *(tmdsbuf_green++) = text40_back[1];
+                    *(tmdsbuf_red++)   = text40_back[0];
                 }
                 bits >>= 1;
+            }
+        }
+        dvi_send_scanline(tmdsbuf);
+    }
+}
+
+void DELAYED_COPY_CODE(render_text80_line)(const uint8_t *page_a, const uint8_t *page_b, unsigned int line)
+{
+    uint line_offset = ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40);
+    const uint8_t *line_buf_a = (const uint8_t *) (page_a + line_offset);
+    const uint8_t *line_buf_b = (const uint8_t *) (page_b + line_offset);
+
+    for(uint glyph_line=0; glyph_line < 8; glyph_line++)
+    {
+        dvi_get_scanline(tmdsbuf);
+        dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+
+        for(uint col=0; col < 40;)
+        {
+            // Grab 14 pixels from the next two characters
+            uint32_t bits;
+            bits  = char_text_bits(line_buf_a[col], glyph_line);
+            bits |= char_text_bits(line_buf_b[col], glyph_line) << 7;
+            col++;
+
+            // Translate each pair of bits into a pair of pixels
+            for(int i=0; i < 7; i++)
+            {
+                char symbol = (bits&3);
+                *(tmdsbuf_blue++)  = text80_colors[symbol+8];
+                *(tmdsbuf_green++) = text80_colors[symbol+4];
+                *(tmdsbuf_red++)   = text80_colors[symbol+0];
+                bits >>= 2;
             }
         }
         dvi_send_scanline(tmdsbuf);
@@ -129,11 +180,34 @@ void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int lin
 void DELAYED_COPY_CODE(render_text)()
 {
     const bool page2 = soft_switches & SOFTSW_PAGE_2;
-    const uint8_t *page = (const uint8_t *)(page2 ? text_p2 : text_p1);
+    const uint8_t *pageA = (const uint8_t *)(page2 ? text_p2 : text_p1);
 
-    for (uint y=0;y<24;y++)
+#if 0
+    if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80STORE | SOFTSW_DGR)))
     {
-        render_text40_line(page, y);
+        for(line=0; line < 24; line++)
+        {
+            render_color_text40_line(pageA, line);
+        }
+    }
+    else
+#endif
+    {
+        if(soft_switches & SOFTSW_80COL)
+        {
+            const uint8_t *pageB = (const uint8_t *)(page2 ? text_p4 : text_p3);
+            for(uint line=0; line < 24; line++)
+            {
+                render_text80_line(pageA, pageB, line);
+            }
+        }
+        else
+        {
+            for(uint line=0; line < 24; line++)
+            {
+                render_text40_line(pageA, line);
+            }
+        }
     }
 
 #if 0

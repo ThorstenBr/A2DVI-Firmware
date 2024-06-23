@@ -27,7 +27,6 @@ SOFTWARE.
 #include "hardware/clocks.h"
 #include "hardware/vreg.h"
 
-#include "../debug/debug.h"
 #include "a2dvi.h"
 #include "dvi.h"
 #include "dvi_pin_config.h"
