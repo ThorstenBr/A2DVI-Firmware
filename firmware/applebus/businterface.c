@@ -328,4 +328,66 @@ void __time_critical_func(businterface)(uint32_t value)
         }
     }
 #endif
+
+    if(current_machine == MACHINE_AUTO)
+    {
+        if((apple_memory[0x0403] == 0xD8) && (apple_memory[0x404] == 0xE5)) { // "Xe" = ROMXe
+            current_machine = MACHINE_IIE;
+            internal_flags |= IFLAGS_IIE_REGS;
+            internal_flags &= ~IFLAGS_IIGS_REGS;
+        } else if((apple_memory[0x0412] == 0xC5) && (apple_memory[0x0413] == 0xD8)) { // "EX" = ROMX
+            current_machine = MACHINE_II;
+            internal_flags &= ~(IFLAGS_IIE_REGS | IFLAGS_IIGS_REGS);
+        } else if((apple_memory[0x416] == 0xC9) && (apple_memory[0x0417] == 0xE7)) { // "Ig" = Apple IIgs
+            current_machine = MACHINE_IIGS;
+            internal_flags &= ~IFLAGS_IIE_REGS;
+            internal_flags |= IFLAGS_IIGS_REGS;
+        } else if((apple_memory[0x416] == 0xAF) && (apple_memory[0x0417] == 0xE5)) { // "/e" = Apple //e Enhanced
+            current_machine = MACHINE_IIE;
+            internal_flags |= IFLAGS_IIE_REGS;
+            internal_flags &= ~IFLAGS_IIGS_REGS;
+        } else if((apple_memory[0x413] == 0xE5) && (apple_memory[0x0415] == 0xDD)) { // "e ]" = Apple //e Unenhanced
+            current_machine = MACHINE_IIE;
+            internal_flags |= IFLAGS_IIE_REGS;
+            internal_flags &= ~IFLAGS_IIGS_REGS;
+        } else if(apple_memory[0x0410] == 0xD0) { // "P" = Apple II/Plus/J-Plus with Autostart
+            current_machine = MACHINE_II;
+            internal_flags &= ~(IFLAGS_IIE_REGS | IFLAGS_IIGS_REGS);
+        } else if((apple_memory[0x07D0] == 0xAA)&&(apple_memory[0x07D1] == 0x60)) { // "*(CURSOR)" = Apple II without Autostart
+            current_machine = MACHINE_II;
+            internal_flags &= ~(IFLAGS_IIE_REGS | IFLAGS_IIGS_REGS);
+        } else if(apple_memory[0x0410] == 0xF2) { // "r" = Pravetz!
+            current_machine = MACHINE_PRAVETZ;
+            internal_flags &= ~(IFLAGS_IIE_REGS | IFLAGS_IIGS_REGS);
+        }
+    }
+#if 1
+    if(WriteCycle)
+        reset_state = 0;
+    else
+    switch(reset_state)
+    {
+        case 0:
+            if (address == 0xFFFC)
+                reset_state++;
+            break;
+        case 1:
+            if (address == 0xFFFD)
+                 reset_state++;
+            else
+                 reset_state=0;
+            break;
+        case 2:
+            if (address == 0xFA62)
+            {
+                soft_switches = SOFTSW_TEXT_MODE;
+                internal_flags &= ~(IFLAGS_TERMINAL | IFLAGS_TEST);
+                internal_flags |= IFLAGS_V7_MODE3;
+            }
+            // fall-through
+        default:
+            reset_state = 0;
+            break;
+        }
+#endif
 }
