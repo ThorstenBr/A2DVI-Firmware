@@ -40,7 +40,6 @@ SOFTWARE.
 #define DVI_SERIAL_CONFIG pico_a2dvi_cfg
 
 struct dvi_inst dvi0;
-uint32_t dvi_frame_ctr;
 
 static inline void render()
 {
@@ -48,35 +47,25 @@ static inline void render()
     update_text_flasher();
 }
 
-void __not_in_flash_func(a2dvi_render_loop)(struct dvi_inst *inst)
-{
-	while (1)
-	{
-		render();
-		dvi_frame_ctr++;
-	}
-	__builtin_unreachable();
-}
-
 void a2dvi_init()
 {
-	vreg_set_voltage(VREG_VSEL);
-	sleep_ms(10);
-	set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
+    vreg_set_voltage(VREG_VSEL);
+    sleep_ms(10);
+    set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
 }
 
 void a2dvi_loop()
 {
-	// configure DVI
-	dvi0.timing = &DVI_TIMING;
-	dvi0.ser_cfg = DVI_SERIAL_CONFIG;
-	dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
-	dvi0.scanline_emulation = true;
-	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
-	dvi_start(&dvi0);
+    // configure DVI
+    dvi0.timing = &DVI_TIMING;
+    dvi0.ser_cfg = DVI_SERIAL_CONFIG;
+    dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
+    dvi0.scanline_emulation = true;
+    dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
+    dvi_start(&dvi0);
 
-	// start DVI output
-	a2dvi_render_loop(&dvi0);
+    // start DVI output
+    render_loop();
 
-	__builtin_unreachable();
+    __builtin_unreachable();
 }

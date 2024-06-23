@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 # firmware version
-set(FW_VERSION "0.0a2")
+set(FW_VERSION "0.2")
 message(STATUS "Building firmware version ${FW_VERSION}")
 
 set(BINARY_NAME "A2DVI_v${FW_VERSION}")
@@ -52,9 +52,14 @@ add_executable(${BINARY_NAME}
 	applebus/buffers.c
 	applebus/businterface.c
 	dvi/a2dvi.c
+
+	dvi/render.c
 	dvi/render_text.c
+	dvi/render_lores.c
+
 	config/config.c
 	debug/debug.c
+
 	${TEST_SOURCES}
 )
 

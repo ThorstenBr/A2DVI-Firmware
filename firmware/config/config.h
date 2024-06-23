@@ -27,7 +27,7 @@ void dmacopy32(uint32_t *start, uint32_t *end, uint32_t *source);
   #define DELAYED_COPY_CODE(n) __noinline __time_critical_func(n)
 #endif
 
-#if 1
+#if 0
   #define DELAYED_COPY_DATA(n) __attribute__((section(".delayed_data."))) n
 #else
   #define DELAYED_COPY_DATA(n) n

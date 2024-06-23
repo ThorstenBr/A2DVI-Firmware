@@ -3,6 +3,8 @@
 #include "hardware/gpio.h"
 #include "hardware/sync.h"
 
+#if 0
+
 static const uint32_t __scratch_x("tmds_table") tmds_table[] = {
 #include "tmds_table.h"
 };
@@ -303,3 +305,5 @@ void __not_in_flash_func(tmds_encode_palette_data)(const uint32_t *pixbuf, const
 	interp_restore(interp1_hw, &interp1_save);
 #endif
 }
+
+#endif

@@ -33,7 +33,9 @@ void debug_check_bootsel();
 typedef enum {
     PRINTMODE_NORMAL  = 0,
     PRINTMODE_INVERSE = 1,
-    PRINTMODE_FLASH   = 2
+    PRINTMODE_FLASH   = 2,
+    PRINTMODE_RAW     = 3
 } TPrintMode;
 
 void printXY(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode);
+void clearTextScreen();

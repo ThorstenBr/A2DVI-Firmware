@@ -41,12 +41,9 @@ int main()
     a2dvi_init();
 
     // initialize the screen buffer area
-    for (uint32_t i=0;i<40*26/4;i++)
-    {
-        ((uint32_t*)text_p1)[i] = 0xA0A0A0A0; // initialize with blanks
-    }
+    clearTextScreen();
     printXY(20-3 , 1,  "A2DVI", PRINTMODE_NORMAL);
-    printXY(20-7 , 3,  "FIRMWARE V" FW_VERSION, PRINTMODE_NORMAL);
+    printXY(20-6 , 3,  "FIRMWARE V" FW_VERSION, PRINTMODE_NORMAL);
 
 #ifdef FEATURE_DEBUG_NO6502
     printXY(20-3 , 5,  "DEBUG", PRINTMODE_INVERSE);

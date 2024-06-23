@@ -104,11 +104,22 @@ void __time_critical_func(printXY)(uint32_t x, uint32_t line, const char* pMsg, 
                 if ((c>='A')&&(c<='Z'))
                     c -= 'A'-1;
                 break;
+            case PRINTMODE_RAW:
+                break;
             default:
             case PRINTMODE_NORMAL:
                 c |= 0x80;
                 break;
         }
         pScreenArea[i] = c;
+    }
+}
+
+void __time_critical_func(clearTextScreen)(void)
+{
+    // initialize the screen buffer area
+    for (uint32_t i=0;i<40*26/4;i++)
+    {
+        ((uint32_t*)text_p1)[i] = 0xA0A0A0A0; // initialize with blanks
     }
 }
