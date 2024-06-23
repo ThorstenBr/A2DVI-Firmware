@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 # firmware version
-set(FW_VERSION "0.0a1")
+set(FW_VERSION "0.0a2")
 message(STATUS "Building firmware version ${FW_VERSION}")
 
 set(BINARY_NAME "A2DVI_v${FW_VERSION}")
@@ -33,7 +33,7 @@ add_compile_options(-DFUNCTION_VGA=1)
 
 pico_sdk_init()
 
-include(libraries/libdvi/CMakeLists.txt)
+include(../libraries/libdvi/CMakeLists.txt)
 
 add_executable(${BINARY_NAME}
 	main.c
