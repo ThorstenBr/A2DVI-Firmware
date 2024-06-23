@@ -1,3 +1,5 @@
+#if 0 // DISABLED: not used by A2DVI
+
 #include "hardware/regs/addressmap.h"
 #include "hardware/regs/sio.h"
 #include "dvi_config_defs.h"
@@ -175,13 +177,13 @@ decl_func tmds_encode_loop_8bpp_leftshift
 // Fast 1bpp black/white encoder (full res)
 
 // Taking the encoder from DVI spec, with initial balance 0:
-// 
+//
 // - Encoding either 0x00 or 0xff will produce a running balance of -8, with
 //   output symbol of 0x100 or 0x200
-// 
+//
 // - Subsequently encoding either 0x01 or 0xfe will return the balance to 0, with
 //  output symbol of 0x1ff or 0x2ff
-// 
+//
 // So we can do 1bpp encode with a lookup of x coordinate LSB, and input
 // colour bit. If we process pixels in even-sized blocks, only the colour
 // lookup is needed.
@@ -621,3 +623,5 @@ decl_func_x tmds_palette_encode_loop_x
 	tmds_palette_encode_loop
 decl_func_y tmds_palette_encode_loop_y
 	tmds_palette_encode_loop
+
+#endif // DISABLED: not used by A2DVI

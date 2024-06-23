@@ -26,13 +26,13 @@ SOFTWARE.
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 
+#include "dvi/a2dvi.h"
 #include "applebus/abus.h"
 #include "applebus/buffers.h"
 #include "debug/debug.h"
-#include "dvi/a2dvi.h"
 
 #ifdef FEATURE_TEST
-#include "test/tests.h"
+    #include "test/tests.h"
 #endif
 
 int main()
@@ -62,13 +62,14 @@ int main()
     // process the Apple II bus interface on core 1
     multicore_launch_core1(abus_loop);
 #else
-    // start testsuite on core1, simulating some 6502 activity
+    // start testsuite on core1, simulating some 6502 activity and
+    // cycle through the test cases
     multicore_launch_core1(test_loop);
 #endif
 
-    // enable LED, configure BOOTSEL button etc
+    // enable LED etc
     debug_init();
 
-    // process DVI on core 0
+    // DVI processing on core 0
     a2dvi_loop();
 }

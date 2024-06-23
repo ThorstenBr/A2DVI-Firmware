@@ -122,7 +122,7 @@ void dvi_start(struct dvi_inst *inst) {
 	dvi_serialiser_enable(&inst->ser_cfg, true);
 }
 
-#if 0
+#if 0 // DISABLED: not used by A2DVI
 static inline void __dvi_func_x(_dvi_prepare_scanline_8bpp)(struct dvi_inst *inst, uint32_t *scanbuf) {
 	uint32_t *tmdsbuf;
 	queue_remove_blocking_u32(&inst->q_tmds_free, &tmdsbuf);
@@ -179,7 +179,7 @@ void __dvi_func(dvi_scanbuf_main_16bpp)(struct dvi_inst *inst) {
 	}
 	__builtin_unreachable();
 }
-#endif
+#endif // DISABLED: not used by A2DVI
 
 static void __dvi_func(dvi_dma_irq_handler)(struct dvi_inst *inst)
 {

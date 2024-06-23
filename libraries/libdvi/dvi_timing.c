@@ -28,6 +28,8 @@ const struct dvi_timing __dvi_const(dvi_timing_640x480p_60hz) = {
 	.bit_clk_khz       = 252000
 };
 
+#if 0 // DISABLED: not used by A2DVI
+
 // 720x480p 60 Hz -- Required by CEA for EDTV/HDTV displays. Convenient for
 // emulating NTSC machines with visible overscan and reasonable clk_sys (270 MHz).
 const struct dvi_timing __dvi_const(dvi_timing_720x480p_60hz) = {
@@ -174,6 +176,7 @@ const struct dvi_timing __dvi_const(dvi_timing_1600x900p_reduced_30hz) = {
 
 	.bit_clk_khz       = 488000
 };
+#endif // DISABLED: not used by A2DVI
 
 // ----------------------------------------------------------------------------
 

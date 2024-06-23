@@ -7,12 +7,8 @@
 
 //volatile uint8_t *terminal_page = terminal_memory;
 
-void __time_critical_func(businterface)(uint32_t value)
+static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
 {
-    uint32_t address = (value >> 10) & 0xffff;
-
-    bool WriteCycle = ACCESS_WRITE(value);
-
     // Shadow parts of the Apple's memory by observing the bus write cycles
     if(WriteCycle)
     {
@@ -23,26 +19,29 @@ void __time_critical_func(businterface)(uint32_t value)
             {
                 if((address >= 0x400) && (address < 0x800))
                 {
-                    private_memory[address] = value & 0xff;
+                    private_memory[address] = data;
                     return;
-                } else if((soft_switches & SOFTSW_HIRES_MODE) && (address >= 0x2000) && (address < 0x4000)) {
-                    private_memory[address] = value & 0xff;
+                }
+                if((soft_switches & SOFTSW_HIRES_MODE) && (address >= 0x2000) && (address < 0x4000))
+                {
+                    private_memory[address] = data;
                     return;
                 }
             }
-        } else
+        }
+        else
         if(soft_switches & SOFTSW_AUX_WRITE)
         {
             if((address >= 0x200) && (address < 0xC000))
             {
-                private_memory[address] = value & 0xff;
+                private_memory[address] = data;
                 return;
             }
         }
 
         if((address >= 0x200) && (address < 0xC000))
         {
-            apple_memory[address] = value & 0xff;
+            apple_memory[address] = data;
             return;
         }
     }
@@ -57,86 +56,104 @@ void __time_critical_func(businterface)(uint32_t value)
         switch(address & 0x7f)
         {
         case 0x00:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches &= ~SOFTSW_80STORE;
             }
             break;
         case 0x01:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches |= SOFTSW_80STORE;
             }
             break;
         case 0x04:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches &= ~SOFTSW_AUX_WRITE;
             }
             break;
         case 0x05:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches |= SOFTSW_AUX_WRITE;
             }
             break;
         case 0x08:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches &= ~SOFTSW_AUXZP;
             }
             break;
         case 0x09:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches |= SOFTSW_AUXZP;
             }
             break;
         case 0x0c:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches &= ~SOFTSW_80COL;
             }
             break;
         case 0x0d:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches |= SOFTSW_80COL;
             }
             break;
         case 0x0e:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches &= ~SOFTSW_ALTCHAR;
             }
             break;
         case 0x0f:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
                 soft_switches |= SOFTSW_ALTCHAR;
             }
             break;
         case 0x21:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle) {
-                if(value & 0x80) {
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            {
+                if(data & 0x80)
+                {
                     soft_switches |= SOFTSW_MONOCHROME;
-                } else {
+                }
+                else
+                {
                     soft_switches &= ~SOFTSW_MONOCHROME;
                 }
             }
             break;
 #if 0
         case 0x22:
-            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle) {
-                apple_tbcolor = value & 0xff;
+            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle)
+            {
+                apple_tbcolor = data;
             }
             break;
 #endif
         case 0x29:
-            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle) {
-                soft_switches = (soft_switches & ~(SOFTSW_NEWVID_MASK << SOFTSW_NEWVID_SHIFT)) | ((value & SOFTSW_NEWVID_MASK) << SOFTSW_NEWVID_SHIFT);
+            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle)
+            {
+                soft_switches = (soft_switches & ~(SOFTSW_NEWVID_MASK << SOFTSW_NEWVID_SHIFT)) | ((data & SOFTSW_NEWVID_MASK) << SOFTSW_NEWVID_SHIFT);
             }
             break;
 #if 0
         case 0x34:
-            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle) {
-                apple_border = value & 0x0f;
+            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle)
+            {
+                apple_border = data;
             }
             break;
 #endif
         case 0x35:
-            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle) {
-                soft_switches = (soft_switches & ~(SOFTSW_SHADOW_MASK << SOFTSW_SHADOW_SHIFT)) | ((value & SOFTSW_SHADOW_MASK) << SOFTSW_SHADOW_SHIFT);
+            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle)
+            {
+                soft_switches = (soft_switches & ~(SOFTSW_SHADOW_MASK << SOFTSW_SHADOW_SHIFT)) | ((data & SOFTSW_SHADOW_MASK) << SOFTSW_SHADOW_SHIFT);
             }
             break;
         case 0x50:
@@ -164,27 +181,32 @@ void __time_critical_func(businterface)(uint32_t value)
             soft_switches |= SOFTSW_HIRES_MODE;
             break;
         case 0x5e:
-            if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) {
+            if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
+            {
                 soft_switches |= SOFTSW_DGR;
             }
             break;
         case 0x5f:
             // Video 7 shift register
-            if(soft_switches & SOFTSW_DGR) {
+            if(soft_switches & SOFTSW_DGR)
+            {
                 internal_flags = (internal_flags & 0xfffffffc) | ((internal_flags & 0x1) << 1) | ((soft_switches & SOFTSW_80COL) ? 1 : 0);
             }
 
-            if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) {
+            if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
+            {
                 soft_switches &= ~SOFTSW_DGR;
             }
             break;
         case 0x7e:
-            if((internal_flags & IFLAGS_IIE_REGS) && WriteCycle) {
+            if((internal_flags & IFLAGS_IIE_REGS) && WriteCycle)
+            {
                 soft_switches |= SOFTSW_IOUDIS;
             }
             break;
         case 0x7f:
-            if((internal_flags & IFLAGS_IIE_REGS) && WriteCycle) {
+            if((internal_flags & IFLAGS_IIE_REGS) && WriteCycle)
+            {
                 soft_switches &= ~SOFTSW_IOUDIS;
             }
             break;
@@ -292,11 +314,11 @@ void __time_critical_func(businterface)(uint32_t value)
                 apple_memory[address] = value;
                 break;
             case 0x02:
-                terminal_tbcolor = value & 0xff;
+                terminal_tbcolor = data;
                 apple_memory[address] = terminal_tbcolor;
                 break;
             case 0x03:
-                terminal_border = value & 0x0f;
+                terminal_border = data;
                 apple_memory[address] = terminal_border;
                 break;
             case 0x08:
@@ -306,7 +328,7 @@ void __time_critical_func(businterface)(uint32_t value)
                 internal_flags |= IFLAGS_TERMINAL;
                 break;
             case 0x0A:
-                terminal_fifo[terminal_fifo_wrptr++] = (value & 0xFF);
+                terminal_fifo[terminal_fifo_wrptr++] = data;
                 apple_memory[address] = (terminal_fifo_rdptr - terminal_fifo_wrptr);
                 break;
             case 0x0B:
@@ -361,26 +383,35 @@ void __time_critical_func(businterface)(uint32_t value)
             internal_flags &= ~(IFLAGS_IIE_REGS | IFLAGS_IIGS_REGS);
         }
     }
-#if 1
+}
+
+void __time_critical_func(businterface)(uint32_t value)
+{
+    bool WriteCycle  = ACCESS_WRITE(value);
+    uint32_t address = (value >> 10) & 0xffff;
+
+    apple2emulation(WriteCycle, address, value & 0xff);
+
+    // Apple II reset detection: monitor addresses
     if(WriteCycle)
         reset_state = 0;
     else
     switch(reset_state)
     {
         case 0:
-            if (address == 0xFFFC)
+            if (address == 0xFFFC) // reset vector, low byte
                 reset_state++;
             break;
         case 1:
-            if (address == 0xFFFD)
-                 reset_state++;
+            if (address == 0xFFFD) // reset vector, high byte
+                reset_state++;
             else
-                 reset_state=0;
+                reset_state = 0;
             break;
         case 2:
-            if (address == 0xFA62)
+            if (address == 0xFA62) // Apple II reset vector address
             {
-                soft_switches = SOFTSW_TEXT_MODE;
+                soft_switches   = SOFTSW_TEXT_MODE;
                 internal_flags &= ~(IFLAGS_TERMINAL | IFLAGS_TEST);
                 internal_flags |= IFLAGS_V7_MODE3;
             }
@@ -388,6 +419,5 @@ void __time_critical_func(businterface)(uint32_t value)
         default:
             reset_state = 0;
             break;
-        }
-#endif
+    }
 }

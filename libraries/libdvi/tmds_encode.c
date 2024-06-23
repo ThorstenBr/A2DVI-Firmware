@@ -1,9 +1,9 @@
+#if 0 // DISABLED: not used by A2DVI
+
 #include "hardware/interp.h"
 #include "tmds_encode.h"
 #include "hardware/gpio.h"
 #include "hardware/sync.h"
-
-#if 0
 
 static const uint32_t __scratch_x("tmds_table") tmds_table[] = {
 #include "tmds_table.h"
@@ -88,7 +88,7 @@ void __not_in_flash_func(tmds_encode_data_channel_8bpp)(const uint32_t *pixbuf, 
 	int require_lshift = configure_interp_for_addrgen(interp0_hw, channel_msb, channel_lsb, 0, 8, 6, tmds_table);
 	int lshift_upper = configure_interp_for_addrgen(interp1_hw, channel_msb, channel_lsb, 16, 8, 6, tmds_table);
 	assert(!lshift_upper); (void)lshift_upper;
-	if (require_lshift)	
+	if (require_lshift)
 		tmds_encode_loop_8bpp_leftshift(pixbuf, symbuf, n_pix, require_lshift);
 	else
 		tmds_encode_loop_8bpp(pixbuf, symbuf, n_pix);
@@ -306,4 +306,4 @@ void __not_in_flash_func(tmds_encode_palette_data)(const uint32_t *pixbuf, const
 #endif
 }
 
-#endif
+#endif // DISABLED: not used by A2DVI

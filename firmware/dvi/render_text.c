@@ -156,8 +156,8 @@ void DELAYED_COPY_CODE(render_text80_line)(const uint8_t *page_a, const uint8_t 
         {
             // Grab 14 pixels from the next two characters
             uint32_t bits;
-            bits  = char_text_bits(line_buf_a[col], glyph_line);
-            bits |= char_text_bits(line_buf_b[col], glyph_line) << 7;
+            bits  = char_text_bits(line_buf_a[col], glyph_line) << 7;
+            bits |= char_text_bits(line_buf_b[col], glyph_line);
             col++;
 
             // Translate each pair of bits into a pair of pixels

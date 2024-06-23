@@ -30,6 +30,11 @@ bool get_bootsel_button(void);
 void debug_init();
 void debug_check_bootsel();
 
+#ifdef FEATURE_TEST
+extern bool PrintMode80Column; // for 40/80 column printing (only in test mode)
+extern bool PrintModePage2;    // for page1/2 printing (only in test mode)
+#endif
+
 typedef enum {
     PRINTMODE_NORMAL  = 0,
     PRINTMODE_INVERSE = 1,
