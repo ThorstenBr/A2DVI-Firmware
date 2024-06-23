@@ -31,7 +31,37 @@ SOFTWARE.
 #include "debug/debug.h"
 #include "dvi/a2dvi.h"
 
-const char BootMsg[] = " A2DVI: WAITING FOR 6502 ";
+const char BootMsg[] = "A2DVI: WAITING FOR 6502";
+
+typedef enum {
+    PRINTMODE_NORMAL  = 0,
+    PRINTMODE_INVERSE = 1,
+    PRINTMODE_FLASH   = 2
+} TPrintMode;
+
+void __time_critical_func(printXY)(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode)
+{
+    char* pScreenArea = ((char*) text_p1) + (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40)) + x;
+    for (uint32_t i=0;pMsg[i];i++)
+    {
+        char c = pMsg[i];
+        switch(PrintMode)
+        {
+            case PRINTMODE_FLASH:
+                c |= 0x40;
+                break;
+            case PRINTMODE_INVERSE:
+                if ((c>='A')&&(c<='Z'))
+                    c -= 'A'-1;
+                break;
+            default:
+            case PRINTMODE_NORMAL:
+                c |= 0x80;
+                break;
+        }
+        pScreenArea[i] = c;
+    }
+}
 
 int main()
 {
@@ -43,9 +73,18 @@ int main()
     {
         ((uint32_t*)text_p1)[i] = 0xA0A0A0A0; // initialize with blanks
     }
-    char* pScreenArea = (char*) (text_p1+0x1a8+7);
-    for (uint32_t i=0;BootMsg[i];i++)
-        pScreenArea[i] = BootMsg[i]|0x80;
+    printXY(20-3 , 1,  "A2DVI", PRINTMODE_NORMAL);
+    printXY(20-7 , 3,  "FIRMWARE V" FW_VERSION, PRINTMODE_NORMAL);
+
+#ifdef FEATURE_DEBUG_NO6502
+    printXY(20-3 , 5,  "DEBUG", PRINTMODE_INVERSE);
+#endif
+
+    printXY(20-8 , 11, "NO 6502 ACTIVITY", PRINTMODE_FLASH);
+
+    printXY(20-9 , 19, "APPLE II FOREVER!", PRINTMODE_NORMAL);
+    printXY(20-15, 21, "RELEASED UNDER THE MIT LICENSE", PRINTMODE_NORMAL);
+    printXY(20-20, 23, "(C) 2024 RALLE PALAVEEV, THORSTEN BREHM", PRINTMODE_NORMAL);
 
     // initialize the Apple II bus interface
     abus_init();
