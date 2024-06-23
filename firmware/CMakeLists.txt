@@ -6,6 +6,14 @@ message(STATUS "Building firmware version ${FW_VERSION}")
 
 set(BINARY_NAME "A2DVI_v${FW_VERSION}")
 
+if (FEATURE_DEBUG)
+message(STATUS "Building DEBUG version")
+add_compile_options(-DFEATURE_DEBUG_NO6502)
+set(BINARY_NAME "${BINARY_NAME}_DEBUG")
+else()
+message(STATUS "Building Release version")
+endif()
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -44,6 +52,7 @@ add_executable(${BINARY_NAME}
 	dvi/a2dvi.c
 	dvi/render_text.c
 	config/config.c
+	debug/debug.c
 )
 
 target_compile_options(${BINARY_NAME} PRIVATE -Wall)

@@ -22,40 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdlib.h>
-#include "pico/stdlib.h"
-#include "pico/multicore.h"
+#pragma once
 
-#include "applebus/abus.h"
-#include "applebus/buffers.h"
-#include "debug/debug.h"
-#include "dvi/a2dvi.h"
+#define LED_PIN     PICO_DEFAULT_LED_PIN
 
-const char BootMsg[] = " A2DVI: WAITING FOR 6502 ";
-
-int main()
-{
-    // basic CPU configuration required for DVI
-    a2dvi_init();
-
-    // initialize the screen buffer area
-    for (uint32_t i=0;i<40*26/4;i++)
-    {
-        ((uint32_t*)text_p1)[i] = 0xA0A0A0A0; // initialize with blanks
-    }
-    char* pScreenArea = (char*) (text_p1+0x1a8+7);
-    for (uint32_t i=0;BootMsg[i];i++)
-        pScreenArea[i] = BootMsg[i]|0x80;
-
-    // initialize the Apple II bus interface
-    abus_init();
-
-    // process the Apple II bus interface on core 1
-    multicore_launch_core1(abus_loop);
-
-    // enable LED, configure BOOTSEL button etc
-    debug_init();
-
-    // process DVI on core 0
-    a2dvi_loop();
-}
+bool get_bootsel_button(void);
+void debug_init();
+void debug_check_bootsel();
