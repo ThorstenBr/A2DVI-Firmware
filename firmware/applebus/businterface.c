@@ -3,6 +3,7 @@
 #include "abus.h"
 #include "businterface.h"
 #include "buffers.h"
+#include "config/config.h"
 
 //volatile uint8_t *terminal_page = terminal_memory;
 

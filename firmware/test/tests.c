@@ -22,18 +22,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "pico/time.h"
+#include "debug/debug.h"
+#include "applebus/buffers.h"
+#include "applebus/businterface.h"
+#include "config/config.h"
 
-#define LED_PIN     PICO_DEFAULT_LED_PIN
+#ifdef FEATURE_TEST
 
-bool get_bootsel_button(void);
-void debug_init();
-void debug_check_bootsel();
+void sleep(int Milliseconds)
+{
+    while (Milliseconds--)
+    {
+        debug_check_bootsel();
+        sleep_ms(1);
+    }
+}
 
-typedef enum {
-    PRINTMODE_NORMAL  = 0,
-    PRINTMODE_INVERSE = 1,
-    PRINTMODE_FLASH   = 2
-} TPrintMode;
+void test80columns()
+{
+    // initialize the screen buffer area
+    for (uint32_t i=0;i<40*26/4;i++)
+    {
+        ((uint32_t*)text_p3)[i] = 0xA0A0A0A0; // initialize with blanks
+    }
 
-void printXY(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode);
+    businterface(0xc00d << 10); // enable 80column mode
+    sleep(5000);
+    businterface(0xc00c << 10); // disable 80column mode
+}
+
+
+void test40columns()
+{
+    businterface(0xc00c << 10); // disable 80column mode
+    sleep(5000);
+}
+
+void test_loop()
+{
+    sleep(1000*10);
+    while (1)
+    {
+        current_machine = MACHINE_IIE;
+        internal_flags |= IFLAGS_IIE_REGS;
+
+        test40columns();
+        test80columns();
+    }
+}
+
+
+#endif // FEATURE_TEST

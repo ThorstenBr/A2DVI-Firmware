@@ -28,9 +28,9 @@ SOFTWARE.
 #include "hardware/dma.h"
 #include "hardware/irq.h"
 
-#include "../applebus/buffers.h"
-#include "../config/config.h"
-#include "../fonts/A2e_US_Enhanced.h"
+#include "applebus/buffers.h"
+#include "config/config.h"
+#include "fonts/A2e_US_Enhanced.h"
 
 #include "render.h"
 

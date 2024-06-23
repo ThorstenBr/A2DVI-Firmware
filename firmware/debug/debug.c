@@ -31,14 +31,13 @@ SOFTWARE.
 #include "hardware/irq.h"
 #include "hardware/sync.h"
 #include "hardware/gpio.h"
-
 #include "hardware/structs/ioqspi.h"
 #include "hardware/structs/sio.h"
 
 #include "debug.h"
+#include "applebus/buffers.h"
 
-
-#ifdef FEATURE_DEBUG_NO6502
+#ifdef FEATURE_TEST
 bool __no_inline_not_in_flash_func(get_bootsel_button)(void)
 {
     const uint CS_PIN_INDEX = 1;
@@ -79,7 +78,7 @@ void debug_init()
     gpio_put(LED_PIN, 1);
 }
 
-#ifdef FEATURE_DEBUG_NO6502
+#ifdef FEATURE_TEST
 void __no_inline_not_in_flash_func(debug_check_bootsel)()
 {
     if(0 == get_bootsel_button())
@@ -89,3 +88,27 @@ void __no_inline_not_in_flash_func(debug_check_bootsel)()
     }
 }
 #endif
+
+void __time_critical_func(printXY)(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode)
+{
+    char* pScreenArea = ((char*) text_p1) + (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40)) + x;
+    for (uint32_t i=0;pMsg[i];i++)
+    {
+        char c = pMsg[i];
+        switch(PrintMode)
+        {
+            case PRINTMODE_FLASH:
+                c |= 0x40;
+                break;
+            case PRINTMODE_INVERSE:
+                if ((c>='A')&&(c<='Z'))
+                    c -= 'A'-1;
+                break;
+            default:
+            case PRINTMODE_NORMAL:
+                c |= 0x80;
+                break;
+        }
+        pScreenArea[i] = c;
+    }
+}

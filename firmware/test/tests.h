@@ -24,16 +24,8 @@ SOFTWARE.
 
 #pragma once
 
-#define LED_PIN     PICO_DEFAULT_LED_PIN
+#ifdef FEATURE_TEST
 
-bool get_bootsel_button(void);
-void debug_init();
-void debug_check_bootsel();
+void test_loop();
 
-typedef enum {
-    PRINTMODE_NORMAL  = 0,
-    PRINTMODE_INVERSE = 1,
-    PRINTMODE_FLASH   = 2
-} TPrintMode;
-
-void printXY(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode);
+#endif

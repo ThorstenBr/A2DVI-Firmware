@@ -31,37 +31,9 @@ SOFTWARE.
 #include "debug/debug.h"
 #include "dvi/a2dvi.h"
 
-const char BootMsg[] = "A2DVI: WAITING FOR 6502";
-
-typedef enum {
-    PRINTMODE_NORMAL  = 0,
-    PRINTMODE_INVERSE = 1,
-    PRINTMODE_FLASH   = 2
-} TPrintMode;
-
-void __time_critical_func(printXY)(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode)
-{
-    char* pScreenArea = ((char*) text_p1) + (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40)) + x;
-    for (uint32_t i=0;pMsg[i];i++)
-    {
-        char c = pMsg[i];
-        switch(PrintMode)
-        {
-            case PRINTMODE_FLASH:
-                c |= 0x40;
-                break;
-            case PRINTMODE_INVERSE:
-                if ((c>='A')&&(c<='Z'))
-                    c -= 'A'-1;
-                break;
-            default:
-            case PRINTMODE_NORMAL:
-                c |= 0x80;
-                break;
-        }
-        pScreenArea[i] = c;
-    }
-}
+#ifdef FEATURE_TEST
+#include "test/tests.h"
+#endif
 
 int main()
 {
@@ -89,8 +61,13 @@ int main()
     // initialize the Apple II bus interface
     abus_init();
 
+#ifndef FEATURE_TEST
     // process the Apple II bus interface on core 1
     multicore_launch_core1(abus_loop);
+#else
+    // start testsuite on core1, simulating some 6502 activity
+    multicore_launch_core1(test_loop);
+#endif
 
     // enable LED, configure BOOTSEL button etc
     debug_init();

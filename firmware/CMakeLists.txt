@@ -6,10 +6,11 @@ message(STATUS "Building firmware version ${FW_VERSION}")
 
 set(BINARY_NAME "A2DVI_v${FW_VERSION}")
 
-if (FEATURE_DEBUG)
-message(STATUS "Building DEBUG version")
-add_compile_options(-DFEATURE_DEBUG_NO6502)
-set(BINARY_NAME "${BINARY_NAME}_DEBUG")
+if (FEATURE_TEST)
+message(STATUS "Building TEST version")
+add_compile_options(-DFEATURE_TEST)
+set(BINARY_NAME "${BINARY_NAME}_TEST")
+set(TEST_SOURCES "test/tests.c")
 else()
 message(STATUS "Building Release version")
 endif()
@@ -54,6 +55,7 @@ add_executable(${BINARY_NAME}
 	dvi/render_text.c
 	config/config.c
 	debug/debug.c
+	${TEST_SOURCES}
 )
 
 target_compile_options(${BINARY_NAME} PRIVATE -Wall)
@@ -66,7 +68,7 @@ target_link_libraries(${BINARY_NAME}
 )
 
 target_include_directories(${BINARY_NAME} PUBLIC lib/PicoDVI/software/include)
-target_include_directories(${BINARY_NAME} PUBLIC assets)
+target_include_directories(${BINARY_NAME} PUBLIC assets .)
 
 pico_generate_pio_header(${BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/applebus/abus.pio)
 

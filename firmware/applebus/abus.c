@@ -29,10 +29,7 @@ SOFTWARE.
 #include "abus_setup.h"
 #include "abus_pin_config.h"
 #include "buffers.h"
-#include "../debug/debug.h"
 #include "businterface.h"
-//#include "colors.h"
-//#include "device_regs.h"
 #ifdef APPLE_MODEL_IIPLUS
 #include "videx_vterm.h"
 #endif
@@ -335,9 +332,6 @@ void __time_critical_func(abus_loop)()
     uint32_t count = 100;
     while(1)
     {
-#ifdef FEATURE_DEBUG_NO6502
-        debug_check_bootsel();
-#else
         uint32_t value = abus_pio_blocking_read();
         businterface(value);
         if (--count == 0)
@@ -345,6 +339,5 @@ void __time_critical_func(abus_loop)()
             gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
             count = 100*1000;
         }
-#endif
     }
 }
