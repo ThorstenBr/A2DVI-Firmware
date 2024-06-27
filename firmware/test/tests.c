@@ -35,6 +35,7 @@ SOFTWARE.
 #include "applebus/businterface.h"
 #include "dvi/render.h"
 #include "config/config.h"
+#include "duck.h"
 
 #ifdef FEATURE_TEST
 
@@ -51,6 +52,12 @@ SOFTWARE.
 #define REG_SW_MIX        0xc053
 #define REG_SW_PAGE_1     0xc054
 #define REG_SW_PAGE_2     0xc055
+#define REG_SW_HIRES_OFF  0xc056
+#define REG_SW_HIRES      0xc057
+
+#define REG_SW_DGR        0xc05e
+#define REG_SW_DGR_OFF    0xc05f
+
 
 const uint32_t TestDelaySeconds = 5;
 const uint32_t TestDelayMilliseconds = TestDelaySeconds*1000;
@@ -139,6 +146,16 @@ void setLoresTestPattern(uint lines)
             setLoresPixel(   x, y, false, (x+y)&0xf);  // page 1
             setLoresPixel(39-x, y, true,  (x+y)&0xf);  // page 2
         }
+    }
+}
+
+void setHiresTestPattern()
+{
+    for (uint i=0;i<sizeof(A_DUCK_BIN)/4;i++)
+    {
+        uint32_t data = ((uint32_t*)A_DUCK_BIN)[i];
+        ((uint32_t*)hgr_p1)[i] = data;
+        ((uint32_t*)hgr_p2)[i] = data ^ 0xffffffff;
     }
 }
 
@@ -305,6 +322,42 @@ void testLoresMix80()
     PrintMode80Column = false;
 }
 
+void testDoubleLores()
+{
+    simulateWrite(REG_SW_TEXT_OFF, 0);      // enable LORES graphics
+    simulateWrite(REG_SW_DGR,   0);         // enable double LORES
+
+    setLoresTestPattern(48);
+    sleep(TestDelayMilliseconds);
+
+    simulateWrite(REG_SW_MONOCHROME, 0x80); // enable MONOCHROME mode
+    sleep(TestDelayMilliseconds);
+
+    simulateWrite(REG_SW_MONOCHROME, 0);    // disable MONOCHROME mode
+    simulateWrite(REG_SW_DGR_OFF,    0);    // disable double LORES
+    simulateWrite(REG_SW_TEXT,       0);    // enable text mode
+}
+
+void testHires()
+{
+    simulateWrite(REG_SW_HIRES, 0);         // enable HIRES graphics
+    simulateWrite(REG_SW_TEXT_OFF, 0);      // disable TEXT mode
+
+    setHiresTestPattern();
+    sleep(TestDelayMilliseconds);
+
+    togglePages();                          // test both pages
+
+    simulateWrite(REG_SW_MONOCHROME, 0x80); // enable MONOCHROME mode
+    sleep(TestDelayMilliseconds);
+
+    togglePages();                          // test both pages
+
+    simulateWrite(REG_SW_MONOCHROME, 0);    // disable MONOCHROME mode
+    simulateWrite(REG_SW_HIRES_OFF,  0);    // disable HIRES
+    simulateWrite(REG_SW_TEXT,       0);    // enable text mode
+}
+
 void test_loop()
 {
     sleep(1000*3);
@@ -313,13 +366,23 @@ void test_loop()
         current_machine = MACHINE_IIE;
         internal_flags |= IFLAGS_IIE_REGS;
 
+        // test text modes
         test40columns();
         test80columns();
+
+        // text lo resolution graphics
         testLores();
+        testDoubleLores();
+
+        // test mix modes
         testLoresMix40();
         testLoresMix80();
+
+        // test hires modes
+        testHires();
+
+        dvi0.scanline_emulation = 1 - dvi0.scanline_emulation;
     }
 }
-
 
 #endif // FEATURE_TEST

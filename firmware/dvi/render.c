@@ -107,9 +107,7 @@ void DELAYED_COPY_CODE(render_loop)()
                 case 0:
                     if(soft_switches & SOFTSW_DGR)
                     {
-#if 0
                         render_dgr();
-#endif
                     }
                     else
                     {
@@ -119,20 +117,19 @@ void DELAYED_COPY_CODE(render_loop)()
                 case SOFTSW_MIX_MODE:
                     if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
                     {
-#if 0
                         render_mixed_dgr();
-#endif
                     }
                     else
                     {
                         render_mixed_lores();
                     }
                     break;
-#if 0
                 case SOFTSW_HIRES_MODE:
                     if(soft_switches & SOFTSW_DGR)
                     {
+#if 0
                         render_dhgr();
+#endif
                     }
                     else
                     {
@@ -142,14 +139,15 @@ void DELAYED_COPY_CODE(render_loop)()
                 case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE:
                     if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
                     {
+#if 0
                         render_mixed_dhgr();
+#endif
                     }
                     else
                     {
                         render_mixed_hires();
                     }
                     break;
-#endif
                 default:
 #if 0
                     mono_rendering |= (mono_palette & 0x8);

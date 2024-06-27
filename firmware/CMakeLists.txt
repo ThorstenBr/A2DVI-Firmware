@@ -56,6 +56,8 @@ add_executable(${BINARY_NAME}
 	dvi/render.c
 	dvi/render_text.c
 	dvi/render_lores.c
+	dvi/render_hires.c
+	dvi/render_dgr.c
 
 	config/config.c
 	debug/debug.c
