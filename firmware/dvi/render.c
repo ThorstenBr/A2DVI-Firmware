@@ -73,6 +73,8 @@ void DELAYED_COPY_CODE(render_loop)()
         }
 #endif
 
+        dvi0.scanline_emulation = (internal_flags & IFLAGS_GRILL) != 0;
+
         mono_rendering = (soft_switches & SOFTSW_MONOCHROME);
 //                          ||((mono_palette & 0x8)&&((internal_flags & IFLAGS_MONOTEXT_ONLY)==0)));
 

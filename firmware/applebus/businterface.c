@@ -7,10 +7,18 @@
 
 //volatile uint8_t *terminal_page = terminal_memory;
 
-static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
+typedef enum
+{
+    WriteMem = 0,
+    ReadMem  = 1,
+    WriteDev = 2,
+    ReadDev  = 3,
+} TAccessMode;
+
+static void apple2emulation(TAccessMode AccessMode, uint32_t address, uint8_t data)
 {
     // Shadow parts of the Apple's memory by observing the bus write cycles
-    if(WriteCycle)
+    if(AccessMode == WriteMem)
     {
         // Mirror Video Memory from MAIN & AUX banks
         if(soft_switches & SOFTSW_80STORE)
@@ -56,67 +64,67 @@ static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
         switch(address & 0x7f)
         {
         case 0x00:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches &= ~SOFTSW_80STORE;
             }
             break;
         case 0x01:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches |= SOFTSW_80STORE;
             }
             break;
         case 0x04:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches &= ~SOFTSW_AUX_WRITE;
             }
             break;
         case 0x05:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches |= SOFTSW_AUX_WRITE;
             }
             break;
         case 0x08:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches &= ~SOFTSW_AUXZP;
             }
             break;
         case 0x09:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches |= SOFTSW_AUXZP;
             }
             break;
         case 0x0c:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches &= ~SOFTSW_80COL;
             }
             break;
         case 0x0d:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches |= SOFTSW_80COL;
             }
             break;
         case 0x0e:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches &= ~SOFTSW_ALTCHAR;
             }
             break;
         case 0x0f:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 soft_switches |= SOFTSW_ALTCHAR;
             }
             break;
         case 0x21:
-            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && WriteCycle)
+            if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
             {
                 if(data & 0x80)
                 {
@@ -130,28 +138,28 @@ static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
             break;
 #if 0
         case 0x22:
-            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle)
+            if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
             {
                 apple_tbcolor = data;
             }
             break;
 #endif
         case 0x29:
-            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle)
+            if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
             {
                 soft_switches = (soft_switches & ~(SOFTSW_NEWVID_MASK << SOFTSW_NEWVID_SHIFT)) | ((data & SOFTSW_NEWVID_MASK) << SOFTSW_NEWVID_SHIFT);
             }
             break;
 #if 0
         case 0x34:
-            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle)
+            if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
             {
                 apple_border = data;
             }
             break;
 #endif
         case 0x35:
-            if((internal_flags & IFLAGS_IIGS_REGS) && WriteCycle)
+            if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
             {
                 soft_switches = (soft_switches & ~(SOFTSW_SHADOW_MASK << SOFTSW_SHADOW_SHIFT)) | ((data & SOFTSW_SHADOW_MASK) << SOFTSW_SHADOW_SHIFT);
             }
@@ -199,13 +207,13 @@ static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
             }
             break;
         case 0x7e:
-            if((internal_flags & IFLAGS_IIE_REGS) && WriteCycle)
+            if((internal_flags & IFLAGS_IIE_REGS) && (AccessMode == WriteMem))
             {
                 soft_switches |= SOFTSW_IOUDIS;
             }
             break;
         case 0x7f:
-            if((internal_flags & IFLAGS_IIE_REGS) && WriteCycle)
+            if((internal_flags & IFLAGS_IIE_REGS) && (AccessMode == WriteMem))
             {
                 soft_switches &= ~SOFTSW_IOUDIS;
             }
@@ -220,7 +228,7 @@ static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
     {
       case MACHINE_IIE:
         // Trigger on read sequence FACA FACA FAFE
-        if(!WriteCycle)
+        if(AccessMode == ReadMem)
         {
             if((address >> 8) == 0xFA)
             {
@@ -249,7 +257,7 @@ static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
         break;
     case MACHINE_II:
         // Trigger on read sequence CACA CACA CAFE
-        if(!WriteCycle)
+        if(AccessMode == ReadMem)
         {
             if((address >> 8) == 0xCA)
             {
@@ -279,74 +287,74 @@ static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
     }
 #endif
 
-#if 0
+#if 1
     // Card Registers
-    if(WriteCycle)
+    if (AccessMode == WriteDev)
     {
-        if(CARD_DEVSEL(value))
+        //cardslot = (address >> 4) & 0x7;
+        switch(address & 0x0F)
         {
-            uint8_t color_index;
-            cardslot = (address >> 4) & 0x7;
-            switch(address & 0x0F)
-            {
-            case 0x01:
-                mono_palette = (value >> 4) & 0xF;
-                if(value & 8) {
-                    internal_flags |= IFLAGS_OLDCOLOR;
-                } else {
-                    internal_flags &= ~IFLAGS_OLDCOLOR;
-                }
-                if(value & 4) {
-                    internal_flags |= IFLAGS_VIDEO7;
-                } else {
-                    internal_flags &= ~IFLAGS_VIDEO7;
-                }
-                if(value & 2) {
-                    internal_flags |= IFLAGS_GRILL;
-                } else {
-                    internal_flags &= ~IFLAGS_GRILL;
-                }
-                if(value & 1) {
-                    internal_flags |= IFLAGS_INTERP;
-                } else {
-                    internal_flags &= ~IFLAGS_INTERP;
-                }
-                apple_memory[address] = value;
-                break;
-            case 0x02:
-                terminal_tbcolor = data;
-                apple_memory[address] = terminal_tbcolor;
-                break;
-            case 0x03:
-                terminal_border = data;
-                apple_memory[address] = terminal_border;
-                break;
-            case 0x08:
-                internal_flags &= ~IFLAGS_TERMINAL;
-                break;
-            case 0x09:
-                internal_flags |= IFLAGS_TERMINAL;
-                break;
-            case 0x0A:
-                terminal_fifo[terminal_fifo_wrptr++] = data;
-                apple_memory[address] = (terminal_fifo_rdptr - terminal_fifo_wrptr);
-                break;
-            case 0x0B:
-                break;
-            case 0x0C:
-                apple_memory[address] = value;
-                break;
+        case 0x01:
+#if 0
+            mono_palette = (value >> 4) & 0xF;
+#endif
+            if(data & 8) {
+                internal_flags |= IFLAGS_OLDCOLOR;
+            } else {
+                internal_flags &= ~IFLAGS_OLDCOLOR;
             }
+            if(data & 4) {
+                internal_flags |= IFLAGS_VIDEO7;
+            } else {
+                internal_flags &= ~IFLAGS_VIDEO7;
+            }
+            if(data & 2) {
+                internal_flags |= IFLAGS_GRILL;
+            } else {
+                internal_flags &= ~IFLAGS_GRILL;
+            }
+            if(data & 1) {
+                internal_flags |= IFLAGS_INTERP;
+            } else {
+                internal_flags &= ~IFLAGS_INTERP;
+            }
+            //apple_memory[address] = data;
+            break;
+#if 0
+        case 0x02:
+            terminal_tbcolor = data;
+            //apple_memory[address] = terminal_tbcolor;
+            break;
+        case 0x03:
+            terminal_border = data;
+            //apple_memory[address] = terminal_border;
+            break;
+        case 0x08:
+            internal_flags &= ~IFLAGS_TERMINAL;
+            break;
+        case 0x09:
+            internal_flags |= IFLAGS_TERMINAL;
+            break;
+        case 0x0A:
+            terminal_fifo[terminal_fifo_wrptr++] = data;
+            //apple_memory[address] = (terminal_fifo_rdptr - terminal_fifo_wrptr);
+            break;
+#endif
+        case 0x0B:
+            break;
+        case 0x0C:
+            //apple_memory[address] = value;
+            break;
         }
     }
 #endif
 #if 0
     else
-    if(CARD_DEVSEL(value))
+    if (AccessMode == ReadDev)
     {
         if((address & 0x0F) == 0x0A)
         {
-            apple_memory[address] = (terminal_fifo_rdptr - terminal_fifo_wrptr);
+            //apple_memory[address] = (terminal_fifo_rdptr - terminal_fifo_wrptr);
         }
     }
 #endif
@@ -387,13 +395,15 @@ static void apple2emulation(bool WriteCycle, uint32_t address, uint8_t data)
 
 void __time_critical_func(businterface)(uint32_t value)
 {
-    bool WriteCycle  = ACCESS_WRITE(value);
+    uint32_t access_mode = ACCESS_WRITE(value) ? 0 : 1;
+    if (CARD_DEVSEL(value))
+        access_mode |= 2;
     uint32_t address = (value >> 10) & 0xffff;
 
-    apple2emulation(WriteCycle, address, value & 0xff);
+    apple2emulation(access_mode, address, value & 0xff);
 
     // Apple II reset detection: monitor addresses
-    if(WriteCycle)
+    if(access_mode != ReadMem)
         reset_state = 0;
     else
     switch(reset_state)

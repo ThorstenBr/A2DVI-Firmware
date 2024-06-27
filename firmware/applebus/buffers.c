@@ -1,7 +1,7 @@
 #include "buffers.h"
 
 volatile uint32_t soft_switches = SOFTSW_TEXT_MODE;
-volatile uint32_t internal_flags = IFLAGS_OLDCOLOR | IFLAGS_INTERP | IFLAGS_V7_MODE3;
+volatile uint32_t internal_flags = IFLAGS_OLDCOLOR | IFLAGS_GRILL | IFLAGS_INTERP | IFLAGS_V7_MODE3;
 
 volatile uint8_t reset_state = 0;
 

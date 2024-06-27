@@ -33,6 +33,7 @@ SOFTWARE.
 #include "debug/debug.h"
 #include "applebus/buffers.h"
 #include "applebus/businterface.h"
+#include "applebus/abus_pin_config.h"
 #include "dvi/render.h"
 #include "config/config.h"
 #include "duck.h"
@@ -73,7 +74,10 @@ void clearBothPages()
 // simulate a write access with given address/data
 static void simulateWrite(uint16_t address, uint8_t data)
 {
-    businterface((address << 10) | data);
+    uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_DEVSEL - CONFIG_PIN_APPLEBUS_DATA_BASE));
+    if ((address & 0xCFF0) == (0xC080+0x30)) // Slot 3 register area
+        card_select = 0;
+    businterface((address << 10) | data | card_select);
 }
 
 void sleep(int Milliseconds)
@@ -381,7 +385,11 @@ void test_loop()
         // test hires modes
         testHires();
 
-        dvi0.scanline_emulation = 1 - dvi0.scanline_emulation;
+        // toggle scanline emulation mode
+        if (internal_flags & IFLAGS_GRILL)
+            simulateWrite(0xC080+0x30+0x1, 8+4+  1);
+        else
+            simulateWrite(0xC080+0x30+0x1, 8+4+2+1);
     }
 }
 

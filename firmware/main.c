@@ -43,7 +43,7 @@ int main()
     // initialize the screen buffer area
     clearTextScreen();
     printXY(20-3 , 1,  "A2DVI", PRINTMODE_NORMAL);
-    printXY(20-6 , 3,  "FIRMWARE V" FW_VERSION, PRINTMODE_NORMAL);
+    printXY(20-7 , 3,  "FIRMWARE V" FW_VERSION, PRINTMODE_NORMAL);
 
 #ifdef FEATURE_DEBUG_NO6502
     printXY(20-3 , 5,  "DEBUG", PRINTMODE_INVERSE);
@@ -51,7 +51,7 @@ int main()
 
     printXY(20-8 , 11, "NO 6502 ACTIVITY", PRINTMODE_FLASH);
 
-    printXY(20-9 , 19, "APPLE II FOREVER!", PRINTMODE_NORMAL);
+    printXY(20-8 n , 19, "APPLE II FOREVER!", PRINTMODE_NORMAL);
     printXY(20-15, 21, "RELEASED UNDER THE MIT LICENSE", PRINTMODE_NORMAL);
     printXY(20-20, 23, "(C) 2024 RALLE PALAVEEV, THORSTEN BREHM", PRINTMODE_NORMAL);
 
