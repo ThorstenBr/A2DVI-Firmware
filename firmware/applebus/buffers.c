@@ -16,3 +16,6 @@ volatile uint8_t *hgr_p1  = apple_memory   + 0x2000;
 volatile uint8_t *hgr_p2  = apple_memory   + 0x4000;
 volatile uint8_t *hgr_p3  = private_memory + 0x2000;
 volatile uint8_t *hgr_p4  = private_memory + 0x4000;
+
+// The currently programmed character generator ROMs for text mode (US + local char set)
+uint8_t __attribute__((section (".videodata."))) character_rom[2* 256 * 8];

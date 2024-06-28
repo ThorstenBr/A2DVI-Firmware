@@ -30,11 +30,9 @@ SOFTWARE.
 
 #include "applebus/buffers.h"
 #include "config/config.h"
-#include "fonts/A2e_US_Enhanced.h"
 
 #include "render.h"
 
-#define character_rom A2E_US_ENHANCED_BIN
 
 uint32_t text_fore[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_0};
 uint32_t text_back[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0};
@@ -43,17 +41,17 @@ uint32_t text_back[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0};
 // green
 uint32_t text80_pattern[4*3] =
 {
-    /*R*/ TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,
-    /*G*/ TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_0,
-    /*B*/ TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0
+    /*R*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,
+    /*G*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_255,
+    /*B*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0
 };
 #else
 // white
 uint32_t text80_colors[4*3] =
 {
-    /*R*/ TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_0,
-    /*G*/ TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_0,
-    /*B*/ TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_0
+    /*R*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_255,
+    /*G*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_255,
+    /*B*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_255,
 };
 #endif
 
@@ -98,7 +96,8 @@ static inline uint_fast8_t char_text_bits(uint_fast8_t ch, uint_fast8_t glyph_li
         ch = (ch & 0x3f) | 0x80;
     }
 
-    bits = character_rom[((uint_fast16_t)ch << 3) | glyph_line];
+    uint_fast16_t LanguageOffset = (language_switch) ? 0x800 : 0x0;
+    bits = character_rom[LanguageOffset | ((uint_fast16_t)ch << 3) | glyph_line];
 
     return (bits ^ invert) & 0x7f;
 }
@@ -122,7 +121,7 @@ void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int lin
             // Translate bits into a pair of pixels
             for(int i=0; i < 14; i++)
             {
-                if ((bits & 1) == 0)
+                if (bits & 1)
                 {
                     *(tmdsbuf_blue++)  = text_fore[2];
                     *(tmdsbuf_green++) = text_fore[1];

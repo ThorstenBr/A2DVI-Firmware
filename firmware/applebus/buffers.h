@@ -94,3 +94,8 @@ extern volatile uint32_t internal_flags;
 #define IFLAGS_V7_MODE1       0x00000001ul
 #define IFLAGS_V7_MODE2       0x00000002ul
 #define IFLAGS_V7_MODE3       0x00000003ul
+
+#define CHARACTER_ROM_SIZE 2048
+
+// charater ROM for US + local character set
+extern uint8_t character_rom[2*CHARACTER_ROM_SIZE];

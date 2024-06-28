@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 # firmware version
-set(FW_VERSION "0.2")
+set(FW_VERSION "0.3")
 message(STATUS "Building firmware version ${FW_VERSION}")
 
 set(BINARY_NAME "A2DVI_v${FW_VERSION}")
@@ -41,9 +41,15 @@ add_compile_options(-DDVI_N_TMDS_BUFFERS=5)
 add_compile_options(-DFUNCTION_VGA=1)
 add_compile_options(-DFW_VERSION="${FW_VERSION}")
 
+if (1)
+add_compile_options(-DAPPLE_MODEL_IIE=1)
+set(FONTS fonts/iie_us_enhanced.c fonts/iie_us_unenhanced.c fonts/iie_us_reactive.c fonts/iie_uk_enhanced.c fonts/iie_fr_ca_enhanced.c fonts/iie_de_enhanced.c fonts/iie_spanish_enhanced.c fonts/iie_it_enhanced.c fonts/iie_hebrew_enhanced.c fonts/iie_se_fi_enhanced.c fonts/clone_pravetz_cyrillic.c)
+endif()
+
 pico_sdk_init()
 
 include(../libraries/libdvi/CMakeLists.txt)
+
 
 add_executable(${BINARY_NAME}
 	main.c
@@ -61,6 +67,10 @@ add_executable(${BINARY_NAME}
 
 	config/config.c
 	debug/debug.c
+	util/dmacopy.c
+
+	fonts/textfont.c
+	${FONTS}
 
 	${TEST_SOURCES}
 )

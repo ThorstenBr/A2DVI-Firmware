@@ -60,6 +60,9 @@ SOFTWARE.
 #define REG_SW_DGR_OFF    0xc05f
 
 
+#define TEST_PAGE_SWITCH
+#define TEST_ALTCHAR_SWTICH
+
 const uint32_t TestDelaySeconds = 5;
 const uint32_t TestDelayMilliseconds = TestDelaySeconds*1000;
 
@@ -91,13 +94,29 @@ void sleep(int Milliseconds)
 
 void togglePages()
 {
-    for (uint i=0;i<3;i++)
+#ifdef TEST_PAGE_SWITCH
+    for (uint i=0;i<2;i++)
     {
         simulateWrite(REG_SW_PAGE_2, 0); // show page 2
         sleep(500);
         simulateWrite(REG_SW_PAGE_1, 0); // show page 1
         sleep(500);
     }
+#endif
+}
+
+void toggleAltChar()
+{
+#ifdef TEST_ALTCHAR_SWTICH
+    // toggle mousetext vs default character set
+    for (uint i=0;i<3;i++)
+    {
+        simulateWrite(REG_SW_ALTCHAR, 0);
+        sleep(500);
+        simulateWrite(REG_SW_NORMCHAR, 0);
+        sleep(500);
+    }
+#endif
 }
 
 void testPrintChar(uint32_t x, uint32_t line, char c)
@@ -191,19 +210,12 @@ void test40columns()
         testPrintChar((20-8)+(i&0xf), 4+(i>>4), i);
     }
 
-    simulateWrite(REG_SW_40COL, 0); // disable 80column mode
+    simulateWrite(REG_SW_40COL, 0);          // disable 80column mode
     sleep(TestDelayMilliseconds);
 
-    togglePages(); // test both pages
+    togglePages();                           // test both pages
+    toggleAltChar();                         // test mouse text
 
-    // toggle mousetext vs default character set
-    for (uint i=0;i<3;i++)
-    {
-        simulateWrite(REG_SW_ALTCHAR, 0);
-        sleep(500);
-        simulateWrite(REG_SW_NORMCHAR, 0);
-        sleep(500);
-    }
 }
 
 void test80columns()
@@ -239,16 +251,8 @@ void test80columns()
 
     sleep(TestDelayMilliseconds);
 
-    togglePages(); // test both pages
-
-    // toggle mousetext vs default character set
-    for (uint i=0;i<3;i++)
-    {
-        simulateWrite(REG_SW_ALTCHAR, 0);
-        sleep(500);
-        simulateWrite(REG_SW_NORMCHAR, 0);
-        sleep(500);
-    }
+    togglePages();                           // test both pages
+    toggleAltChar();                         // test mouse text
 
     simulateWrite(REG_SW_40COL, 0);          // disable 80column mode
     PrintMode80Column = false;
@@ -364,7 +368,7 @@ void testHires()
 
 void test_loop()
 {
-    sleep(1000*3);
+//    sleep(1000*3);
     while (1)
     {
         current_machine = MACHINE_IIE;
@@ -390,6 +394,8 @@ void test_loop()
             simulateWrite(0xC080+0x30+0x1, 8+4+  1);
         else
             simulateWrite(0xC080+0x30+0x1, 8+4+2+1);
+
+        language_switch = !language_switch;
     }
 }
 

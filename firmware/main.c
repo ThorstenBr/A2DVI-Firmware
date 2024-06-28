@@ -23,13 +23,17 @@ SOFTWARE.
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 
 #include "dvi/a2dvi.h"
 #include "applebus/abus.h"
 #include "applebus/buffers.h"
+#include "util/dmacopy.h"
 #include "debug/debug.h"
+
+#include "fonts/textfont.h"
 
 #ifdef FEATURE_TEST
     #include "test/tests.h"
@@ -51,7 +55,7 @@ int main()
 
     printXY(20-8 , 11, "NO 6502 ACTIVITY", PRINTMODE_FLASH);
 
-    printXY(20-8 n , 19, "APPLE II FOREVER!", PRINTMODE_NORMAL);
+    printXY(20-8 , 19, "APPLE II FOREVER!", PRINTMODE_NORMAL);
     printXY(20-15, 21, "RELEASED UNDER THE MIT LICENSE", PRINTMODE_NORMAL);
     printXY(20-20, 23, "(C) 2024 RALLE PALAVEEV, THORSTEN BREHM", PRINTMODE_NORMAL);
 
@@ -69,6 +73,15 @@ int main()
 
     // enable LED etc
     debug_init();
+
+    // Brief delay. Something weird is going on after multicore_launch -
+    // and flash access briefly doesn't work... What's going on?
+    sleep_ms(100);
+
+    #define DEFAULT_FONT1 textfont_iie_us_enhanced
+    #define DEFAULT_FONT2 textfont_iie_de_enhanced
+    memcpy32(&character_rom[0],     DEFAULT_FONT1, sizeof(DEFAULT_FONT1));
+    memcpy32(&character_rom[0x800], DEFAULT_FONT2, sizeof(DEFAULT_FONT2));
 
     // DVI processing on core 0
     a2dvi_loop();
