@@ -1,19 +1,9 @@
 #pragma once
 
 #include "dvi.h"
+#include "tmds.h"
 
 extern struct dvi_inst dvi0;
-
-#define TMDS_SYMBOL_0_0     0x7fd00 // actually 00/01
-#define TMDS_SYMBOL_255_0   0x402ff // actually FE/00
-#define TMDS_SYMBOL_0_255   0xbfd00 // actually 00/FE
-#define TMDS_SYMBOL_255_255 0xbfe00 // actually FF/FE
-//#define TMDS_SYMBOL_255_0   0x7fe00 // actually 255/1
-//#define TMDS_SYMBOL_0_255   0x801ff // actually 1/255
-
-#define TMDS_SYMBOL_128_0   0x7f980
-#define TMDS_SYMBOL_0_128   0xdfd00
-#define TMDS_SYMBOL_128_128 0x5fd80
 
 #define DVI_WORDS_PER_CHANNEL (640/2)
 #define DVI_APPLE2_XOFS       ((640/2-560/2)/2)
@@ -37,9 +27,6 @@ extern struct dvi_inst dvi0;
 
 #define dvi_send_scanline(tmdsbuf) \
     queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmdsbuf);
-
-extern uint32_t text_fore[3], text_back[3];
-extern uint32_t text80_pattern[4*3];
 
 extern bool mono_rendering;
 

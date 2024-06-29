@@ -32,42 +32,6 @@ SOFTWARE.
 #include "hires_color_patterns_tmds.h"
 
 #define PAGE2SEL ((soft_switches & (SOFTSW_80STORE | SOFTSW_PAGE_2)) == SOFTSW_PAGE_2)
-uint16_t __attribute__((section(".uninitialized_data."))) lhalf_palette[16];
-
-static uint32_t DELAYED_COPY_DATA(hires_mono_patterns_red)[4] = {
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_0_0
-};
-static uint32_t DELAYED_COPY_DATA(hires_mono_patterns_green)[4] = {
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_255_0,
-	TMDS_SYMBOL_0_255,
-	TMDS_SYMBOL_255_255
-};
-static uint32_t DELAYED_COPY_DATA(hires_mono_patterns_blue)[4] = {
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_0_0
-};
-
-#if 0
-static uint32_t DELAYED_COPY_DATA(hires_mono_patterns_half)[4] = {
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_128_0,
-	TMDS_SYMBOL_0_128,
-	TMDS_SYMBOL_128_128
-};
-
-static uint32_t DELAYED_COPY_DATA(hires_mono_patterns_full)[4] = {
-	TMDS_SYMBOL_0_0,
-	TMDS_SYMBOL_255_0,
-	TMDS_SYMBOL_0_255,
-	TMDS_SYMBOL_255_255
-};
-#endif
 
 static inline uint hires_line_to_mem_offset(uint line)
 {
@@ -86,6 +50,7 @@ static void DELAYED_COPY_CODE(render_hires_line)(bool p2, uint line)
         uint32_t lastmsb = 0;
         uint_fast8_t dotc = 0;
         uint32_t dots = 0;
+        uint8_t color_offset = color_mode*12;
 
         for(uint i=0; i < 40; i++)
         {
@@ -97,9 +62,10 @@ static void DELAYED_COPY_CODE(render_hires_line)(bool p2, uint line)
             // Consume pixels
             while(dotc)
             {
-                *(tmdsbuf_red++)   = hires_mono_patterns_red[dots&0x3];
-                *(tmdsbuf_green++) = hires_mono_patterns_green[dots&0x3];
-                *(tmdsbuf_blue++)  = hires_mono_patterns_blue[dots&0x3];
+                uint32_t coffset = color_offset + (dots&0x3);
+                *(tmdsbuf_red++)   = tmds_mono_pixel_pair[coffset + 0];
+                *(tmdsbuf_green++) = tmds_mono_pixel_pair[coffset + 4];
+                *(tmdsbuf_blue++)  = tmds_mono_pixel_pair[coffset + 8];
                 dots >>= 2;
                 dotc -= 2;
             }

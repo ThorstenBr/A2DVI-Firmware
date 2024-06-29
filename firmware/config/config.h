@@ -18,6 +18,7 @@ typedef enum {
 extern volatile compat_t cfg_machine;
 extern volatile compat_t current_machine;
 extern volatile bool language_switch;
+extern volatile uint8_t color_mode;
 
 void dmacopy32(uint32_t *start, uint32_t *end, uint32_t *source);
 

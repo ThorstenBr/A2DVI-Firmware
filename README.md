@@ -6,20 +6,23 @@ This is a firmware project for a digital DVI/HDMI Apple II video card.
 
 ## Completed Features
 
-* **40 column mode**: implemented. Currently green monochrome only.
+* **40 column mode**: implemented.
 
-* **80 column mode**: implemented. Currently green monochrome only.
+* **80 column mode**: implemented.
 
-* **LORES graphics**: implemented in color + green monochrome. Colors need to be verified/corrected.
+* **LORES graphics**: implemented. Colors need to be verified/corrected.
 
-* **Double-LORES graphics**: implemented in green monochrome only. Needs more work. Color support not implemented yet.
+* **Double-LORES graphics**: implemented in monochrome only. Needs more work. Color support not implemented yet.
 
-* **HIRES graphics**: implemented in color + green monochrome. Colors need to be verified/corrected.
+* **HIRES graphics**: implemented. Colors need to be verified/corrected.
 
 * **graphics/text mix modes**: implemented for all supported graphics modes.
 
 * **Scanline emulation**: implemented and configurable.
 
+* **Monochrome mode** and **monochrome color** configurable (b/w, green, amber).
+
+* **Character set** configurable.
 
 ## TODOs
 
@@ -30,10 +33,6 @@ This is a firmware project for a digital DVI/HDMI Apple II video card.
 * Apple II **card registers** for configuration.
 
 * **Flash** configuration.
-
-* Multiple **character set** support.
-
-* **Amber + b/w monochrome** options.
 
 * **Language/rocker switch** suport for Euro-Apple IIs.
 

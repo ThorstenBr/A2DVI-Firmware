@@ -38,12 +38,6 @@ uint8_t DELAYED_COPY_DATA(dgr_dot_pattern)[32] = {
     0x22, 0x66, 0x2A, 0x6E, 0x33, 0x77, 0x3B, 0x7F,
 };
 
-extern uint32_t DELAYED_COPY_DATA(tmds_lores_mono)[4*3];
-
-// TMDS symbols for LORES RGB colors - using the "double pixel" trick
-// (each symbol covers two pixels and is encoded with a perfect 'bit balance').
-extern uint32_t DELAYED_COPY_DATA(tmds_lorescolor)[3*16];
-
 static void render_dgr_line(bool p2, uint line);
 
 void DELAYED_COPY_CODE(render_dgr)() {
@@ -82,6 +76,7 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
 #endif
     {
         uint32_t pattern1=0, pattern2=0;
+        uint8_t color_offset = color_mode*12;
 
         while(i < 40)
         {
@@ -99,15 +94,15 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
             // Consume pixels
             while(dotc >= 2)
             {
-                uint32_t offset = (pattern1 & 3);
-                *(tmdsbuf1_red++)   = tmds_lores_mono[offset+0];
-                *(tmdsbuf1_green++) = tmds_lores_mono[offset+4];
-                *(tmdsbuf1_blue++)  = tmds_lores_mono[offset+8];
+                uint32_t offset = color_offset + (pattern1 & 3);
+                *(tmdsbuf1_red++)   = tmds_mono_pixel_pair[offset+0];
+                *(tmdsbuf1_green++) = tmds_mono_pixel_pair[offset+4];
+                *(tmdsbuf1_blue++)  = tmds_mono_pixel_pair[offset+8];
 
-                offset = (pattern2 & 3);
-                *(tmdsbuf2_red++)   = tmds_lores_mono[offset+0];
-                *(tmdsbuf2_green++) = tmds_lores_mono[offset+4];
-                *(tmdsbuf2_blue++)  = tmds_lores_mono[offset+8];
+                offset = color_offset + (pattern2 & 3);
+                *(tmdsbuf2_red++)   = tmds_mono_pixel_pair[offset+0];
+                *(tmdsbuf2_green++) = tmds_mono_pixel_pair[offset+4];
+                *(tmdsbuf2_blue++)  = tmds_mono_pixel_pair[offset+8];
                 pattern1 >>= 2;
                 pattern2 >>= 2;
                 dotc -= 2;

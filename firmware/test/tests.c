@@ -60,8 +60,17 @@ SOFTWARE.
 #define REG_SW_DGR_OFF    0xc05f
 
 
+#define TEST_40_COLUMNS
+#define TEST_80_COLUMNS
+#define TEST_LORES
+#define TEST_HIRES
+#define TEST_DOUBLE_LORES
+
+#define TEST_MIX_MODES
+
 #define TEST_PAGE_SWITCH
 #define TEST_ALTCHAR_SWTICH
+
 
 const uint32_t TestDelaySeconds = 5;
 const uint32_t TestDelayMilliseconds = TestDelaySeconds*1000;
@@ -184,6 +193,7 @@ void setHiresTestPattern()
 
 void test40columns()
 {
+#ifdef TEST_40_COLUMNS
     clearBothPages();
 
     // prepare PAGE2
@@ -215,11 +225,12 @@ void test40columns()
 
     togglePages();                           // test both pages
     toggleAltChar();                         // test mouse text
-
+#endif
 }
 
 void test80columns()
 {
+#ifdef TEST_80_COLUMNS
     PrintMode80Column = true;
     simulateWrite(REG_SW_80COL, 0); // enable 80column mode
 
@@ -256,10 +267,12 @@ void test80columns()
 
     simulateWrite(REG_SW_40COL, 0);          // disable 80column mode
     PrintMode80Column = false;
+#endif
 }
 
 void testLores()
 {
+#ifdef TEST_LORES
     simulateWrite(REG_SW_TEXT_OFF, 0);       // enable LORES graphics
 
     setLoresTestPattern(48);
@@ -272,10 +285,12 @@ void testLores()
 
     simulateWrite(REG_SW_MONOCHROME, 0);     // disable MONOCHROME mode
     simulateWrite(REG_SW_TEXT, 0);           // enable text mode
+#endif
 }
 
 void testLoresMix40()
 {
+#if (defined TEST_MIX_MODES) && ((defined TEST_40_COLUMNS)||(defined TEST_LORES))
     clearBothPages();
     simulateWrite(REG_SW_TEXT_OFF, 0);       // enable LORES graphics
     simulateWrite(REG_SW_MIX, 0);            // enable MIX MODE
@@ -298,10 +313,12 @@ void testLoresMix40()
     simulateWrite(REG_SW_MONOCHROME, 0);     // disable MONOCHROME mode
     simulateWrite(REG_SW_MIX_OFF,    0);     // disable MIX MODE
     simulateWrite(REG_SW_TEXT,       0);     // enable text mode
+#endif
 }
 
 void testLoresMix80()
 {
+#if (defined TEST_MIX_MODES) && ((defined TEST_80_COLUMNS)||(defined TEST_80_COLUMNS))
     PrintMode80Column = true;
     simulateWrite(REG_SW_80COL, 0);         // enable 80column mode
     clearBothPages();
@@ -328,10 +345,12 @@ void testLoresMix80()
     simulateWrite(REG_SW_TEXT,       0);    // enable text mode
     simulateWrite(REG_SW_40COL,      0);    // disable 80column mode
     PrintMode80Column = false;
+#endif
 }
 
 void testDoubleLores()
 {
+#ifdef TEST_DOUBLE_LORES
     simulateWrite(REG_SW_TEXT_OFF, 0);      // enable LORES graphics
     simulateWrite(REG_SW_DGR,   0);         // enable double LORES
 
@@ -344,10 +363,12 @@ void testDoubleLores()
     simulateWrite(REG_SW_MONOCHROME, 0);    // disable MONOCHROME mode
     simulateWrite(REG_SW_DGR_OFF,    0);    // disable double LORES
     simulateWrite(REG_SW_TEXT,       0);    // enable text mode
+#endif
 }
 
 void testHires()
 {
+#ifdef TEST_HIRES
     simulateWrite(REG_SW_HIRES, 0);         // enable HIRES graphics
     simulateWrite(REG_SW_TEXT_OFF, 0);      // disable TEXT mode
 
@@ -364,6 +385,7 @@ void testHires()
     simulateWrite(REG_SW_MONOCHROME, 0);    // disable MONOCHROME mode
     simulateWrite(REG_SW_HIRES_OFF,  0);    // disable HIRES
     simulateWrite(REG_SW_TEXT,       0);    // enable text mode
+#endif
 }
 
 void test_loop()
@@ -396,6 +418,11 @@ void test_loop()
             simulateWrite(0xC080+0x30+0x1, 8+4+2+1);
 
         language_switch = !language_switch;
+
+        if (color_mode >= 2)
+            color_mode = 0;
+        else
+            color_mode++;
     }
 }
 

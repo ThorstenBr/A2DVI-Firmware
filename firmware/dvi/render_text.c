@@ -33,28 +33,6 @@ SOFTWARE.
 
 #include "render.h"
 
-
-uint32_t text_fore[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_0};
-uint32_t text_back[3] = {TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0};
-
-#if 1
-// green
-uint32_t text80_pattern[4*3] =
-{
-    /*R*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,
-    /*G*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_255,
-    /*B*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0
-};
-#else
-// white
-uint32_t text80_colors[4*3] =
-{
-    /*R*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_255,
-    /*G*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_255,
-    /*B*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_255_0, TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_255,
-};
-#endif
-
 #define PAGE2SEL ((soft_switches & (SOFTSW_80STORE | SOFTSW_PAGE_2)) == SOFTSW_PAGE_2)
 
 volatile uint_fast32_t text_flasher_mask = 0;
@@ -102,7 +80,7 @@ static inline uint_fast8_t char_text_bits(uint_fast8_t ch, uint_fast8_t glyph_li
     return (bits ^ invert) & 0x7f;
 }
 
-void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int line)
+void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int line, uint8_t color_mode)
 {
     const uint8_t *line_buf = (const uint8_t *)(page + ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
 
@@ -121,18 +99,12 @@ void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int lin
             // Translate bits into a pair of pixels
             for(int i=0; i < 14; i++)
             {
-                if (bits & 1)
-                {
-                    *(tmdsbuf_blue++)  = text_fore[2];
-                    *(tmdsbuf_green++) = text_fore[1];
-                    *(tmdsbuf_red++)   = text_fore[0];
-                }
-                else
-                {
-                    *(tmdsbuf_blue++)  = text_back[2];
-                    *(tmdsbuf_green++) = text_back[1];
-                    *(tmdsbuf_red++)   = text_back[0];
-                }
+                uint8_t color_offset = color_mode*3;
+                if ((bits & 1)==0)
+                    color_offset = 3*3;
+                *(tmdsbuf_blue++)  = tmds_mono_double_pixel[color_offset + 2];
+                *(tmdsbuf_green++) = tmds_mono_double_pixel[color_offset + 1];
+                *(tmdsbuf_red++)   = tmds_mono_double_pixel[color_offset + 0];
                 bits >>= 1;
             }
         }
@@ -140,11 +112,13 @@ void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int lin
     }
 }
 
-void DELAYED_COPY_CODE(render_text80_line)(const uint8_t *page_a, const uint8_t *page_b, unsigned int line)
+void DELAYED_COPY_CODE(render_text80_line)(const uint8_t *page_a, const uint8_t *page_b, unsigned int line, uint8_t color_mode)
 {
     uint line_offset = ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40);
     const uint8_t *line_buf_a = (const uint8_t *) (page_a + line_offset);
     const uint8_t *line_buf_b = (const uint8_t *) (page_b + line_offset);
+
+    uint8_t color_offset = color_mode*12;
 
     for(uint glyph_line=0; glyph_line < 8; glyph_line++)
     {
@@ -162,10 +136,10 @@ void DELAYED_COPY_CODE(render_text80_line)(const uint8_t *page_a, const uint8_t 
             // Translate each pair of bits into a pair of pixels
             for(int i=0; i < 7; i++)
             {
-                char symbol = (bits&3);
-                *(tmdsbuf_blue++)  = text80_pattern[symbol+8];
-                *(tmdsbuf_green++) = text80_pattern[symbol+4];
-                *(tmdsbuf_red++)   = text80_pattern[symbol+0];
+                char symbol = (bits&3) + color_offset;
+                *(tmdsbuf_blue++)  = tmds_mono_pixel_pair[symbol+8];
+                *(tmdsbuf_green++) = tmds_mono_pixel_pair[symbol+4];
+                *(tmdsbuf_red++)   = tmds_mono_pixel_pair[symbol+0];
                 bits >>= 2;
             }
         }
@@ -189,6 +163,7 @@ void DELAYED_COPY_CODE(render_mixed_text)() {
     {
         const bool page2 = PAGE2SEL;
         const uint8_t *pageA = (const uint8_t *)(page2 ? text_p2 : text_p1);
+        uint8_t cmode = (mono_rendering) ? color_mode : 0; /* white */
 
         if(soft_switches & SOFTSW_80COL)
         {
@@ -196,7 +171,7 @@ void DELAYED_COPY_CODE(render_mixed_text)() {
             const uint8_t *pageB = (const uint8_t *)(page2 ? text_p4 : text_p3);
             for(line=20; line < 24; line++)
             {
-                render_text80_line(pageA, pageB, line);
+                render_text80_line(pageA, pageB, line, cmode);
             }
         }
         else
@@ -204,7 +179,7 @@ void DELAYED_COPY_CODE(render_mixed_text)() {
             // 40 column mode rendering
             for(line=20; line < 24; line++)
             {
-                render_text40_line(pageA, line);
+                render_text40_line(pageA, line, cmode);
             }
         }
     }
@@ -232,7 +207,7 @@ void DELAYED_COPY_CODE(render_text)()
             const uint8_t *pageB = (const uint8_t *)(page2 ? text_p4 : text_p3);
             for(uint line=0; line < 24; line++)
             {
-                render_text80_line(pageA, pageB, line);
+                render_text80_line(pageA, pageB, line, color_mode);
             }
         }
         else
@@ -240,7 +215,7 @@ void DELAYED_COPY_CODE(render_text)()
             // 40 column mode rendering
             for(uint line=0; line < 24; line++)
             {
-                render_text40_line(pageA, line);
+                render_text40_line(pageA, line, color_mode);
             }
         }
     }

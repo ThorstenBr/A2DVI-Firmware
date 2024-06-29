@@ -57,8 +57,9 @@ add_executable(${BINARY_NAME}
 	applebus/abus_setup.c
 	applebus/buffers.c
 	applebus/businterface.c
-	dvi/a2dvi.c
 
+	dvi/a2dvi.c
+	dvi/tmds.c
 	dvi/render.c
 	dvi/render_text.c
 	dvi/render_lores.c

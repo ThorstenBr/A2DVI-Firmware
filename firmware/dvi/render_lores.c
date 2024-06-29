@@ -48,36 +48,6 @@ uint16_t DELAYED_COPY_DATA(lores_dot_pattern)[16] = {
     0x3FFF,
 };
 
-uint32_t DELAYED_COPY_DATA(tmds_lores_mono)[4*3] =
-{
-    /*R*/ TMDS_SYMBOL_0_0,  TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,
-    /*G*/ TMDS_SYMBOL_0_0,  TMDS_SYMBOL_0_255, TMDS_SYMBOL_255_0, TMDS_SYMBOL_255_255,
-    /*B*/ TMDS_SYMBOL_0_0,  TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0
-};
-
-// TMDS symbols for LORES RGB colors - using the "double pixel" trick
-// (each symbol covers two pixels and is encoded with a perfect 'bit balance').
-uint32_t DELAYED_COPY_DATA(tmds_lorescolor)[3*16] =
-{
-    // R        G        B
-    0x7fd00, 0x7fd00, 0x7fd00, // black
-    0x8fec0, 0x425f6, 0x906be, // magenta
-    0x4f1c3, 0x7911b, 0xbfe00, // darkblue
-    0x802ff, 0x4f9c1, 0xbfe00, // purple
-    0x7fd00, 0x6017f, 0x906be, // darkgreen
-    0x5fd80, 0x5fd80, 0x5fd80, // grey1
-    0xae247, 0xb7a21, 0xbfe00, // mediumblue
-    0x6f941, 0x882df, 0xbfe00, // lightblue
-    0x902bf, 0xa3273, 0x7fd00, // brown
-    0xbfa01, 0x9c28f, 0x7fd00, // orange
-    0x5fd80, 0x5fd80, 0x5fd80, // grey2
-    0xbfe00, 0x5f582, 0x501bf, // pink
-    0xaf243, 0x83af1, 0x7fd00, // green
-    0x505be, 0xbce0c, 0x7fd00, // yellow
-    0x99e98, 0xbfe00, 0x6fd40, // aqua
-    0xbfe00, 0xbfe00, 0xbfe00  // white
-};
-
 static void render_lores_line(bool p2, uint line);
 
 #define PAGE2SEL ((soft_switches & (SOFTSW_80STORE | SOFTSW_PAGE_2)) == SOFTSW_PAGE_2)
@@ -115,6 +85,7 @@ static void DELAYED_COPY_CODE(render_lores_line)(bool p2, uint line)
 
     if(mono_rendering)
     {
+        uint8_t color_offset = color_mode*12;
         for(uint i = 0; i < 40; i+=2)
         {
             uint32_t pattern1  = lores_dot_pattern[line_buf[i] & 0xf] << 14;
@@ -125,16 +96,16 @@ static void DELAYED_COPY_CODE(render_lores_line)(bool p2, uint line)
 
             for(uint j = 0; j < 14; j++)
             {
-                uint32_t offset = (pattern1 >> 30);
-                *(tmdsbuf1_red++)   = tmds_lores_mono[offset+0];
-                *(tmdsbuf1_green++) = tmds_lores_mono[offset+4];
-                *(tmdsbuf1_blue++)  = tmds_lores_mono[offset+8];
+                uint32_t offset = color_offset + (pattern1 >> 30);
+                *(tmdsbuf1_red++)   = tmds_mono_pixel_pair[offset+0];
+                *(tmdsbuf1_green++) = tmds_mono_pixel_pair[offset+4];
+                *(tmdsbuf1_blue++)  = tmds_mono_pixel_pair[offset+8];
                 pattern1 <<= 2;
 
-                offset = (pattern2 >> 30);
-                *(tmdsbuf2_red++)   = tmds_lores_mono[offset+0];
-                *(tmdsbuf2_green++) = tmds_lores_mono[offset+4];
-                *(tmdsbuf2_blue++)  = tmds_lores_mono[offset+8];
+                offset = color_offset + (pattern2 >> 30);
+                *(tmdsbuf2_red++)   = tmds_mono_pixel_pair[offset+0];
+                *(tmdsbuf2_green++) = tmds_mono_pixel_pair[offset+4];
+                *(tmdsbuf2_blue++)  = tmds_mono_pixel_pair[offset+8];
                 pattern2 <<= 2;
             }
         }
