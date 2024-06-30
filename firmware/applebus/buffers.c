@@ -1,7 +1,7 @@
 #include "buffers.h"
 
 volatile uint32_t soft_switches = SOFTSW_TEXT_MODE;
-volatile uint32_t internal_flags = IFLAGS_SCANLINEEMU | IFLAGS_V7_MODE3;
+volatile uint32_t internal_flags;
 
 volatile uint8_t cardslot;
 

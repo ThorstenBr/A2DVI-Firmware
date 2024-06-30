@@ -29,20 +29,21 @@ SOFTWARE.
 #include <stdint.h>
 #include <pico/stdlib.h>
 
-typedef enum {
+typedef enum
+{
     MACHINE_II      = 0,
     MACHINE_IIE     = 1,
-    MACHINE_IIGS    = 2,
-    MACHINE_PRAVETZ = 6,
-    MACHINE_AGAT7   = 7,
-    MACHINE_BASIS   = 8,
-    MACHINE_AGAT9   = 9,
+    MACHINE_PRAVETZ = 2,
+    MACHINE_AGAT7   = 3,
+    MACHINE_BASIS   = 4,
+    MACHINE_AGAT9   = 5,
     MACHINE_MAX_CFG = MACHINE_AGAT9, // valid maximum option for config, otherwise "AUTO" is assumed
+    MACHINE_IIGS    = 6,             // currently not supported
     MACHINE_INVALID = 0xfe,
     MACHINE_AUTO    = 0xff
 } compat_t;
 
-extern compat_t cfg_machine;
+extern volatile compat_t cfg_machine;
 extern volatile compat_t current_machine;
 
 extern uint8_t cfg_local_charset;

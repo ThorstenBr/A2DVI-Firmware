@@ -34,7 +34,7 @@ SOFTWARE.
 #include "util/dmacopy.h"
 #include "fonts/textfont.h"
 
-compat_t cfg_machine = MACHINE_AUTO;
+volatile compat_t cfg_machine = MACHINE_AUTO;
 volatile compat_t current_machine = MACHINE_AUTO;
 volatile bool language_switch_enabled = true; // language switch is enabled (not ignored)
 volatile bool language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
