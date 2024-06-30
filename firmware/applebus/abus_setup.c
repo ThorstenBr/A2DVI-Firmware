@@ -64,7 +64,8 @@ void abus_pio_setup(void)
     pio_sm_set_pindirs_with_mask(pio, sm, (0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE),
         (1 << CONFIG_PIN_APPLEBUS_PHI0) | (0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE) | (0x3ff << CONFIG_PIN_APPLEBUS_DATA_BASE));
 
-    gpio_set_pulls(CONFIG_PIN_APPLEBUS_SYNC, false, true);
+    // enable PULLDOWN on language switch (defaults to 0)
+    gpio_set_pulls(CONFIG_PIN_LANGUAGE_SW, false, true);
 
     // Disable input synchronization on input pins that are sampled at known stable times
     // to shave off two clock cycles of input latency

@@ -30,6 +30,7 @@ SOFTWARE.
 #include "abus_pin_config.h"
 #include "buffers.h"
 #include "businterface.h"
+#include "config/config.h"
 #ifdef APPLE_MODEL_IIPLUS
 #include "videx_vterm.h"
 #endif
@@ -155,9 +156,6 @@ static void shadow_softsw_5f(bool is_write, uint_fast16_t address, uint_fast8_t 
 
 void abus_init()
 {
-    // Init states
-    soft_switches = SOFTSW_TEXT_MODE;
-
 #ifdef APPLE_MODEL_IIPLUS
     videx_vterm_init();
 #endif
@@ -334,6 +332,10 @@ void __time_critical_func(abus_loop)()
     {
         uint32_t value = abus_pio_blocking_read();
         businterface(value);
+        if (language_switch_enabled)
+        {
+            language_switch = LANGUAGE_SWITCH(value);
+        }
         if (--count == 0)
         {
             gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);

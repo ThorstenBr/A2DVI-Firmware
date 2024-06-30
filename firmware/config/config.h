@@ -48,6 +48,7 @@ extern volatile compat_t current_machine;
 extern uint8_t cfg_local_charset;
 extern uint8_t cfg_alt_charset;
 
+extern volatile bool language_switch_enabled;
 extern volatile bool language_switch;
 
 enum {

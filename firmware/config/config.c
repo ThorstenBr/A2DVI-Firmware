@@ -36,6 +36,7 @@ SOFTWARE.
 
 compat_t cfg_machine = MACHINE_AUTO;
 volatile compat_t current_machine = MACHINE_AUTO;
+volatile bool language_switch_enabled = true; // language switch is enabled (not ignored)
 volatile bool language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
 uint8_t cfg_local_charset = 0;
 uint8_t cfg_alt_charset = 0;
@@ -51,7 +52,8 @@ volatile uint8_t color_mode = 1;
 // A2DV(I)
 #define MAGIC_WORD_VALUE 0x41324456
 
-struct config
+// packed config structure (packed = do not padd to a multiple of 4 bytes)
+struct __attribute__((__packed__)) config
 {
     // magic word determines if the stored configuration is valid
     uint32_t magic_word;
@@ -68,11 +70,11 @@ struct config
 
     uint8_t  custom_char_rom[CHARACTER_ROM_SIZE];
 
+    uint8_t  language_switch_enabled;
     uint8_t  video7_enabled;
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
-
 };
 
 // This is a compile-time check to ensure the size of the config struct fits within one flash erase sector
@@ -100,6 +102,7 @@ void config_load()
     color_mode = (cfg->color_mode <= 2) ? cfg->color_mode : 0;
     cfg_machine = (cfg->machine_type <= MACHINE_MAX_CFG) ? cfg->machine_type : MACHINE_AUTO;
     current_machine = cfg_machine;
+    language_switch_enabled = (cfg->language_switch_enabled != 0);
 
     const uint8_t* font;
 
@@ -131,9 +134,10 @@ void config_load_defaults()
     SET_IFLAG(0, IFLAGS_FORCED_MONO);
     SET_IFLAG(0, IFLAGS_VIDEO7);
 
-    color_mode      = COLOR_MODE_GREEN;
-    cfg_machine     = MACHINE_AUTO;
-    current_machine = cfg_machine;
+    color_mode              = COLOR_MODE_GREEN;
+    cfg_machine             = MACHINE_AUTO;
+    current_machine         = cfg_machine;
+    language_switch_enabled = true;
 
     memcpy32(&character_rom[0],     DEFAULT_LOCAL_CHARACTER_ROM, CHARACTER_ROM_SIZE);
     memcpy32(&character_rom[0x800], DEFAULT_ALT_CHARACTER_ROM,   CHARACTER_ROM_SIZE);
@@ -157,13 +161,14 @@ void config_save()
     new_config->size       = sizeof(struct config);
 
     // set config properties
-    new_config->scanline_emulation = IS_IFLAG(IFLAGS_SCANLINEEMU);
-    new_config->forced_monochrome  = IS_IFLAG(IFLAGS_FORCED_MONO);
-    new_config->video7_enabled     = IS_IFLAG(IFLAGS_VIDEO7);
-    new_config->color_mode         = color_mode;
-    new_config->machine_type       = cfg_machine;
-    new_config->local_char_rom     = cfg_local_charset;
-    new_config->alt_char_rom       = cfg_alt_charset;
+    new_config->scanline_emulation      = IS_IFLAG(IFLAGS_SCANLINEEMU);
+    new_config->forced_monochrome       = IS_IFLAG(IFLAGS_FORCED_MONO);
+    new_config->video7_enabled          = IS_IFLAG(IFLAGS_VIDEO7);
+    new_config->color_mode              = color_mode;
+    new_config->machine_type            = cfg_machine;
+    new_config->local_char_rom          = cfg_local_charset;
+    new_config->alt_char_rom            = cfg_alt_charset;
+    new_config->language_switch_enabled = language_switch_enabled;
 
     //memcpy32(new_config->character_rom, character_rom, CHARACTER_ROM_SIZE);
 #ifdef APPLE_MODEL_IIPLUS

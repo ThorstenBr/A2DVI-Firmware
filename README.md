@@ -24,19 +24,19 @@ This is a firmware project for a digital DVI/HDMI Apple II video card.
 
 * **Character set** configurable.
 
+* **Language/rocker switch** suport for Euro-Apple IIs.
+
+* **Flash** configuration.
+
+* Apple II **card registers** for configuration.
+
 ## TODOs
 
 * Incomplete graphics modes (see above).
 
 * **Double-HIRES** (shows blank screen).
 
-* Apple II **card registers** for configuration.
-
-* **Flash** configuration.
-
-* **Language/rocker switch** suport for Euro-Apple IIs.
-
-* ...
+* **Configuration menu**
 
 
 # License

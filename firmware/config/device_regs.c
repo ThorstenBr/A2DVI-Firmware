@@ -100,8 +100,13 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         if (data < 16)
         {
             cfg_alt_charset = data & 0xf;
+            language_switch_enabled = true;
             // load a standard alternate character ROM
             memcpy32(&character_rom[0x800], character_roms[data & 0xf], CHARACTER_ROM_SIZE);
+        }
+        else
+        {
+            language_switch_enabled = false;
         }
         break;
 
