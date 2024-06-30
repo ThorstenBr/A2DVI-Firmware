@@ -5,7 +5,6 @@
 extern volatile uint8_t reset_state;
 
 extern volatile uint8_t cardslot;
-extern volatile uint32_t busactive;
 
 #define MAX_ADDRESS (0xC000)
 
@@ -79,14 +78,14 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_SHADOW_IO      0x04000000ul
 
 // V2 Analog specific softswitches
-#define IFLAGS_MONOTEXT_ONLY  0x00400000ul
+#define IFLAGS_FORCED_MONO    0x00400000ul
 #define IFLAGS_SCANLINEEMU    0x00800000ul
-#define IFLAGS_INTERP         0x01000000ul
-#define IFLAGS_GRILL          0x02000000ul
+//#define IFLAGS_INTERP         0x01000000ul
+//#define IFLAGS_GRILL          0x02000000ul
 #define IFLAGS_VIDEO7         0x04000000ul
-#define IFLAGS_OLDCOLOR       0x08000000ul
-#define IFLAGS_TERMINAL       0x10000000ul
-#define IFLAGS_TEST           0x20000000ul
+//#define IFLAGS_OLDCOLOR       0x08000000ul
+//#define IFLAGS_TERMINAL       0x10000000ul
+//#define IFLAGS_TEST           0x20000000ul
 #define IFLAGS_IIE_REGS       0x40000000ul
 #define IFLAGS_IIGS_REGS      0x80000000ul
 
@@ -95,7 +94,7 @@ extern volatile uint32_t internal_flags;
 #define IFLAGS_V7_MODE2       0x00000002ul
 #define IFLAGS_V7_MODE3       0x00000003ul
 
-#define CHARACTER_ROM_SIZE 2048
+#define CHARACTER_ROM_SIZE    2048
 
 // charater ROM for US + local character set
 extern uint8_t character_rom[2*CHARACTER_ROM_SIZE];

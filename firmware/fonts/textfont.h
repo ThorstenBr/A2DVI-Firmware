@@ -2,7 +2,14 @@
 
 #include <stdint.h>
 
-extern const uint8_t *default_character_rom;
+#ifdef APPLE_MODEL_IIPLUS
+    #define DEFAULT_LOCAL_CHARACTER_ROM textfont_iiplus_us
+    #define DEFAULT_ALT_CHARACTER_ROM   textfont_iiplus_us
+#else
+    #define DEFAULT_LOCAL_CHARACTER_ROM textfont_iie_de_enhanced
+    #define DEFAULT_ALT_CHARACTER_ROM   textfont_iie_us_enhanced
+#endif
+
 extern const uint8_t *character_roms[16];
 
 #ifdef APPLE_MODEL_IIE

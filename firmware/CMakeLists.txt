@@ -25,11 +25,8 @@ set(BOARD pico_sdk)
 set(PICO_STDIO_UART OFF)
 set(PICO_STDIO_USB  OFF)
 
-if (NOT PICO_SDK_PATH)
-   message(FATAL_ERROR "PICO_SDK_PATH is not set! Provide PICO_SDK_PATH as an environment variable.")
-else()
-    include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
-endif ()
+# Pull in SDK (must be before project)
+include(cmake/pico_sdk_import.cmake)
 
 enable_language(C CXX ASM)
 project(A2DVI C CXX ASM)
@@ -50,7 +47,6 @@ pico_sdk_init()
 
 include(../libraries/libdvi/CMakeLists.txt)
 
-
 add_executable(${BINARY_NAME}
 	main.c
 	applebus/abus.c
@@ -67,6 +63,8 @@ add_executable(${BINARY_NAME}
 	dvi/render_dgr.c
 
 	config/config.c
+	config/device_regs.c
+
 	debug/debug.c
 	util/dmacopy.c
 
@@ -82,6 +80,7 @@ target_link_libraries(${BINARY_NAME}
 	pico_stdlib
 	pico_multicore
 	pico_util
+	hardware_flash
 	libdvi
 )
 
@@ -90,5 +89,9 @@ target_include_directories(${BINARY_NAME} PUBLIC assets .)
 
 pico_generate_pio_header(${BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/applebus/abus.pio)
 
+pico_set_binary_type(${BINARY_NAME} copy_to_ram)
+
 # create map/bin/hex file etc.
 pico_add_extra_outputs(${BINARY_NAME})
+
+pico_set_linker_script(${BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/copy_to_ram_custom.ld)

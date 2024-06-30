@@ -59,6 +59,7 @@ SOFTWARE.
 #define REG_SW_DGR        0xc05e
 #define REG_SW_DGR_OFF    0xc05f
 
+#define REG_CARD          (0xC080 | 0x30)
 
 #define TEST_40_COLUMNS
 #define TEST_80_COLUMNS
@@ -388,9 +389,30 @@ void testHires()
 #endif
 }
 
+void test_config()
+{
+    simulateWrite(REG_CARD+0x4, 0); // load defaults
+
+    simulateWrite(REG_CARD+0x0, 1); // enable scanline emulation
+    simulateWrite(REG_CARD+0x1, 3); // set color mode to amber
+
+    simulateWrite(REG_CARD+0x8, 5); // select german character set as main
+    simulateWrite(REG_CARD+0x9, 0); // select US enhanced as alternate
+
+    simulateWrite(REG_CARD+0x4, 2); // save config
+    simulateWrite(REG_CARD+0x4, 1); // load config
+}
+
 void test_loop()
 {
 //    sleep(1000*3);
+#if 0
+    test_config();
+#else
+    simulateWrite(REG_CARD+0x8, 5); // select german character set as main
+    simulateWrite(REG_CARD+0x9, 0); // select US enhanced as alternate
+#endif
+
     while (1)
     {
         current_machine = MACHINE_IIE;
@@ -412,17 +434,15 @@ void test_loop()
         testHires();
 
         // toggle scanline emulation mode
-        if (internal_flags & IFLAGS_GRILL)
-            simulateWrite(0xC080+0x30+0x1, 8+4+  1);
+        if (internal_flags & IFLAGS_SCANLINEEMU)
+            simulateWrite(REG_CARD+0x0, 2);
         else
-            simulateWrite(0xC080+0x30+0x1, 8+4+2+1);
+            simulateWrite(REG_CARD+0x0, 1);
 
         language_switch = !language_switch;
 
-        if (color_mode >= 2)
-            color_mode = 0;
-        else
-            color_mode++;
+        // config setting is 1,2,3 for color_mode=0,1,2...
+        simulateWrite(REG_CARD+0x1, (color_mode >= 2) ? 1 : (color_mode+2));
     }
 }
 

@@ -4,6 +4,7 @@
 #include "businterface.h"
 #include "buffers.h"
 #include "config/config.h"
+#include "config/device_regs.h"
 
 //volatile uint8_t *terminal_page = terminal_memory;
 
@@ -287,67 +288,13 @@ static void apple2emulation(TAccessMode AccessMode, uint32_t address, uint8_t da
     }
 #endif
 
-#if 1
     // Card Registers
     if (AccessMode == WriteDev)
     {
-        //cardslot = (address >> 4) & 0x7;
-        switch(address & 0x0F)
-        {
-        case 0x01:
-#if 0
-            mono_palette = (value >> 4) & 0xF;
-#endif
-            if(data & 8) {
-                internal_flags |= IFLAGS_OLDCOLOR;
-            } else {
-                internal_flags &= ~IFLAGS_OLDCOLOR;
-            }
-            if(data & 4) {
-                internal_flags |= IFLAGS_VIDEO7;
-            } else {
-                internal_flags &= ~IFLAGS_VIDEO7;
-            }
-            if(data & 2) {
-                internal_flags |= IFLAGS_GRILL;
-            } else {
-                internal_flags &= ~IFLAGS_GRILL;
-            }
-            if(data & 1) {
-                internal_flags |= IFLAGS_INTERP;
-            } else {
-                internal_flags &= ~IFLAGS_INTERP;
-            }
-            //apple_memory[address] = data;
-            break;
-#if 0
-        case 0x02:
-            terminal_tbcolor = data;
-            //apple_memory[address] = terminal_tbcolor;
-            break;
-        case 0x03:
-            terminal_border = data;
-            //apple_memory[address] = terminal_border;
-            break;
-        case 0x08:
-            internal_flags &= ~IFLAGS_TERMINAL;
-            break;
-        case 0x09:
-            internal_flags |= IFLAGS_TERMINAL;
-            break;
-        case 0x0A:
-            terminal_fifo[terminal_fifo_wrptr++] = data;
-            //apple_memory[address] = (terminal_fifo_rdptr - terminal_fifo_wrptr);
-            break;
-#endif
-        case 0x0B:
-            break;
-        case 0x0C:
-            //apple_memory[address] = value;
-            break;
-        }
+        device_write(address & 0x0F, data);
+        cardslot = (address >> 4) & 0x7;
     }
-#endif
+
 #if 0
     else
     if (AccessMode == ReadDev)
@@ -422,7 +369,7 @@ void __time_critical_func(businterface)(uint32_t value)
             if (address == 0xFA62) // Apple II reset vector address
             {
                 soft_switches   = SOFTSW_TEXT_MODE;
-                internal_flags &= ~(IFLAGS_TERMINAL | IFLAGS_TEST);
+                //internal_flags &= ~(IFLAGS_TERMINAL | IFLAGS_TEST);
                 internal_flags |= IFLAGS_V7_MODE3;
             }
             // fall-through
