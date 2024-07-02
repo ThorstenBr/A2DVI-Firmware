@@ -35,7 +35,6 @@ project(A2DVI C CXX ASM)
 add_compile_options(-Wall -Wno-unused-function)
 
 add_compile_options(-DDVI_N_TMDS_BUFFERS=5)
-add_compile_options(-DFUNCTION_VGA=1)
 add_compile_options(-DFW_VERSION="${FW_VERSION}")
 
 if (1)
