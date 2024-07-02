@@ -40,7 +40,8 @@ add_compile_options(-DFW_VERSION="${FW_VERSION}")
 
 if (1)
 add_compile_options(-DAPPLE_MODEL_IIE=1)
-set(FONTS fonts/iie_us_enhanced.c fonts/iie_us_unenhanced.c fonts/iie_us_reactive.c fonts/iie_uk_enhanced.c fonts/iie_fr_ca_enhanced.c fonts/iie_de_enhanced.c fonts/iie_spanish_enhanced.c fonts/iie_it_enhanced.c fonts/iie_hebrew_enhanced.c fonts/iie_se_fi_enhanced.c fonts/clone_pravetz_cyrillic.c)
+set(FONTS fonts/iie_us_enhanced.c fonts/iie_us_unenhanced.c fonts/iie_us_reactive.c fonts/iie_uk_enhanced.c fonts/iie_fr_ca_enhanced.c fonts/iie_de_enhanced.c fonts/iie_spanish_enhanced.c fonts/iie_it_enhanced.c fonts/iie_hebrew_enhanced.c fonts/iie_se_fi_enhanced.c fonts/clone_pravetz_cyrillic.c
+ fonts/iiplus_us.c fonts/iiplus_videx_lowercase1.c fonts/iiplus_videx_lowercase2.c fonts/iiplus_pigfont.c fonts/iiplus_jp_katakana.c)
 endif()
 
 pico_sdk_init()
