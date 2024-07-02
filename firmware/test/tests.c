@@ -31,6 +31,7 @@ SOFTWARE.
 
 #include "pico/time.h"
 #include "debug/debug.h"
+#include "menu/menu.h"
 #include "applebus/buffers.h"
 #include "applebus/businterface.h"
 #include "applebus/abus_pin_config.h"
@@ -72,6 +73,7 @@ SOFTWARE.
 #define TEST_PAGE_SWITCH
 #define TEST_ALTCHAR_SWTICH
 
+//#define TEST_MENU
 
 const uint32_t TestDelaySeconds = 5;
 const uint32_t TestDelayMilliseconds = TestDelaySeconds*1000;
@@ -403,6 +405,20 @@ void test_config()
     simulateWrite(REG_CARD+0x4, 1); // load config
 }
 
+void test_menu()
+{
+#ifdef TEST_MENU
+    showMenu('M');
+    sleep(TestDelayMilliseconds);
+
+    for (uint i=0;i<4;i++)
+    {
+        showMenu(8);
+        sleep(TestDelayMilliseconds/3);
+    }
+#endif
+}
+
 void test_loop()
 {
 //    sleep(1000*3);
@@ -421,6 +437,8 @@ void test_loop()
         // test text modes
         test40columns();
         test80columns();
+
+        test_menu();
 
         // text lo resolution graphics
         testLores();

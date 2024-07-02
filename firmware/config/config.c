@@ -34,6 +34,7 @@ SOFTWARE.
 #include "util/dmacopy.h"
 #include "fonts/textfont.h"
 
+volatile compat_t detected_machine = MACHINE_AUTO;
 volatile compat_t cfg_machine = MACHINE_AUTO;
 volatile compat_t current_machine = MACHINE_AUTO;
 volatile bool language_switch_enabled = true; // language switch is enabled (not ignored)
@@ -65,8 +66,8 @@ struct __attribute__((__packed__)) config
 
     uint8_t  color_mode;
     uint8_t  machine_type;
-    uint8_t  local_char_rom; // selection for local language video ROM
-    uint8_t  alt_char_rom;   // selection for alternate video ROM (usually fixed to US charset)
+    uint8_t  local_charset; // selection for local language video ROM
+    uint8_t  alt_charset;   // selection for alternate video ROM (usually fixed to US charset)
 
     uint8_t  custom_char_rom[CHARACTER_ROM_SIZE];
 
@@ -87,6 +88,35 @@ extern uint8_t __persistent_data_start[];
 static struct config *cfg = (struct config *)__persistent_data_start;
 // TODO static uint8_t *character_rom_storage = __persistent_data_start + FLASH_SECTOR_SIZE;
 
+void __time_critical_func(set_machine)(compat_t machine)
+{
+    switch(machine)
+    {
+        case MACHINE_AUTO:
+        case MACHINE_AGAT7:
+        case MACHINE_AGAT9:
+        case MACHINE_BASIS:
+        case MACHINE_PRAVETZ:
+        case MACHINE_II:
+            internal_flags &= ~(IFLAGS_IIGS_REGS||IFLAGS_IIE_REGS);
+            break;
+
+        case MACHINE_IIE:
+            internal_flags &= ~IFLAGS_IIGS_REGS;
+            internal_flags |= IFLAGS_IIE_REGS;
+            break;
+
+        case MACHINE_IIGS:
+            internal_flags &= ~IFLAGS_IIE_REGS;
+            internal_flags |= IFLAGS_IIGS_REGS;
+            break;
+
+        default:
+            break;
+    }
+    current_machine = machine;
+}
+
 void config_load()
 {
     if((cfg->magic_word != MAGIC_WORD_VALUE) || (cfg->size > FLASH_SECTOR_SIZE))
@@ -95,28 +125,30 @@ void config_load()
         return;
     }
 
+    cfg_machine = (cfg->machine_type <= MACHINE_MAX_CFG) ? cfg->machine_type : MACHINE_AUTO;
+    set_machine(cfg_machine);
+
     SET_IFLAG(cfg->scanline_emulation, IFLAGS_SCANLINEEMU);
     SET_IFLAG(cfg->forced_monochrome,  IFLAGS_FORCED_MONO);
     SET_IFLAG(cfg->video7_enabled,     IFLAGS_VIDEO7);
 
-    color_mode = (cfg->color_mode <= 2) ? cfg->color_mode : 0;
-    cfg_machine = (cfg->machine_type <= MACHINE_MAX_CFG) ? cfg->machine_type : MACHINE_AUTO;
-    current_machine = cfg_machine;
     language_switch_enabled = (cfg->language_switch_enabled != 0);
 
-    const uint8_t* font;
+    color_mode = (cfg->color_mode <= 2) ? cfg->color_mode : 0;
+
+    cfg_local_charset = cfg->local_charset;
+    if (cfg_local_charset >= 16)
+        cfg_local_charset = 0;
+
+    cfg_alt_charset = cfg->alt_charset;
+    if (cfg_alt_charset >= 16)
+        cfg_alt_charset = 0;
 
     // local font
-    font = &cfg->custom_char_rom[0];
-    if (cfg->local_char_rom < 16)
-        font = character_roms[cfg->local_char_rom];
-    memcpy32(character_rom, font, CHARACTER_ROM_SIZE);
+    memcpy32(character_rom, character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
 
-    // alternate font (with language switch)
-    font = DEFAULT_ALT_CHARACTER_ROM;
-    if (cfg->alt_char_rom < 16)
-        font = character_roms[cfg->alt_char_rom];
-    memcpy32(&character_rom[0x800], font, CHARACTER_ROM_SIZE);
+    // alternate fixed US font (with language switch)
+    memcpy32(&character_rom[0x800], character_roms[cfg_alt_charset], CHARACTER_ROM_SIZE);
 
 #ifdef APPLE_MODEL_IIPLUS
     if(IS_STORED_IN_CONFIG(cfg, videx_vterm_enabled) && cfg->videx_vterm_enabled) {
@@ -136,11 +168,15 @@ void config_load_defaults()
 
     color_mode              = COLOR_MODE_GREEN;
     cfg_machine             = MACHINE_AUTO;
-    current_machine         = cfg_machine;
+    set_machine(detected_machine);
+
     language_switch_enabled = true;
 
-    memcpy32(&character_rom[0],     DEFAULT_LOCAL_CHARACTER_ROM, CHARACTER_ROM_SIZE);
-    memcpy32(&character_rom[0x800], DEFAULT_ALT_CHARACTER_ROM,   CHARACTER_ROM_SIZE);
+    cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
+    cfg_alt_charset         = DEFAULT_ALT_CHARSET;
+
+    memcpy32(&character_rom[0],     character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
+    memcpy32(&character_rom[0x800], character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
 
 #ifdef APPLE_MODEL_IIPLUS
     videx_vterm_disable();
@@ -166,8 +202,8 @@ void config_save()
     new_config->video7_enabled          = IS_IFLAG(IFLAGS_VIDEO7);
     new_config->color_mode              = color_mode;
     new_config->machine_type            = cfg_machine;
-    new_config->local_char_rom          = cfg_local_charset;
-    new_config->alt_char_rom            = cfg_alt_charset;
+    new_config->local_charset           = cfg_local_charset;
+    new_config->alt_charset             = cfg_alt_charset;
     new_config->language_switch_enabled = language_switch_enabled;
 
     //memcpy32(new_config->character_rom, character_rom, CHARACTER_ROM_SIZE);

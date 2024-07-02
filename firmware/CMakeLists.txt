@@ -66,6 +66,8 @@ add_executable(${BINARY_NAME}
 	config/config.c
 	config/device_regs.c
 
+	menu/menu.c
+
 	debug/debug.c
 	util/dmacopy.c
 

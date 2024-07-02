@@ -22,52 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdlib.h>
-#include <string.h>
-#include "pico/stdlib.h"
-#include "pico/multicore.h"
-
-#include "dvi/a2dvi.h"
-#include "applebus/abus.h"
-#include "applebus/buffers.h"
-#include "util/dmacopy.h"
-#include "config/config.h"
-#include "menu/menu.h"
-#include "debug/debug.h"
-
-#include "fonts/textfont.h"
+#pragma once
 
 #ifdef FEATURE_TEST
-    #include "test/tests.h"
+extern bool PrintMode80Column; // for 40/80 column printing (only in test mode)
+extern bool PrintModePage2;    // for page1/2 printing (only in test mode)
 #endif
 
-int main()
-{
-    // basic CPU configuration required for DVI
-    a2dvi_init();
+typedef enum {
+    PRINTMODE_NORMAL  = 0,
+    PRINTMODE_INVERSE = 1,
+    PRINTMODE_FLASH   = 2,
+    PRINTMODE_RAW     = 3
+} TPrintMode;
 
-    // load config settings
-    config_load();
-
-    // initialize the screen buffer area
-    showTitle(PRINTMODE_NORMAL);
-    centerY(11, "NO 6502 ACTIVITY", PRINTMODE_FLASH);
-
-    // initialize the Apple II bus interface
-    abus_init();
-
-#ifndef FEATURE_TEST
-    // process the Apple II bus interface on core 1
-    multicore_launch_core1(abus_loop);
-#else
-    // start testsuite on core1, simulating some 6502 activity and
-    // cycle through the test cases
-    multicore_launch_core1(test_loop);
-#endif
-
-    // enable LED etc
-    debug_init();
-
-    // DVI processing on core 0
-    a2dvi_loop();
-}
+void printXY(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode);
+void centerY(uint32_t y, const char* pMsg, TPrintMode PrintMode);
+void clearTextScreen(void);
+void showTitle(TPrintMode PrintMode);
+void showMenu(char key);

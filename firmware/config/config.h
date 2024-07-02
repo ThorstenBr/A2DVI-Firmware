@@ -33,16 +33,17 @@ typedef enum
 {
     MACHINE_II      = 0,
     MACHINE_IIE     = 1,
-    MACHINE_PRAVETZ = 2,
+    MACHINE_IIGS    = 2,             // currently not supported
     MACHINE_AGAT7   = 3,
-    MACHINE_BASIS   = 4,
-    MACHINE_AGAT9   = 5,
-    MACHINE_MAX_CFG = MACHINE_AGAT9, // valid maximum option for config, otherwise "AUTO" is assumed
-    MACHINE_IIGS    = 6,             // currently not supported
+    MACHINE_AGAT9   = 4,
+    MACHINE_BASIS   = 5,
+    MACHINE_PRAVETZ = 6,
+    MACHINE_MAX_CFG = MACHINE_PRAVETZ, // valid maximum option for config, otherwise "AUTO" is assumed
     MACHINE_INVALID = 0xfe,
     MACHINE_AUTO    = 0xff
 } compat_t;
 
+extern volatile compat_t detected_machine;
 extern volatile compat_t cfg_machine;
 extern volatile compat_t current_machine;
 
@@ -75,6 +76,7 @@ extern volatile uint8_t color_mode;
 #define IS_IFLAG(FLAGS)             ((internal_flags & FLAGS)==FLAGS)
 #define SET_IFLAG(condition, FLAGS) { if (condition) internal_flags |= FLAGS;else internal_flags &= ~FLAGS; }
 
+extern void set_machine(compat_t machine);
 extern void config_load();
 extern void config_load_defaults();
 extern void config_save();

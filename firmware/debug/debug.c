@@ -38,11 +38,6 @@ SOFTWARE.
 #include "applebus/buffers.h"
 
 #ifdef FEATURE_TEST
-bool PrintMode80Column = false;
-bool PrintModePage2    = false;
-#endif
-
-#ifdef FEATURE_TEST
 bool __no_inline_not_in_flash_func(get_bootsel_button)(void)
 {
     const uint CS_PIN_INDEX = 1;
@@ -93,71 +88,3 @@ void __no_inline_not_in_flash_func(debug_check_bootsel)()
     }
 }
 #endif
-
-void __time_critical_func(printXY)(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode)
-{
-    uint32_t ScreenOffset = (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
-    char* pScreenArea = ((char*) text_p1) + ScreenOffset;
-#ifdef FEATURE_TEST
-    if (PrintModePage2)
-        pScreenArea = ((char*) text_p2) + ScreenOffset;
-    char* pScreenArea80 = ((PrintModePage2) ? ((char*)text_p4) + ScreenOffset : ((char*)text_p3) + ScreenOffset);
-#endif
-    for (uint32_t i=0;pMsg[i];i++)
-    {
-        char c = pMsg[i];
-        switch(PrintMode)
-        {
-            case PRINTMODE_FLASH:
-                c |= 0x40;
-                break;
-            case PRINTMODE_INVERSE:
-                if ((c>='A')&&(c<='Z'))
-                    c -= 'A'-1;
-                break;
-            case PRINTMODE_RAW:
-                break;
-            default:
-            case PRINTMODE_NORMAL:
-                c |= 0x80;
-                break;
-        }
-#ifdef FEATURE_TEST
-        if (PrintMode80Column)
-        {
-            if ((x+i)&1)
-                pScreenArea[(x+i)>>1] = c;
-            else
-                pScreenArea80[(x+i)>>1] = c;
-        }
-        else
-#endif
-        {
-            pScreenArea[i+x] = c;
-        }
-    }
-}
-
-void __time_critical_func(clearTextScreen)(void)
-{
-    // initialize the screen buffer area
-    for (uint32_t i=0;i<40*26/4;i++)
-    {
-#ifndef FEATURE_TEST
-        ((uint32_t*)text_p1)[i] = 0xA0A0A0A0; // initialize with blanks
-#else
-        if (!PrintModePage2)
-        {
-            ((uint32_t*)text_p1)[i] = 0xA0A0A0A0; // initialize with blanks
-            // for 80columns in test mode
-            ((uint32_t*)text_p3)[i] = 0xA0A0A0A0; // initialize with blanks
-        }
-        else
-        {
-            ((uint32_t*)text_p2)[i] = 0xA0A0A0A0; // initialize with blanks
-            // for 80columns in test mode
-            ((uint32_t*)text_p4)[i] = 0xA0A0A0A0; // initialize with blanks
-        }
-#endif
-    }
-}

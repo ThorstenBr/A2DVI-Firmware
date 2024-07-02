@@ -32,6 +32,7 @@ SOFTWARE.
 #include "util/dmacopy.h"
 #include "applebus/buffers.h"
 #include "fonts/textfont.h"
+#include "menu/menu.h"
 #ifdef APPLE_MODEL_IIPLUS
 #include "videx_vterm.h"
 #endif
@@ -124,6 +125,13 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
             cfg_machine = data;
         break;
 
+    case 0xf:
+        if (IS_IFLAG(IFLAGS_MENU_ENABLE))
+        {
+            showMenu(data);
+        }
+        break;
+
     default:
         break;
     }
@@ -159,6 +167,9 @@ void execute_device_command(uint_fast8_t cmd)
             memcpy(character_rom, character_roms[cmd & 0xf], CHARACTER_ROM_SIZE);
             break;
 #endif
+        case 0x80:
+            SET_IFLAG(1, IFLAGS_MENU_ENABLE);
+            break;
         default:
             break;
     }

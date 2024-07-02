@@ -69,6 +69,7 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_SHADOW_MASK    0x7Ful
 #define SOFTSW_SHADOW_SHIFT   20
 
+#if 0
 #define SOFTSW_SHADOW_TEXT    0x00100000ul
 #define SOFTSW_SHADOW_HGR1    0x00200000ul
 #define SOFTSW_SHADOW_HGR2    0x00400000ul
@@ -76,8 +77,10 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_SHADOW_AUXHGR  0x01000000ul
 #define SOFTSW_SHADOW_ALTDISP 0x02000000ul
 #define SOFTSW_SHADOW_IO      0x04000000ul
+#endif
 
 // V2 Analog specific softswitches
+#define IFLAGS_MENU_ENABLE    0x00200000ul
 #define IFLAGS_FORCED_MONO    0x00400000ul
 #define IFLAGS_SCANLINEEMU    0x00800000ul
 //#define IFLAGS_INTERP         0x01000000ul
@@ -94,6 +97,7 @@ extern volatile uint32_t internal_flags;
 #define IFLAGS_V7_MODE2       0x00000002ul
 #define IFLAGS_V7_MODE3       0x00000003ul
 
+// size of a single character set
 #define CHARACTER_ROM_SIZE    2048
 
 // charater ROM for US + local character set
