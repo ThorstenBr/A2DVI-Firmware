@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 # firmware version
-set(FW_VERSION "0.3")
+set(FW_VERSION "0.4")
 message(STATUS "Building firmware version ${FW_VERSION}")
 
 set(BINARY_NAME "A2DVI_v${FW_VERSION}")
