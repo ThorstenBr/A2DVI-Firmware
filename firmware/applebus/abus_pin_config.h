@@ -1,9 +1,10 @@
 #pragma once
 
 // pin configuration
-#define CONFIG_PIN_APPLEBUS_DATA_BASE    0 /* 8+2 pins */
+#define CONFIG_PIN_APPLEBUS_DATA_BASE    0 /* 8+3 pins */
 #define CONFIG_PIN_APPLEBUS_DEVSEL       (CONFIG_PIN_APPLEBUS_DATA_BASE + 8)
 #define CONFIG_PIN_APPLEBUS_RW           (CONFIG_PIN_APPLEBUS_DATA_BASE + 9)
-#define CONFIG_PIN_LANGUAGE_SW           10
+#define CONFIG_PIN_LANGUAGE_SW           (CONFIG_PIN_APPLEBUS_DATA_BASE +10)
+
 #define CONFIG_PIN_APPLEBUS_CONTROL_BASE 11 /* 3 pins */
 #define CONFIG_PIN_APPLEBUS_PHI0         26

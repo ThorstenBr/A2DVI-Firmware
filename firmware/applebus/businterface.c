@@ -363,7 +363,7 @@ void __time_critical_func(businterface)(uint32_t value)
     uint32_t access_mode = ACCESS_WRITE(value) ? 0 : 1;
     if (CARD_DEVSEL(value))
         access_mode |= 2;
-    uint32_t address = (value >> 10) & 0xffff;
+    uint32_t address = ADDRESS_BUS(value);
 
     apple2emulation(access_mode, address, value & 0xff);
 

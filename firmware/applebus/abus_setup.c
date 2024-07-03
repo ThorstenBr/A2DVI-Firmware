@@ -52,8 +52,8 @@ void abus_pio_setup(void)
     // map the SET pin group to the bus transceiver enable signals
     sm_config_set_set_pins(&c, CONFIG_PIN_APPLEBUS_CONTROL_BASE, 3);
 
-    // configure left shift into ISR & autopush every 26 bits
-    sm_config_set_in_shift(&c, false, true, 26);
+    // configure left shift into ISR & autopush every 27 bits
+    sm_config_set_in_shift(&c, false, true, 27);
 
     pio_sm_init(pio, sm, program_offset, &c);
 
@@ -63,9 +63,6 @@ void abus_pio_setup(void)
         pio, sm, (uint32_t)0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE, (uint32_t)0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE);
     pio_sm_set_pindirs_with_mask(pio, sm, (0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE),
         (1 << CONFIG_PIN_APPLEBUS_PHI0) | (0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE) | (0x3ff << CONFIG_PIN_APPLEBUS_DATA_BASE));
-
-    // enable PULLDOWN on language switch (defaults to 0)
-    gpio_set_pulls(CONFIG_PIN_LANGUAGE_SW, false, true);
 
     // Disable input synchronization on input pins that are sampled at known stable times
     // to shave off two clock cycles of input latency
@@ -79,7 +76,8 @@ void abus_pio_setup(void)
         pio_gpio_init(pio, pin);
     }
 
-    for(int pin = CONFIG_PIN_APPLEBUS_DATA_BASE; pin < CONFIG_PIN_APPLEBUS_DATA_BASE + 10; pin++)
+    // initialize GPIO on all 8 data pins + DEVSEL + RW + LANGUAGE_SW = 11
+    for(int pin = CONFIG_PIN_APPLEBUS_DATA_BASE; pin < CONFIG_PIN_APPLEBUS_DATA_BASE + 11; pin++)
     {
         pio_gpio_init(pio, pin);
         gpio_set_pulls(pin, false, false);
