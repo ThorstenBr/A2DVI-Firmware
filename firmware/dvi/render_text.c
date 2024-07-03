@@ -219,4 +219,8 @@ void DELAYED_COPY_CODE(render_text)()
             }
         }
     }
+    if (reload_charsets)
+    {
+        config_load_charsets();
+    }
 }

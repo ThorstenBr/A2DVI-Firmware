@@ -33,6 +33,7 @@ SOFTWARE.
 #include "dvi_serialiser.h"
 #include "dvi_timing.h"
 #include "render.h"
+#include "util/dmacopy.h"
 
 // clock/DVI configuration
 #define VREG_VSEL         VREG_VOLTAGE_1_20
@@ -56,6 +57,9 @@ void a2dvi_init()
 
 void a2dvi_loop()
 {
+    // stop others from using the DMA (it would interfere with the DVI processing)
+    disable_memcpy32dma();
+
     // configure DVI
     dvi0.timing = &DVI_TIMING;
     dvi0.ser_cfg = DVI_SERIAL_CONFIG;

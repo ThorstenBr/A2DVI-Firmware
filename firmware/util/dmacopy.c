@@ -3,6 +3,12 @@
 
 static int dmacopy_channel = -1;
 
+// disable the DMA for copying memory, always use normal memcpy instead
+void disable_memcpy32dma(void)
+{
+    dmacopy_channel = -2;
+}
+
 void __noinline memcpy32(void *dst, const void *src, uint32_t size)
 {
     dma_channel_config c;
@@ -11,7 +17,7 @@ void __noinline memcpy32(void *dst, const void *src, uint32_t size)
     if(!size) return;
 
     // Cowardly avoid unaligned transfers, let memcpy() handle them.
-    if((size < 64) || (size & 0x3) || (((uint32_t)dst) & 0x3) || (((uint32_t)src) & 0x3))
+    if((size < 64) || (size & 0x3) || (((uint32_t)dst) & 0x3) || (((uint32_t)src) & 0x3) || (dmacopy_channel == -2))
     {
         memcpy(dst, src, size);
         return;

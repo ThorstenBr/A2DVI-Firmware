@@ -30,13 +30,14 @@ This is a firmware project for a digital DVI/HDMI Apple II video card.
 
 * Apple II **card registers** for configuration.
 
+* **Configuration menu**
+
 ## TODOs
 
 * Incomplete graphics modes (see above).
 
 * **Double-HIRES** (shows blank screen).
 
-* **Configuration menu**
 
 
 # License

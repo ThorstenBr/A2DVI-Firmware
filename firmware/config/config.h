@@ -49,6 +49,7 @@ extern volatile compat_t current_machine;
 
 extern uint8_t cfg_local_charset;
 extern uint8_t cfg_alt_charset;
+extern uint8_t reload_charsets;
 
 extern volatile bool language_switch_enabled;
 extern volatile bool language_switch;
@@ -76,7 +77,8 @@ extern volatile uint8_t color_mode;
 #define IS_IFLAG(FLAGS)             ((internal_flags & FLAGS)==FLAGS)
 #define SET_IFLAG(condition, FLAGS) { if (condition) internal_flags |= FLAGS;else internal_flags &= ~FLAGS; }
 
-extern void set_machine(compat_t machine);
-extern void config_load();
-extern void config_load_defaults();
-extern void config_save();
+extern void set_machine         (compat_t machine);
+extern void config_load         (void);
+extern void config_load_defaults(void);
+extern void config_load_charsets(void);
+extern void config_save         (void);

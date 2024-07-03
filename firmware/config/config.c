@@ -37,10 +37,11 @@ SOFTWARE.
 volatile compat_t detected_machine = MACHINE_AUTO;
 volatile compat_t cfg_machine = MACHINE_AUTO;
 volatile compat_t current_machine = MACHINE_AUTO;
-volatile bool language_switch_enabled = true; // language switch is enabled (not ignored)
+volatile bool language_switch_enabled = false; // true: language switch enabled/not ignored, false: language switch disabled/ignored
 volatile bool language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
 uint8_t cfg_local_charset = 0;
 uint8_t cfg_alt_charset = 0;
+uint8_t reload_charsets = 0;
 volatile uint8_t color_mode = 1;
 
 // A block of flash is reserved for storing configuration persistently across power cycles
@@ -117,7 +118,18 @@ void __time_critical_func(set_machine)(compat_t machine)
     current_machine = machine;
 }
 
-void config_load()
+void config_load_charsets(void)
+{
+    // local font
+    memcpy32(character_rom, character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
+
+    // alternate fixed US font (with language switch)
+    memcpy32(&character_rom[0x800], character_roms[cfg_alt_charset], CHARACTER_ROM_SIZE);
+
+    reload_charsets = 0;
+}
+
+void config_load(void)
 {
     if((cfg->magic_word != MAGIC_WORD_VALUE) || (cfg->size > FLASH_SECTOR_SIZE))
     {
@@ -144,11 +156,8 @@ void config_load()
     if (cfg_alt_charset >= 16)
         cfg_alt_charset = 0;
 
-    // local font
-    memcpy32(character_rom, character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
-
-    // alternate fixed US font (with language switch)
-    memcpy32(&character_rom[0x800], character_roms[cfg_alt_charset], CHARACTER_ROM_SIZE);
+    // load character sets
+    config_load_charsets();
 
 #ifdef APPLE_MODEL_IIPLUS
     if(IS_STORED_IN_CONFIG(cfg, videx_vterm_enabled) && cfg->videx_vterm_enabled) {
@@ -160,7 +169,7 @@ void config_load()
 }
 
 
-void config_load_defaults()
+void config_load_defaults(void)
 {
     SET_IFLAG(1, IFLAGS_SCANLINEEMU);
     SET_IFLAG(0, IFLAGS_FORCED_MONO);
@@ -184,7 +193,7 @@ void config_load_defaults()
 }
 
 
-void config_save()
+void config_save(void)
 {
     // the write buffer size must be a multiple of FLASH_PAGE_SIZE so round up
     const int new_config_size = (sizeof(struct config) + FLASH_PAGE_SIZE - 1) & -FLASH_PAGE_SIZE;

@@ -240,18 +240,30 @@ bool doMenuSelection(bool increase)
             if (increase)
             {
                 if (cfg_local_charset+1 <= MAX_CFG_FONT)
+                {
                     cfg_local_charset++;
+                    reload_charsets = 1;
+                }
             }
             else
             {
                 if (cfg_local_charset > 0)
+                {
                     cfg_local_charset--;
+                    reload_charsets = 1;
+                }
             }
             break;
         case 3:
             language_switch_enabled = !language_switch_enabled;
+            if (!language_switch_enabled)
+            {
+                language_switch = false;
+            }
             break;
         case 4:
+            if (!language_switch_enabled)
+                break;
             // only show US character set for alternate (alternate was always US/default ASCII)
             if (increase)
             {
@@ -343,12 +355,18 @@ void showMenu(char key)
             CurrentMenu = 1;
             break;
         case '1' ... '8':
-            CurrentMenu = key-'1';
+            CurrentMenu = key-'0';
+            if ((!language_switch_enabled)&&(CurrentMenu == 4))
+                CurrentMenu = 3;
             break;
         case 'I':// fall through
         case 11: // UP
             if (CurrentMenu>1)
+            {
                 CurrentMenu--;
+                if ((!language_switch_enabled)&&(CurrentMenu == 4))
+                    CurrentMenu--;
+            }
             else
                 CurrentMenu = 11;
             break;
@@ -356,7 +374,11 @@ void showMenu(char key)
         case 9: // TAB
         case 10: // DOWN
             if (CurrentMenu<11)
+            {
                 CurrentMenu++;
+                if ((!language_switch_enabled)&&(CurrentMenu == 4))
+                    CurrentMenu++;
+            }
             else
                 CurrentMenu = 1;
             break;
@@ -423,8 +445,19 @@ void showMenu(char key)
 
     menuOption(6,1, "1 MACHINE TYPE:",      (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
     menuOption(7,2, "2 CHARACTER SET:",     (cfg_local_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_local_charset] : "?");
+#if 0
     menuOption(8,3, "3 ALT LANG SWITCH:",   MenuOnOff[language_switch_enabled]);
-    menuOption(9,4, "4 ALT LANGUAGE:",      (cfg_alt_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_alt_charset] : "?");
+    if (language_switch_enabled)
+    {
+        menuOption(9,4, "4 ALT LANGUAGE:",  (cfg_alt_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_alt_charset] : "?");
+    }
+#else
+    menuOption(8,3, "3 LANGUAGE SWITCH:",   MenuOnOff[language_switch_enabled]);
+    if (language_switch_enabled)
+    {
+        menuOption(9,4, "4 US CHARACTER SET:", (cfg_alt_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_alt_charset] : "?");
+    }
+#endif
 
     menuOption(11,5, "5 MONOCHROME COLOR:", MenuColorMode[color_mode]);
     menuOption(12,6, "6 COLOR MODES:",      MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
@@ -434,4 +467,6 @@ void showMenu(char key)
     menuOption(16,9,  "A ABOUT", 0);
     menuOption(17,10, "R RESTORE DEFAULTS", 0);
     menuOption(18,11, "S SAVE TO FLASH", 0);
+
+    printXY(40-11, 21, "[{\\~#$`^|}]", PRINTMODE_NORMAL);
 }
