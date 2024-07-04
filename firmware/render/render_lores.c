@@ -27,7 +27,7 @@ SOFTWARE.
 #include <pico/stdlib.h>
 #include "applebus/buffers.h"
 #include "config/config.h"
-#include "dvi/render.h"
+#include "render.h"
 
 // monochrome dot pattern: 14 dots (bits) per word
 uint16_t DELAYED_COPY_DATA(lores_dot_pattern)[16] =

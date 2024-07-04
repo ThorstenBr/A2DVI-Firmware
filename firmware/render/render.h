@@ -1,7 +1,7 @@
 #pragma once
 
 #include "dvi.h"
-#include "tmds.h"
+#include "dvi/tmds.h"
 
 extern struct dvi_inst dvi0;
 

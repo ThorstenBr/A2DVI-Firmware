@@ -127,7 +127,7 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
             }
         }
         break;
-#if 0
+#ifdef APPLEIIGS
     case 0x22:
         if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
         {
@@ -141,7 +141,7 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
             soft_switches = (soft_switches & ~(SOFTSW_NEWVID_MASK << SOFTSW_NEWVID_SHIFT)) | ((data & SOFTSW_NEWVID_MASK) << SOFTSW_NEWVID_SHIFT);
         }
         break;
-#if 0
+#ifdef APPLEIIGS
     case 0x34:
         if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
         {

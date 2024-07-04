@@ -32,7 +32,7 @@ SOFTWARE.
 #include "dvi_pin_config.h"
 #include "dvi_serialiser.h"
 #include "dvi_timing.h"
-#include "render.h"
+#include "render/render.h"
 #include "util/dmacopy.h"
 
 // clock/DVI configuration

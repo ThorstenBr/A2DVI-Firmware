@@ -56,11 +56,12 @@ add_executable(${BINARY_NAME}
 
 	dvi/a2dvi.c
 	dvi/tmds.c
-	dvi/render.c
-	dvi/render_text.c
-	dvi/render_lores.c
-	dvi/render_hires.c
-	dvi/render_dgr.c
+
+	render/render.c
+	render/render_text.c
+	render/render_lores.c
+	render/render_dgr.c
+	render/render_hires.c
 
 	config/config.c
 	config/device_regs.c

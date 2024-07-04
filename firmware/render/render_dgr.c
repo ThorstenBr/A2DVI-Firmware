@@ -27,7 +27,7 @@ SOFTWARE.
 #include <pico/stdlib.h>
 #include "applebus/buffers.h"
 #include "config/config.h"
-#include "dvi/render.h"
+#include "render.h"
 
 #define PAGE2SEL ((soft_switches & (SOFTSW_80STORE | SOFTSW_PAGE_2)) == SOFTSW_PAGE_2)
 

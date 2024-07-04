@@ -35,7 +35,7 @@ SOFTWARE.
 #include "applebus/buffers.h"
 #include "applebus/businterface.h"
 #include "applebus/abus_pin_config.h"
-#include "dvi/render.h"
+#include "render/render.h"
 #include "config/config.h"
 #include "duck.h"
 
