@@ -128,9 +128,7 @@ void DELAYED_COPY_CODE(render_loop)()
                 case SOFTSW_HIRES_MODE:
                     if(soft_switches & SOFTSW_DGR)
                     {
-#if 0
                         render_dhgr();
-#endif
                     }
                     else
                     {
@@ -140,9 +138,7 @@ void DELAYED_COPY_CODE(render_loop)()
                 case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE:
                     if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
                     {
-#if 0
                         render_mixed_dhgr();
-#endif
                     }
                     else
                     {
@@ -150,9 +146,6 @@ void DELAYED_COPY_CODE(render_loop)()
                     }
                     break;
                 default:
-#if 0
-                    mono_rendering |= (mono_palette & 0x8);
-#endif
                     render_text();
                     break;
             }

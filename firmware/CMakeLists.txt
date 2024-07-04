@@ -62,6 +62,7 @@ add_executable(${BINARY_NAME}
 	render/render_lores.c
 	render/render_dgr.c
 	render/render_hires.c
+	render/render_dhgr.c
 
 	config/config.c
 	config/device_regs.c

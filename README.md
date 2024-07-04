@@ -12,9 +12,11 @@ This is a firmware project for a digital DVI/HDMI Apple II video card.
 
 * **LORES graphics**: implemented. Colors need to be verified/corrected.
 
-* **Double-LORES graphics**: implemented in monochrome only. Needs more work. Color support not implemented yet.
+* **Double-LORES graphics**: implemented in monochrome only. Color support not implemented yet.
 
 * **HIRES graphics**: implemented. Colors need to be verified/corrected.
+
+* **Double-HIRES graphics**: implemented in monochrome only. Color support not implemented yet.
 
 * **graphics/text mix modes**: implemented for all supported graphics modes.
 
@@ -34,10 +36,9 @@ This is a firmware project for a digital DVI/HDMI Apple II video card.
 
 ## TODOs
 
-* Incomplete graphics modes (see above).
+* Double-LORES in color.
 
-* **Double-HIRES** (shows blank screen).
-
+* Double-HIRES in color.
 
 
 # License
