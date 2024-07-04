@@ -208,6 +208,40 @@ void showMenuFrame()
     centerY(20, "'ESC' TO EXIT", PRINTMODE_NORMAL);
 }
 
+//   1234567890123456789012345678901234567890
+const char* AboutText[]=
+{
+    "A2DVI IS A DVI/HDMI  GRAPHICS  CARD  FOR",  //3
+    "APPLE II COMPUTERS,  GENERATING  A  TRUE",  //4
+    "DIGITAL VIDEO SIGNAL WITHOUT ANY  ANALOG", //5
+    "CONVERSION. THE CARD MONITORS  THE  6502", //6
+    "BUS, CREATES A SHADOW COPY OF THE  VIDEO", //7
+    "MEMORY WITHIN ITS  RASPBERRY  PICO  MCU,", //8
+    "THEN GENERATES 'TMDS'  ENCODED  RGB  BIT", //9
+    "STREAMS (3X252MBIT/S) FOR DVI/HDMI.", //10
+    "", //11
+    "MORE:", //12
+    "    GITHUB.COM/RALLEPALAVEEV/A2DVI", //13
+    "",
+    "A2DVI IS BASED ON PROJECTS 'APPLEII VGA'",
+    "(C) 2021 MARK AIKENS & DAVID KUDER,  AND",
+    "ON 'PICODVI' (C) 2021 LUKE WREN.",
+    "  MANY THANKS TO ALL! APPLE II FOREVER!",
+    0
+};
+
+void showAbout()
+{
+    //centerY(2,  "ABOUT A2DVI", PRINTMODE_NORMAL);
+
+    for (uint y=0;AboutText[y];y++)
+    {
+        printXY(0,2+y, AboutText[y], PRINTMODE_NORMAL);
+    }
+
+    //centerY(11, "APPLE II FOREVER!", PRINTMODE_NORMAL);
+}
+
 bool doMenuSelection(bool increase)
 {
     switch(CurrentMenu)
@@ -306,9 +340,7 @@ bool doMenuSelection(bool increase)
         case 9:  // about
             if (increase)
             {
-                centerY(3,  "ABOUT A2DVI", PRINTMODE_NORMAL);
-                centerY(7,  "......", PRINTMODE_NORMAL);
-                centerY(11, "APPLE II FOREVER!", PRINTMODE_NORMAL);
+                showAbout();
                 SET_IFLAG(0, IFLAGS_MENU_ENABLE);
                 return true;
             }
