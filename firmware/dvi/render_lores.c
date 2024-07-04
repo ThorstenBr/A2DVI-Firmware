@@ -29,23 +29,25 @@ SOFTWARE.
 #include "config/config.h"
 #include "dvi/render.h"
 
-uint16_t DELAYED_COPY_DATA(lores_dot_pattern)[16] = {
+// monochrome dot pattern: 14 dots (bits) per word
+uint16_t DELAYED_COPY_DATA(lores_dot_pattern)[16] =
+{
     0x0000,
-    0x2222,
     0x1111,
+    0x2222,
     0x3333,
-    0x0888,
-    0x2AAA,
-    0x1999,
-    0x3BBB,
     0x0444,
-    0x2666,
     0x1555,
+    0x2666,
     0x3777,
-    0x0CCC,
-    0x2EEE,
-    0x1DDD,
-    0x3FFF,
+    0x0888,
+    0x1999,
+    0x2aaa,
+    0x3bbb,
+    0x0ccc,
+    0x1ddd,
+    0x2eee,
+    0x3fff
 };
 
 static void render_lores_line(bool p2, uint line);
@@ -88,25 +90,25 @@ static void DELAYED_COPY_CODE(render_lores_line)(bool p2, uint line)
         uint8_t color_offset = color_mode*12;
         for(uint i = 0; i < 40; i+=2)
         {
-            uint32_t pattern1  = lores_dot_pattern[line_buf[i] & 0xf] << 14;
-            pattern1 |= lores_dot_pattern[line_buf[i+1] & 0xf];
+            uint32_t pattern1  = lores_dot_pattern[line_buf[i] & 0xf];
+            pattern1 |= lores_dot_pattern[line_buf[i+1] & 0xf] << 14;
 
-            uint32_t pattern2  = lores_dot_pattern[(line_buf[i] >> 4) & 0xf] << 14;
-            pattern2 |= lores_dot_pattern[(line_buf[i+1] >> 4) & 0xf];
+            uint32_t pattern2  = lores_dot_pattern[(line_buf[i] >> 4) & 0xf];
+            pattern2 |= lores_dot_pattern[(line_buf[i+1] >> 4) & 0xf] << 14;
 
             for(uint j = 0; j < 14; j++)
             {
-                uint32_t offset = color_offset + (pattern1 >> 30);
+                uint32_t offset = color_offset + (pattern1 & 0x3);
                 *(tmdsbuf1_red++)   = tmds_mono_pixel_pair[offset+0];
                 *(tmdsbuf1_green++) = tmds_mono_pixel_pair[offset+4];
                 *(tmdsbuf1_blue++)  = tmds_mono_pixel_pair[offset+8];
-                pattern1 <<= 2;
+                pattern1 >>= 2;
 
-                offset = color_offset + (pattern2 >> 30);
+                offset = color_offset + (pattern2 & 0x3);
                 *(tmdsbuf2_red++)   = tmds_mono_pixel_pair[offset+0];
                 *(tmdsbuf2_green++) = tmds_mono_pixel_pair[offset+4];
                 *(tmdsbuf2_blue++)  = tmds_mono_pixel_pair[offset+8];
-                pattern2 <<= 2;
+                pattern2 >>= 2;
             }
         }
     }
