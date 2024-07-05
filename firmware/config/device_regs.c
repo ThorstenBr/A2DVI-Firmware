@@ -134,11 +134,13 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
     case 0xF9:
         if (data == 0)
         {
+            // 0 unlocks the menu dialog
             SET_IFLAG(1, IFLAGS_MENU_ENABLE);
         }
         if (IS_IFLAG(IFLAGS_MENU_ENABLE))
         {
-            showMenu(data);
+            // show/update menu dialog
+            menuShow(data);
         }
         break;
 

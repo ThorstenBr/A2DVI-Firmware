@@ -96,17 +96,16 @@ void __time_critical_func(clearTextScreen)(void)
     {
 #ifndef FEATURE_TEST
         ((uint32_t*)text_p1)[i] = 0xA0A0A0A0; // initialize with blanks
+        ((uint32_t*)text_p3)[i] = 0xA0A0A0A0; // initialize with blanks
 #else
         if (!PrintModePage2)
         {
             ((uint32_t*)text_p1)[i] = 0xA0A0A0A0; // initialize with blanks
-            // for 80columns in test mode
             ((uint32_t*)text_p3)[i] = 0xA0A0A0A0; // initialize with blanks
         }
         else
         {
             ((uint32_t*)text_p2)[i] = 0xA0A0A0A0; // initialize with blanks
-            // for 80columns in test mode
             ((uint32_t*)text_p4)[i] = 0xA0A0A0A0; // initialize with blanks
         }
 #endif
@@ -193,23 +192,32 @@ const char* MenuFontNames[MAX_CFG_FONT+1] =
     "II+ JAPAN KATAKANA"//15
 };
 
-static uint8_t CurrentMenu = 0;
+static uint8_t CurrentMenu        = 0;
+static uint8_t IgnoreNextKeypress = 0;
 
-void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const char* pValue)
+static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const char* pValue)
 {
-    printXY( 0, y, pMenu, (Selection == CurrentMenu) ? PRINTMODE_FLASH : PRINTMODE_NORMAL);
+    uint x = (Selection>=12) ? 20:0;
+    char MenuKey[2];
+    MenuKey[0] = pMenu[0];
+    MenuKey[1] = 0;
+    printXY(x, y, MenuKey, PRINTMODE_INVERSE);
+    printXY(x+2, y, &pMenu[2], (Selection == CurrentMenu) ? PRINTMODE_FLASH : PRINTMODE_NORMAL);
     if (pValue)
         printXY(20, y, pValue, PRINTMODE_NORMAL);
 }
 
-void showMenuFrame()
+static void menuShowFrame()
 {
+    soft_switches |= SOFTSW_TEXT_MODE;
+    soft_switches &= ~(SOFTSW_MIX_MODE | SOFTSW_80COL | SOFTSW_PAGE_2 | SOFTSW_DGR | SOFTSW_HIRES_MODE);
+
     showTitle(PRINTMODE_INVERSE);
     centerY(20, "'ESC' TO EXIT", PRINTMODE_NORMAL);
 }
 
 //   1234567890123456789012345678901234567890
-const char* AboutText[]=
+static const char* AboutText[]=
 {
     "A2DVI IS A DVI/HDMI  GRAPHICS  CARD  FOR",  //3
     "APPLE II COMPUTERS,  GENERATING  A  TRUE",  //4
@@ -230,7 +238,7 @@ const char* AboutText[]=
     0
 };
 
-void showAbout()
+void menuShowAbout()
 {
     //centerY(2,  "ABOUT A2DVI", PRINTMODE_NORMAL);
 
@@ -242,7 +250,67 @@ void showAbout()
     //centerY(11, "APPLE II FOREVER!", PRINTMODE_NORMAL);
 }
 
-bool doMenuSelection(bool increase)
+void menuShowTest()
+{
+    // initialize the screen buffer area
+    clearTextScreen();
+    soft_switches &= ~(SOFTSW_TEXT_MODE|SOFTSW_PAGE_2);
+    soft_switches |=  SOFTSW_MIX_MODE | SOFTSW_80COL;
+
+    for (uint y=0;y<40;y++)
+    {
+        for (uint x=0;x<40;x++)
+        {
+            uint8_t color = x&0xf;
+            uint8_t mask = 0xF0; // even rows in low nibble
+            if ((y & 1) == 1)
+            {
+                // odd rows in high nibble
+                mask = 0x0F;
+                color <<= 4;
+            }
+
+            uint line = y >> 1;
+            uint16_t address = 0x400+((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40)+x;
+            apple_memory[address] = (apple_memory[address] & mask) | color;
+        }
+    }
+
+    // show character table
+    for (uint i=0;i<255;i++)
+    {
+        uint x = (i & 63) + 8;
+        uint line = 20+(i/64);
+        if (line > 23)
+            break;
+        uint32_t ScreenOffset = (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
+        volatile uint8_t* pScreen =  (x & 1) ? text_p3 : text_p1;
+
+        pScreen[ScreenOffset+x/2] = i;
+    }
+}
+
+void menuShowDebug()
+{
+    // show detected machine and slot
+    {
+        const uint8_t X = 7;
+
+        printXY(X,2, "DETECTED SLOT=", PRINTMODE_NORMAL);
+        printXY(X,4, "DETECTED MACHINE=", PRINTMODE_NORMAL);
+
+        // show slot
+        char s[2];
+        s[0] = 0x80 | ((cardslot == 0) ? '-' : '0'+cardslot);
+        s[1] = 0;
+        printXY(X+5+12,2, s, PRINTMODE_NORMAL);
+
+        // show current machine type
+        printXY(X+5+12, 4, (current_machine > MACHINE_MAX_CFG) ? "-" : MachineNames[current_machine], PRINTMODE_NORMAL);
+    }
+}
+
+bool menuDoSelection(bool increase)
 {
     switch(CurrentMenu)
     {
@@ -341,18 +409,17 @@ bool doMenuSelection(bool increase)
                 internal_flags |= IFLAGS_V7_MODE3;
             }
             break;
-        case 9:  // about
-            if (increase)
-            {
-                showAbout();
-                SET_IFLAG(0, IFLAGS_MENU_ENABLE);
-                return true;
-            }
-            break;
-        case 10: // restore
+        case 9: // restore
             if (increase)
             {
                 config_load_defaults();
+                set_machine((cfg_machine == MACHINE_AUTO) ? detected_machine : cfg_machine);
+            }
+            break;
+        case 10: // load config
+            if (increase)
+            {
+                config_load();
                 set_machine((cfg_machine == MACHINE_AUTO) ? detected_machine : cfg_machine);
             }
             break;
@@ -360,10 +427,33 @@ bool doMenuSelection(bool increase)
             if (increase)
             {
                 config_save();
-                showMenuFrame();
+                menuShowFrame();
                 centerY(11, "SAVED!", PRINTMODE_NORMAL);
-                // clear menu mode when exiting
-                SET_IFLAG(0, IFLAGS_MENU_ENABLE);
+                IgnoreNextKeypress = 1;
+                return true;
+            }
+            break;
+        case 12:  // about
+            if (increase)
+            {
+                menuShowAbout();
+                IgnoreNextKeypress = 1;
+                return true;
+            }
+            break;
+        case 13: // test
+            if (increase)
+            {
+                menuShowTest();
+                IgnoreNextKeypress = 1;
+                return true;
+            }
+            break;
+        case 14:
+            if (increase)
+            {
+                menuShowDebug();
+                IgnoreNextKeypress = 1;
                 return true;
             }
             break;
@@ -373,10 +463,9 @@ bool doMenuSelection(bool increase)
     return false;
 }
 
-void showMenu(char key)
+static inline bool menuCheckKeys(char key)
 {
-    char s[10];
-    showMenuFrame();
+    int Cmd = -1;
 
     // uppercase
     if ((key>='a')&&(key<='z'))
@@ -384,7 +473,6 @@ void showMenu(char key)
         key = (key-'a')+'A';
     }
 
-    int Cmd = -1;
     switch(key)
     {
         case 0: // reset command
@@ -404,12 +492,12 @@ void showMenu(char key)
                     CurrentMenu--;
             }
             else
-                CurrentMenu = 11;
+                CurrentMenu = 14;
             break;
         case 'M':// fall through
         case 9: // TAB
         case 10: // DOWN
-            if (CurrentMenu<11)
+            if (CurrentMenu<14)
             {
                 CurrentMenu++;
                 if ((!language_switch_enabled)&&(CurrentMenu == 4))
@@ -418,11 +506,11 @@ void showMenu(char key)
             else
                 CurrentMenu = 1;
             break;
-        case 'A':
+        case 'R':
             CurrentMenu = 9;
             Cmd = 1;
             break;
-        case 'R':
+        case 'L':
             CurrentMenu = 10;
             Cmd = 1;
             break;
@@ -430,16 +518,46 @@ void showMenu(char key)
             CurrentMenu = 11;
             Cmd = 1;
             break;
+        case 'A':
+            CurrentMenu = 12;
+            Cmd = 1;
+            break;
+        case 'T':
+            CurrentMenu = 13;
+            Cmd = 1;
+            break;
+        case 'D':
+            CurrentMenu = 14;
+            Cmd = 1;
+            break;
         case 'J':// fall-through
         case 127: // DEL
         case 8: //LEFT
-            Cmd = 0;
+            if (CurrentMenu < 9)
+            {
+                Cmd = 0;
+            }
+            else
+            if (CurrentMenu >= 12)
+            {
+                CurrentMenu -= 3;
+            }
             break;
         case 13: // fall-through
-        case ' ':// fall-through
+        case ' ':
+            Cmd = 1;
+            break;
         case 'K':// fall-through
         case 21: //RIGHT
-            Cmd = 1;
+            if (CurrentMenu < 9)
+            {
+                Cmd = 1;
+            }
+            else
+            if (CurrentMenu < 12)
+            {
+                CurrentMenu += 3;
+            }
             break;
         case 27:
             // clear menu mode when exiting
@@ -456,53 +574,49 @@ void showMenu(char key)
 
     if (Cmd != -1)
     {
-        if (doMenuSelection(Cmd == 1))
+        return menuDoSelection(Cmd == 1);
+    }
+
+    return false;
+}
+
+void menuShow(char key)
+{
+    menuShowFrame();
+
+    if (IgnoreNextKeypress)
+    {
+        IgnoreNextKeypress = 0;
+    }
+    else
+    {
+        if (menuCheckKeys(key))
             return;
     }
 
-    {
-        const uint8_t SlotX = 12;
-
-        printXY(SlotX,2, "SLOT=", PRINTMODE_NORMAL);
-
-        // show slot
-        s[0] = 0x80 | ((cardslot == 0) ? '-' : '0'+cardslot);
-        s[1] = 0;
-        printXY(SlotX+5,2, s, PRINTMODE_NORMAL);
-
-        // show current machine type
-        if (current_machine > MACHINE_MAX_CFG)
-            printXY(SlotX+8, 2, "-", PRINTMODE_NORMAL);
-        else
-            printXY(SlotX+8, 2, MachineNames[current_machine], PRINTMODE_NORMAL);
-    }
-
-    centerY(4, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
+    centerY(3, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
 
     menuOption(6,1, "1 MACHINE TYPE:",      (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
     menuOption(7,2, "2 CHARACTER SET:",     (cfg_local_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_local_charset] : "?");
-#if 0
-    menuOption(8,3, "3 ALT LANG SWITCH:",   MenuOnOff[language_switch_enabled]);
-    if (language_switch_enabled)
-    {
-        menuOption(9,4, "4 ALT LANGUAGE:",  (cfg_alt_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_alt_charset] : "?");
-    }
-#else
     menuOption(8,3, "3 LANGUAGE SWITCH:",   MenuOnOff[language_switch_enabled]);
     if (language_switch_enabled)
     {
         menuOption(9,4, "4 US CHARACTER SET:", (cfg_alt_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_alt_charset] : "?");
     }
-#endif
 
     menuOption(11,5, "5 MONOCHROME COLOR:", MenuColorMode[color_mode]);
     menuOption(12,6, "6 COLOR MODES:",      MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
     menuOption(13,7, "7 SCANLINES:",        MenuOnOff[IS_IFLAG(IFLAGS_SCANLINEEMU)]);
     menuOption(14,8, "8 VIDEO7 MODES:",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
 
-    menuOption(16,9,  "A ABOUT", 0);
-    menuOption(17,10, "R RESTORE DEFAULTS", 0);
+    menuOption(16,9,  "R RESTORE DEFAULTS", 0);
+    menuOption(17,10, "L LOAD FROM FLASH", 0);
     menuOption(18,11, "S SAVE TO FLASH", 0);
 
+    menuOption(16,12,  "A ABOUT", 0);
+    menuOption(17,13,  "T TEST", 0);
+    menuOption(18,14,  "D DEBUG", 0);
+
+    // show some special characters, for immediate feedback when selecting character sets
     printXY(40-11, 21, "[{\\~#$`^|}]", PRINTMODE_NORMAL);
 }

@@ -92,7 +92,7 @@ static void simulateWrite(uint16_t address, uint8_t data)
     uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_DEVSEL - CONFIG_PIN_APPLEBUS_DATA_BASE));
     if ((address & 0xCFF0) == (0xC080+0x30)) // Slot 3 register area
         card_select = 0;
-    businterface((address << 10) | data | card_select);
+    businterface((address << 11) | data | card_select);
 }
 
 void sleep(int Milliseconds)
