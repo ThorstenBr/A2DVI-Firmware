@@ -1,7 +1,7 @@
 #include "buffers.h"
 
 volatile uint32_t soft_switches = SOFTSW_TEXT_MODE;
-volatile uint32_t internal_flags;
+volatile uint32_t internal_flags = IFLAGS_V7_MODE3;
 
 volatile uint8_t  cardslot;
 // Set SlotROM area to invalid address, so decoder does not trigger before the actual cardslot is determined.

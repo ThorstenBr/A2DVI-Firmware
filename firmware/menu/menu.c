@@ -336,6 +336,10 @@ bool doMenuSelection(bool increase)
             break;
         case 8:
             SET_IFLAG(!IS_IFLAG(IFLAGS_VIDEO7), IFLAGS_VIDEO7);
+            if (IS_IFLAG(IFLAGS_VIDEO7))
+            {
+                internal_flags |= IFLAGS_V7_MODE3;
+            }
             break;
         case 9:  // about
             if (increase)

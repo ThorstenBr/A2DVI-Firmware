@@ -134,27 +134,25 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
             apple_tbcolor = data;
         }
         break;
-#endif
     case 0x29:
         if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
         {
             soft_switches = (soft_switches & ~(SOFTSW_NEWVID_MASK << SOFTSW_NEWVID_SHIFT)) | ((data & SOFTSW_NEWVID_MASK) << SOFTSW_NEWVID_SHIFT);
         }
         break;
-#ifdef APPLEIIGS
     case 0x34:
         if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
         {
             apple_border = data;
         }
         break;
-#endif
     case 0x35:
         if((internal_flags & IFLAGS_IIGS_REGS) && (AccessMode == WriteMem))
         {
             soft_switches = (soft_switches & ~(SOFTSW_SHADOW_MASK << SOFTSW_SHADOW_SHIFT)) | ((data & SOFTSW_SHADOW_MASK) << SOFTSW_SHADOW_SHIFT);
         }
         break;
+#endif
     case 0x50:
         soft_switches &= ~SOFTSW_TEXT_MODE;
         break;

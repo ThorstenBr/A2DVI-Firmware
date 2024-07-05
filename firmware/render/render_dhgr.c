@@ -44,6 +44,14 @@ uint16_t DELAYED_COPY_DATA(dhgr_palette)[16] = {
 uint16_t __attribute__((section(".uninitialized_data."))) half_palette[16];
 #endif
 
+// map DHGR values to the LORES palette (also multiply by 3, as we need an index to the RGB TMDS table, with 3 values per color)
+uint8_t DELAYED_COPY_DATA(dhgr_tmdslores_mapping)[16] = {
+    0*3 /*0:BLACK*/,    2*3 /*2:DGREEN*/,  4*3 /*4:BROWN*/,     6*3 /*6:HGREEN*/,
+    8*3 /*8:MAGENTA*/, 10*3 /*10:DGRAY*/, 12*3 /*12:HORANGE*/, 14*3 /*14:YELLOW*/,
+    1*3 /*1:DBLUE*/,    3*3 /*3:HBLUE*/,   5*3 /*5:LGRAY*/,     7*3 /*7:AQUA*/,
+    9*3 /*9:HVIOLET*/, 11*3 /*11:LBLUE*/, 13*3 /*13:PINK*/,    15*3 /*15:WHITE*/
+};
+
 #define PAGE2SEL ((soft_switches & (SOFTSW_80STORE | SOFTSW_PAGE_2)) == SOFTSW_PAGE_2)
 
 
@@ -90,9 +98,8 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
     uint32_t dots = 0;
     uint_fast8_t dotc = 0;
     uint i = 0;
-#if 0
+
     if(mono)
-#endif
     {
         uint8_t color_offset = color_mode*12;
         while(i < 40)
@@ -120,21 +127,15 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             }
         }
     }
-
 #if 0
     else
-    {
-    uint32_t pixeldata;
-    uint32_t pixelmode = 0;
-    uint16_t white_pixel_count = 0;
-    uint32_t color1, color2, color3, color4;
-
     if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL)) == (SOFTSW_80STORE)))
     {
         int j;
 
         // Video 7 F/B HiRes
-        while(i < 40) {
+        while(i < 40)
+        {
             dots = (line_mema[i] & 0x7f);
             color1 = lores_palette[(line_memb[i] >> 4) & 0xF];
             color2 = lores_palette[(line_memb[i] >> 0) & 0xF];
@@ -145,7 +146,8 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             color4 = lores_palette[(line_memb[i] >> 0) & 0xF];
             i++;
 
-            for(j = 0; j < 3; j++) {
+            for(j = 0; j < 3; j++)
+            {
                 pixeldata = ((dots & 1) ? (color1) : (color2)) | THEN_EXTEND_1;
                 dots >>= 1;
                 pixeldata |= (((dots & 1) ? (color1) : (color2)) | THEN_EXTEND_1) << 16;
@@ -159,7 +161,8 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             dots >>= 1;
             sl->data[sl_pos++] = pixeldata;
 
-            for(j = 0; j < 3; j++) {
+            for(j = 0; j < 3; j++)
+            {
                 pixeldata = ((dots & 1) ? (color3) : (color4)) | THEN_EXTEND_1;
                 dots >>= 1;
                 pixeldata |= (((dots & 1) ? (color3) : (color4)) | THEN_EXTEND_1) << 16;
@@ -167,11 +170,16 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 sl->data[sl_pos++] = pixeldata;
             }
         }
-    } else if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE2)) {
+    }
+    else
+    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE2))
+    {
         // 160x192 Video-7
-        while(i < 40) {
+        while(i < 40)
+        {
             // Load in as many subpixels as possible
-            while((dotc <= 18) && (i < 40)) {
+            while((dotc <= 18) && (i < 40))
+            {
                 dots |= (line_memb[i] & 0xff) << dotc;
                 dotc += 8;
                 dots |= (line_mema[i] & 0xff) << dotc;
@@ -180,7 +188,8 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             }
 
             // Consume pixels
-            while(dotc >= 8) {
+            while(dotc >= 8)
+            {
                 pixeldata = (lores_palette[dots & 0xf] | THEN_EXTEND_3);
                 dots >>= 4;
                 pixeldata |= (lores_palette[dots & 0xf] | THEN_EXTEND_3) << 16;
@@ -189,9 +198,13 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 dotc -= 8;
             }
         }
-    } else if((internal_flags & (IFLAGS_VIDEO7 | IFLAGS_V7_MODE3)) == (IFLAGS_VIDEO7 | IFLAGS_V7_MODE1)) {
+    }
+    else
+    if((internal_flags & (IFLAGS_VIDEO7 | IFLAGS_V7_MODE3)) == (IFLAGS_VIDEO7 | IFLAGS_V7_MODE1))
+    {
         // Video-7 Mixed B&W/RGB
-        while(i < 40) {
+        while(i < 40)
+        {
             // Load in as many subpixels as possible
             while((dotc <= 18) && (i < 40)) {
                 dots |= (line_memb[i] & 0x7f) << dotc;
@@ -232,14 +245,19 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 }
             }
         }
-    } else if((internal_flags & (IFLAGS_INTERP | IFLAGS_GRILL)) == (IFLAGS_INTERP | IFLAGS_GRILL)) {
+    }
+    else
+    if((internal_flags & (IFLAGS_INTERP | IFLAGS_GRILL)) == (IFLAGS_INTERP | IFLAGS_GRILL))
+    {
         // Preload black into the sliding window
         dots = 0;
         dotc = 4;
 
-        while(i < 40) {
+        while(i < 40)
+        {
             // Load in as many subpixels as possible
-            while((dotc <= 18) && (i < 40)) {
+            while((dotc <= 18) && (i < 40))
+            {
                 dots |= (line_memb[i] & 0x7f) << dotc;
                 dotc += 7;
                 dots |= (line_mema[i] & 0x7f) << dotc;
@@ -247,7 +265,8 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 i++;
             }
 
-            while((dotc >= 8) || ((dotc > 0) && (i == 40))) {
+            while((dotc >= 8) || ((dotc > 0) && (i == 40)))
+            {
                 dots &= 0xfffffffe;
                 dots |= (dots >> 4) & 1;
                 pixeldata = half_palette[dots & 0xf];
@@ -266,14 +285,19 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 dotc -= 4;
             }
         }
-    } else if(internal_flags & IFLAGS_INTERP) {
+    }
+    else
+    if(internal_flags & IFLAGS_INTERP)
+    {
         // Preload black into the sliding window
         dots = 0;
         dotc = 4;
 
-        while(i < 40) {
+        while(i < 40)
+        {
             // Load in as many subpixels as possible
-            while((dotc <= 18) && (i < 40)) {
+            while((dotc <= 18) && (i < 40))
+            {
                 dots |= (line_memb[i] & 0x7f) << dotc;
                 dotc += 7;
                 dots |= (line_mema[i] & 0x7f) << dotc;
@@ -281,7 +305,8 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 i++;
             }
 
-            while((dotc >= 8) || ((dotc > 0) && (i == 40))) {
+            while((dotc >= 8) || ((dotc > 0) && (i == 40)))
+            {
                 dots &= 0xfffffffe;
                 dots |= (dots >> 4) & 1;
                 pixeldata = dhgr_palette[dots & 0xf];
@@ -300,10 +325,15 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 dotc -= 4;
             }
         }
-    } else {
-        while(i < 40) {
+    }
+#endif
+    else
+    {
+        while(i < 40)
+        {
             // Load in as many subpixels as possible
-            while((dotc <= 18) && (i < 40)) {
+            while((dotc <= 18) && (i < 40))
+            {
                 dots |= (line_memb[i] & 0x7f) << dotc;
                 dotc += 7;
                 dots |= (line_mema[i] & 0x7f) << dotc;
@@ -312,18 +342,47 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             }
 
             // Consume pixels
-            while(dotc >= 8) {
-                pixeldata = (dhgr_palette[dots & 0xf] | THEN_EXTEND_3);
+            while(dotc >= 8)
+            {
+                // map HGR dot values to 16 color (RGB LORES) palette
+                uint32_t* pTmds = &tmds_lorescolor[dhgr_tmdslores_mapping[dots&0xf]];
+                uint32_t r = pTmds[0];
+                uint32_t g = pTmds[1];
+                uint32_t b = pTmds[2];
+
+                // add 4 pixels (two double pixels)
+                *(tmdsbuf_red++)   = r;
+                *(tmdsbuf_red++)   = r;
+
+                *(tmdsbuf_green++) = g;
+                *(tmdsbuf_green++) = g;
+
+                *(tmdsbuf_blue++)  = b;
+                *(tmdsbuf_blue++)  = b;
                 dots >>= 4;
-                pixeldata |= (dhgr_palette[dots & 0xf] | THEN_EXTEND_3) << 16;
+
+                // map HGR dot values to 16 color (LORES) palette
+                pTmds = &tmds_lorescolor[dhgr_tmdslores_mapping[dots&0xf]];
                 dots >>= 4;
-                sl->data[sl_pos++] = pixeldata;
+
+                r = pTmds[0];
+                g = pTmds[1];
+                b = pTmds[2];
+
+                // add 4 pixels (two double pixels)
+                *(tmdsbuf_red++)   = r;
+                *(tmdsbuf_red++)   = r;
+
+                *(tmdsbuf_green++) = g;
+                *(tmdsbuf_green++) = g;
+
+                *(tmdsbuf_blue++)  = b;
+                *(tmdsbuf_blue++)  = b;
+
                 dotc -= 8;
             }
         }
     }
-    }
-#endif
 
     // send buffer
     dvi_send_scanline(tmdsbuf);
