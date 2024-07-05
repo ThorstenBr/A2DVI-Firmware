@@ -41,6 +41,8 @@ void abus_init()
     videx_vterm_init();
 #endif
     abus_pio_setup();
+    // clear magic word in slot memory area
+    ((uint16_t*)slot_memory)[0] = 0;
 }
 
 void __time_critical_func(abus_loop)()

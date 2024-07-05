@@ -44,9 +44,15 @@ static unsigned int char_write_offset;
 // Handle a write to one of the registers on this device's slot
 void device_write(uint_fast8_t reg, uint_fast8_t data)
 {
+    slot_memory[reg] = data;
+
+    // ignore any register access, unless magic word was set (11,22)
+    if (((uint16_t*)slot_memory)[0] != 11+22*256)
+        return;
+
     switch(reg)
     {
-    case 0x00:
+    case 0xF0:
         if(data & 0x01)
             SET_IFLAG(1, IFLAGS_SCANLINEEMU);
         if(data & 0x02)
@@ -60,7 +66,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // soft-monochrome color setting
-    case 0x01:
+    case 0xF1:
         if (data & 0x03)
             color_mode = (data & 0x3)-1;
         //0x30
@@ -71,23 +77,23 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // character generator write offset
-    case 0x02:
+    case 0xF2:
         char_write_offset = data << 3;
         break;
 
     // character generator write
-    case 0x03:
+    case 0xF3:
         character_rom[char_write_offset] = data;
         char_write_offset = (char_write_offset + 1) % sizeof(character_rom);
         break;
 
     // device command
-    case 0x04:
+    case 0xF4:
         execute_device_command(data);
         break;
 
     // set local/main character set
-    case 0x08:
+    case 0xF5:
         if (data < 16)
         {
             cfg_local_charset = data & 0xf;
@@ -97,7 +103,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // set alternate character set
-    case 0x09:
+    case 0xF6:
         if (data < 16)
         {
             cfg_alt_charset = data & 0xf;
@@ -112,7 +118,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // set VIDEO7 (and other future) properties
-    case 0x0a:
+    case 0xF7:
         if(data & 0x1)
             SET_IFLAG(1, IFLAGS_VIDEO7);
         if(data & 0x2)
@@ -120,12 +126,16 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // configure machine type
-    case 0x0b:
+    case 0xF8:
         if (data < MACHINE_MAX_CFG)
             cfg_machine = data;
         break;
 
-    case 0xf:
+    case 0xF9:
+        if (data == 0)
+        {
+            SET_IFLAG(1, IFLAGS_MENU_ENABLE);
+        }
         if (IS_IFLAG(IFLAGS_MENU_ENABLE))
         {
             showMenu(data);
@@ -167,9 +177,6 @@ void execute_device_command(uint_fast8_t cmd)
             memcpy(character_rom, character_roms[cmd & 0xf], CHARACTER_ROM_SIZE);
             break;
 #endif
-        case 0x80:
-            SET_IFLAG(1, IFLAGS_MENU_ENABLE);
-            break;
         default:
             break;
     }

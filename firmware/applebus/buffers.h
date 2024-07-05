@@ -2,16 +2,16 @@
 
 #include <stdint.h>
 
-extern volatile uint8_t reset_state;
+extern volatile uint8_t  reset_state;
 
-extern volatile uint8_t cardslot;
+extern volatile uint8_t  cardslot;
+extern volatile uint16_t card_rom_address;
 
 #define MAX_ADDRESS (0xC000)
 
 extern uint8_t apple_memory[MAX_ADDRESS];
 extern uint8_t private_memory[MAX_ADDRESS];
-
-//#define terminal_memory (private_memory+0xF000)
+extern uint8_t slot_memory[256];
 
 extern volatile uint8_t jumpers;
 
