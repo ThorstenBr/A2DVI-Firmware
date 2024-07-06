@@ -173,12 +173,11 @@ void execute_device_command(uint_fast8_t cmd)
             // save the current configuration
             config_save();
             break;
-#if 0
-        case 0x10 ... 0x1f:
+        case 0x10 ... 0x2f:
             // load a standard alternate character ROM
-            memcpy(character_rom, character_roms[cmd & 0xf], CHARACTER_ROM_SIZE);
+            cfg_local_charset = cmd - 0x10;
+            reload_charsets = 1;
             break;
-#endif
         default:
             break;
     }
