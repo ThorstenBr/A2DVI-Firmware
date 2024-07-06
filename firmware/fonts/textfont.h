@@ -2,11 +2,12 @@
 
 #include <stdint.h>
 
-#define MAX_CFG_FONT 15
+#define MAX_CFG_FONT   15
+#define MAX_FONT_COUNT 24
 #define DEFAULT_LOCAL_CHARSET       0
 #define DEFAULT_ALT_CHARSET         0
 
-extern const uint8_t *character_roms[24];
+extern const uint8_t *character_roms[MAX_FONT_COUNT];
 
 extern const uint8_t textfont_iie_us_enhanced[256 * 8];
 extern const uint8_t textfont_iie_us_unenhanced[256 * 8];

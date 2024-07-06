@@ -370,18 +370,30 @@ bool menuDoSelection(bool increase)
             if (increase)
             {
                 if (cfg_alt_charset == 0)
+                {
                     cfg_alt_charset = 9;
+                    reload_charsets = 2;
+                }
                 else
                 if ((cfg_alt_charset >= 9)&&(cfg_alt_charset<11))
+                {
                     cfg_alt_charset++;
+                    reload_charsets = 2;
+                }
             }
             else
             {
                 if ((cfg_alt_charset >= 10)&&(cfg_alt_charset <= 11))
+                {
                     cfg_alt_charset--;
+                    reload_charsets = 2;
+                }
                 else
                 if (cfg_alt_charset == 9)
+                {
                     cfg_alt_charset = 0;
+                    reload_charsets = 2;
+                }
             }
             break;
         case 5:

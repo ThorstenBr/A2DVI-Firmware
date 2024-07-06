@@ -94,22 +94,22 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
 
     // set local/main character set
     case 0xF5:
-        if (data < 16)
+        if (data < MAX_FONT_COUNT)
         {
-            cfg_local_charset = data & 0xf;
             // load a standard alternate character ROM
-            memcpy32(character_rom, character_roms[data & 0xf], CHARACTER_ROM_SIZE);
+            cfg_local_charset = data;
+            reload_charsets = 1;
         }
         break;
 
     // set alternate character set
     case 0xF6:
-        if (data < 16)
+        if (data < MAX_FONT_COUNT)
         {
-            cfg_alt_charset = data & 0xf;
-            language_switch_enabled = true;
             // load a standard alternate character ROM
-            memcpy32(&character_rom[0x800], character_roms[data & 0xf], CHARACTER_ROM_SIZE);
+            cfg_alt_charset = data;
+            reload_charsets = 2;
+            language_switch_enabled = true;
         }
         else
         {
@@ -173,7 +173,7 @@ void execute_device_command(uint_fast8_t cmd)
             // save the current configuration
             config_save();
             break;
-        case 0x10 ... 0x2f:
+        case 0x10 ... (0x10+MAX_FONT_COUNT):
             // load a standard alternate character ROM
             cfg_local_charset = cmd - 0x10;
             reload_charsets = 1;

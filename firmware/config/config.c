@@ -120,11 +120,17 @@ void __time_critical_func(set_machine)(compat_t machine)
 
 void config_load_charsets(void)
 {
-    // local font
-    memcpy32(character_rom, character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
+    if (reload_charsets & 1)
+    {
+        // local font
+        memcpy32(character_rom, character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
+    }
 
-    // alternate fixed US font (with language switch)
-    memcpy32(&character_rom[0x800], character_roms[cfg_alt_charset], CHARACTER_ROM_SIZE);
+    if (reload_charsets & 2)
+    {
+        // alternate fixed US font (with language switch)
+        memcpy32(&character_rom[0x800], character_roms[cfg_alt_charset], CHARACTER_ROM_SIZE);
+    }
 
     reload_charsets = 0;
 }
@@ -149,14 +155,15 @@ void config_load(void)
     color_mode = (cfg->color_mode <= 2) ? cfg->color_mode : 0;
 
     cfg_local_charset = cfg->local_charset;
-    if (cfg_local_charset >= 16)
+    if (cfg_local_charset >= MAX_FONT_COUNT)
         cfg_local_charset = 0;
 
     cfg_alt_charset = cfg->alt_charset;
-    if (cfg_alt_charset >= 16)
+    if (cfg_alt_charset >= MAX_FONT_COUNT)
         cfg_alt_charset = 0;
 
-    // load character sets
+    // load both character sets
+    reload_charsets = 3;
     config_load_charsets();
 
 #ifdef APPLE_MODEL_IIPLUS
@@ -185,7 +192,7 @@ void config_load_defaults(void)
     cfg_alt_charset         = DEFAULT_ALT_CHARSET;
 
     memcpy32(&character_rom[0],     character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
-    memcpy32(&character_rom[0x800], character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
+    memcpy32(&character_rom[0x800], character_roms[cfg_alt_charset],   CHARACTER_ROM_SIZE);
 
 #ifdef APPLE_MODEL_IIPLUS
     videx_vterm_disable();
