@@ -29,7 +29,6 @@ SOFTWARE.
 #include "config/config.h"
 #include "render.h"
 #include "hires_dot_patterns.h"
-#include "hires_color_patterns_tmds.h"
 
 #define PAGE2SEL ((soft_switches & (SOFTSW_80STORE | SOFTSW_PAGE_2)) == SOFTSW_PAGE_2)
 
@@ -110,9 +109,9 @@ static void DELAYED_COPY_CODE(render_hires_line)(bool p2, uint line)
             for(uint j=0; j < 7; j++)
             {
                 uint dot_pattern = oddness | ((dots >> 24) & 0xff);
-                *(tmdsbuf_red++)   = hires_color_patterns_red[dot_pattern];
-                *(tmdsbuf_green++) = hires_color_patterns_green[dot_pattern];
-                *(tmdsbuf_blue++)  = hires_color_patterns_blue[dot_pattern];
+                *(tmdsbuf_red++)   = tmds_hires_color_patterns_red[dot_pattern];
+                *(tmdsbuf_green++) = tmds_hires_color_patterns_green[dot_pattern];
+                *(tmdsbuf_blue++)  = tmds_hires_color_patterns_blue[dot_pattern];
                 dots <<= 2;
                 oddness ^= 0x100;
             }

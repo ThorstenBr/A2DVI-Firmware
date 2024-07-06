@@ -37,8 +37,6 @@ void DELAYED_COPY_CODE(render_loop)()
     for(;;)
     {
 #if 0
-        config_handler();
-
         if(romx_changed || (machinefont != current_machine))
         {
             switch_font();
@@ -49,51 +47,9 @@ void DELAYED_COPY_CODE(render_loop)()
 
         update_text_flasher();
 
-#if 0
-        if(!(mono_palette & 0x8))
-        {
-            if((current_machine == MACHINE_IIGS) && !(soft_switches & SOFTSW_MONOCHROME)) {
-                text_fore = lores_palette[APPLE_FORE];
-                text_back = lores_palette[APPLE_BACK];
-                text_border = lores_palette[APPLE_BORDER];
-            } else {
-                text_fore = mono_colors[1];
-                text_back = mono_colors[0];
-                text_border = mono_colors[0];
-            }
-        } else if(mono_palette == 0xF) {
-            text_fore = lores_palette[TERMINAL_FORE];
-            text_back = lores_palette[TERMINAL_BACK];
-            text_border = lores_palette[TERMINAL_BORDER];
-        } else {
-            int palette = mono_palette & 0x7;
-            text_fore = mono_colors[palette*2+1];
-            text_back = mono_colors[palette*2];
-            text_border = (palette == 0x6) ? text_fore : text_back;
-        }
-#endif
-
         dvi0.scanline_emulation = (internal_flags & IFLAGS_SCANLINEEMU) != 0;
 
         mono_rendering = (soft_switches & SOFTSW_MONOCHROME)||(internal_flags & IFLAGS_FORCED_MONO);
-
-#if 0
-        if(internal_flags & IFLAGS_TEST)
-        {
-            render_testpattern();
-            // Assume the RP2040 has been hard reset and try to default to text display
-            if(busactive && (testdone == 0)) { // was ((soft_switches & SOFTSW_MODE_MASK) != 0)
-                soft_switches |= SOFTSW_TEXT_MODE;
-                internal_flags &= ~IFLAGS_TEST;
-                testdone = 1;
-                render_about_init();
-            }
- #if defined(ANALOG_GS)
-        } else if(soft_switches & SOFTSW_SHR) {
-            vga_prepare_frame();
-            render_shr();
- #endif
-#endif
 
         {
 #if 0

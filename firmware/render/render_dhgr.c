@@ -28,24 +28,10 @@ SOFTWARE.
 #include "applebus/buffers.h"
 #include "config/config.h"
 #include "render.h"
-//#include "hires_color_patterns.h"
-//#include "hires_dot_patterns.h"
-#include "dhgr_patterns.h"
-
-static void render_dhgr_line(bool p2, uint line, bool mono);
-
-#if 0
-uint16_t DELAYED_COPY_DATA(dhgr_palette)[16] = {
-    RGB_BLACK,    RGB_DBLUE,    RGB_DGREEN,    RGB_HBLUE,
-    RGB_BROWN,    RGB_LGRAY,    RGB_HGREEN,    RGB_AQUA,
-    RGB_MAGENTA,  RGB_HVIOLET,  RGB_DGRAY,     RGB_LBLUE,
-    RGB_HORANGE,  RGB_PINK,     RGB_YELLOW,    RGB_WHITE
-};
-uint16_t __attribute__((section(".uninitialized_data."))) half_palette[16];
-#endif
 
 // map DHGR values to the LORES palette (also multiply by 3, as we need an index to the RGB TMDS table, with 3 values per color)
-uint8_t DELAYED_COPY_DATA(dhgr_tmdslores_mapping)[16] = {
+uint8_t DELAYED_COPY_DATA(tmds_dhgr_lores_mapping)[16] =
+{
     0*3 /*0:BLACK*/,    2*3 /*2:DGREEN*/,  4*3 /*4:BROWN*/,     6*3 /*6:HGREEN*/,
     8*3 /*8:MAGENTA*/, 10*3 /*10:DGRAY*/, 12*3 /*12:HORANGE*/, 14*3 /*14:YELLOW*/,
     1*3 /*1:DBLUE*/,    3*3 /*3:HBLUE*/,   5*3 /*5:LGRAY*/,     7*3 /*7:AQUA*/,
@@ -58,31 +44,6 @@ uint8_t DELAYED_COPY_DATA(dhgr_tmdslores_mapping)[16] = {
 static inline uint dhgr_line_to_mem_offset(uint line)
 {
     return ((line & 0x07) << 10) | ((line & 0x38) << 4) | (((line & 0xc0) >> 6) * 40);
-}
-
-
-void DELAYED_COPY_CODE(render_dhgr)()
-{
-    bool mono = mono_rendering;
-    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0)) {
-        mono = true;
-    }
-    for(uint line=0; line < 192; line++) {
-        render_dhgr_line(PAGE2SEL, line, mono);
-    }
-}
-
-void DELAYED_COPY_CODE(render_mixed_dhgr)()
-{
-    bool mono = mono_rendering;
-    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0)) {
-        mono = true;
-    }
-    for(uint line=0; line < 160; line++) {
-        render_dhgr_line(PAGE2SEL, line, mono);
-    }
-
-    render_mixed_text();
 }
 
 static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
@@ -345,7 +306,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             while(dotc >= 8)
             {
                 // map HGR dot values to 16 color (RGB LORES) palette
-                uint32_t* pTmds = &tmds_lorescolor[dhgr_tmdslores_mapping[dots&0xf]];
+                uint32_t* pTmds = &tmds_lorescolor[tmds_dhgr_lores_mapping[dots&0xf]];
                 uint32_t r = pTmds[0];
                 uint32_t g = pTmds[1];
                 uint32_t b = pTmds[2];
@@ -362,7 +323,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 dots >>= 4;
 
                 // map HGR dot values to 16 color (LORES) palette
-                pTmds = &tmds_lorescolor[dhgr_tmdslores_mapping[dots&0xf]];
+                pTmds = &tmds_lorescolor[tmds_dhgr_lores_mapping[dots&0xf]];
                 dots >>= 4;
 
                 r = pTmds[0];
@@ -386,4 +347,28 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
 
     // send buffer
     dvi_send_scanline(tmdsbuf);
+}
+
+void DELAYED_COPY_CODE(render_dhgr)()
+{
+    bool mono = mono_rendering;
+    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0)) {
+        mono = true;
+    }
+    for(uint line=0; line < 192; line++) {
+        render_dhgr_line(PAGE2SEL, line, mono);
+    }
+}
+
+void DELAYED_COPY_CODE(render_mixed_dhgr)()
+{
+    bool mono = mono_rendering;
+    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0)) {
+        mono = true;
+    }
+    for(uint line=0; line < 160; line++) {
+        render_dhgr_line(PAGE2SEL, line, mono);
+    }
+
+    render_mixed_text();
 }
