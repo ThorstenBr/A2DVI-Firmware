@@ -262,6 +262,7 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
             if ((address & 0xFF00) == card_rom_address)
             {
                 device_write(address & 0xFF, data);
+                devicerom_counter++;
                 return;
             }
         }
@@ -354,6 +355,7 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
             // remember address range of card's ROM area ($Cs00, s=1..7)
             card_rom_address = 0xC000 | (cardslot << 8);
         }
+        devicereg_counter++;
     }
 }
 
@@ -390,6 +392,7 @@ void __time_critical_func(businterface)(uint32_t value)
                 internal_flags |= IFLAGS_V7_MODE3;
                 // clear magic word unlocking config registers in slot mem area
                 ((uint16_t*)slot_memory)[0] = 0;
+                reset_counter++;
             }
             // fall-through
         default:

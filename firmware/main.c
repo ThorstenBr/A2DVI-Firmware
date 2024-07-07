@@ -51,7 +51,7 @@ int main()
 
     // initialize the screen buffer area
     showTitle(PRINTMODE_NORMAL);
-    centerY(11, "NO 6502 ACTIVITY", PRINTMODE_FLASH);
+    centerY(11, "NO 6502 BUS ACTIVITY", PRINTMODE_FLASH);
 
     // initialize the Apple II bus interface
     abus_init();

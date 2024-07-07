@@ -1,5 +1,11 @@
 #include "buffers.h"
 
+volatile uint32_t reset_counter = 1;
+volatile uint32_t bus_counter;
+volatile uint32_t frame_counter;
+volatile uint32_t devicereg_counter;
+volatile uint32_t devicerom_counter;
+
 volatile uint32_t soft_switches = SOFTSW_TEXT_MODE;
 volatile uint32_t internal_flags = IFLAGS_V7_MODE3;
 

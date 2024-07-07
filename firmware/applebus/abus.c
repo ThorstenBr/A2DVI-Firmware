@@ -63,6 +63,9 @@ void __time_critical_func(abus_loop)()
             language_switch = LANGUAGE_SWITCH(value);
         }
 
+        bus_counter++;
+
         businterface(value);
+
     }
 }

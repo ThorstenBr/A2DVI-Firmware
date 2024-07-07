@@ -290,23 +290,57 @@ void menuShowTest()
     }
 }
 
+void int2str(uint32_t value, char* pStrBuf, uint32_t digits)
+{
+    uint8_t done = 0;
+    for (int32_t i=digits-1;i>=0;i--)
+    {
+        pStrBuf[i] = (done) ? (' '|0x80) : (0x80|'0')+(value % 10);
+        value /= 10;
+        done = (value == 0);
+    }
+    pStrBuf[digits]=0;
+}
+
 void menuShowDebug()
 {
     // show detected machine and slot
     {
-        const uint8_t X = 7;
+        const uint8_t X1 = 7;
+        const uint8_t X2 = X1+17;
 
-        printXY(X,2, "DETECTED SLOT=", PRINTMODE_NORMAL);
-        printXY(X,4, "DETECTED MACHINE=", PRINTMODE_NORMAL);
+        printXY(X1,2, "DETECTED SLOT:", PRINTMODE_NORMAL);
+        printXY(X1,4, "DETECTED MACHINE:", PRINTMODE_NORMAL);
 
         // show slot
-        char s[2];
+        char s[16];
         s[0] = 0x80 | ((cardslot == 0) ? '-' : '0'+cardslot);
         s[1] = 0;
-        printXY(X+5+12,2, s, PRINTMODE_NORMAL);
+        printXY(X2,2, s, PRINTMODE_NORMAL);
 
         // show current machine type
-        printXY(X+5+12, 4, (current_machine > MACHINE_MAX_CFG) ? "-" : MachineNames[current_machine], PRINTMODE_NORMAL);
+        printXY(X2, 4, (current_machine > MACHINE_MAX_CFG) ? "-" : MachineNames[current_machine], PRINTMODE_NORMAL);
+
+        // show statistics
+        printXY(X1, 6, "BUS CYCLES:", PRINTMODE_NORMAL);
+        int2str(bus_counter, s, 14);
+        printXY(X2, 6, s, PRINTMODE_NORMAL);
+
+        printXY(X1, 7, "FRAMES:", PRINTMODE_NORMAL);
+        int2str(frame_counter, s, 14);
+        printXY(X2, 7, s, PRINTMODE_NORMAL);
+
+        printXY(X1, 8, "RESETS:", PRINTMODE_NORMAL);
+        int2str(reset_counter, s, 14);
+        printXY(X2, 8, s, PRINTMODE_NORMAL);
+
+        printXY(X1, 9, "DEV REG ACCESS:", PRINTMODE_NORMAL);
+        int2str(devicereg_counter, s, 14);
+        printXY(X2, 9, s, PRINTMODE_NORMAL);
+
+        printXY(X1,10, "DEV ROM ACCESS:", PRINTMODE_NORMAL);
+        int2str(devicerom_counter, s, 14);
+        printXY(X2, 10, s, PRINTMODE_NORMAL);
     }
 }
 

@@ -2,6 +2,12 @@
 
 #include <stdint.h>
 
+extern volatile uint32_t reset_counter;
+extern volatile uint32_t bus_counter;
+extern volatile uint32_t frame_counter;
+extern volatile uint32_t devicereg_counter;
+extern volatile uint32_t devicerom_counter;
+
 extern volatile uint8_t  reset_state;
 
 extern volatile uint8_t  cardslot;
