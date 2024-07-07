@@ -241,9 +241,11 @@ static void __dvi_func(dvi_dma_irq_handler)(struct dvi_inst *inst)
 			else {
 				_dvi_load_dma_op(inst->dma_cfg, &inst->dma_list_error);
 			}
+#if 0
 			if (inst->scanline_callback && inst->timing_state.v_ctr % DVI_VERTICAL_REPEAT == DVI_VERTICAL_REPEAT - 1) {
 				inst->scanline_callback();
 			}
+#endif
 			break;
 		case DVI_STATE_SYNC:
 			_dvi_load_dma_op(inst->dma_cfg, &inst->dma_list_vblank_sync);

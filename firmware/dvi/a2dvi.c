@@ -42,12 +42,6 @@ SOFTWARE.
 
 struct dvi_inst dvi0;
 
-static inline void render()
-{
-    render_text();
-    update_text_flasher();
-}
-
 void a2dvi_init()
 {
     vreg_set_voltage(VREG_VSEL);

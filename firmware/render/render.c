@@ -45,12 +45,6 @@ void DELAYED_COPY_CODE(render_loop)()
         }
 #endif
 
-        update_text_flasher();
-
-        dvi0.scanline_emulation = (internal_flags & IFLAGS_SCANLINEEMU) != 0;
-
-        mono_rendering = (soft_switches & SOFTSW_MONOCHROME)||(internal_flags & IFLAGS_FORCED_MONO);
-
         {
 #if 0
             if(status_line[0] != 0)
@@ -107,5 +101,11 @@ void DELAYED_COPY_CODE(render_loop)()
             }
 
         }
+
+        update_text_flasher();
+
+        dvi0.scanline_emulation = (internal_flags & IFLAGS_SCANLINEEMU) != 0;
+
+        mono_rendering = (soft_switches & SOFTSW_MONOCHROME)||(internal_flags & IFLAGS_FORCED_MONO);
     }
 }

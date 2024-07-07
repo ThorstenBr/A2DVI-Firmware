@@ -15,7 +15,9 @@ extern "C" {
 #include "dvi_serialiser.h"
 #include "util_queue_u32_inline.h"
 
+#if 0
 typedef void (*dvi_callback_t)(void);
+#endif
 
 struct dvi_inst {
 	// Config ---
@@ -23,8 +25,10 @@ struct dvi_inst {
 	struct dvi_lane_dma_cfg dma_cfg[N_TMDS_LANES];
 	struct dvi_timing_state timing_state;
 	struct dvi_serialiser_cfg ser_cfg;
+#if 0
 	// Called in the DMA IRQ once per scanline -- careful with the run time!
 	dvi_callback_t scanline_callback;
+#endif
 
 	// State ---
 	struct dvi_scanline_dma_list dma_list_vblank_sync;
