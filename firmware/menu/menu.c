@@ -219,22 +219,23 @@ static void menuShowFrame()
 //   1234567890123456789012345678901234567890
 static const char* AboutText[]=
 {
-    "A2DVI IS A DVI/HDMI  GRAPHICS  CARD  FOR",  //3
-    "APPLE II COMPUTERS,  GENERATING  A  TRUE",  //4
+    "A2DVI IS A DVI/HDMI  GRAPHICS  CARD  FOR", //3
+    "APPLE II COMPUTERS,  GENERATING  A  TRUE", //4
     "DIGITAL VIDEO SIGNAL WITHOUT ANY  ANALOG", //5
     "CONVERSION. THE CARD MONITORS  THE  6502", //6
     "BUS, CREATES A SHADOW COPY OF THE  VIDEO", //7
     "MEMORY WITHIN ITS  RASPBERRY  PICO  MCU,", //8
     "THEN GENERATES 'TMDS'  ENCODED  RGB  BIT", //9
-    "STREAMS (3X252MBIT/S) FOR DVI/HDMI.", //10
-    "", //11
-    "MORE:", //12
-    "    GITHUB.COM/RALLEPALAVEEV/A2DVI", //13
-    "",
-    "A2DVI IS BASED ON PROJECTS 'APPLEII VGA'",
-    "(C) 2021 MARK AIKENS & DAVID KUDER,  AND",
-    "ON 'PICODVI' (C) 2021 LUKE WREN.",
-    "  MANY THANKS TO ALL! APPLE II FOREVER!",
+    "STREAMS (3X252MBIT/S) FOR DVI/HDMI.",      //10
+    "",                                         //11
+    "MORE:",                                    //12
+    "     GITHUB.COM/RALLEPALAVEEV/A2DVI",      //13
+    "  GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE",   //14
+    "",                                         //15
+    "A2DVI IS BASED ON PROJECTS 'APPLEII VGA'", //16
+    "(C) 2021 MARK AIKENS & DAVID KUDER,  AND", //17
+    "ON 'PICODVI' (C) 2021 LUKE WREN.",         //18
+    "  MANY THANKS TO ALL! APPLE II FOREVER!",  //19
     0
 };
 

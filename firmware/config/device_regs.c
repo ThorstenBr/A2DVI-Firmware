@@ -39,20 +39,39 @@ SOFTWARE.
 
 
 static unsigned int char_write_offset;
-
+uint8_t dev_config_lock;
 
 // Handle a write to one of the registers on this device's slot
 void device_write(uint_fast8_t reg, uint_fast8_t data)
 {
-    slot_memory[reg] = data;
+    if (reg == 0xf)
+    {
+        /* simple lock/version check to prevent issues with mismatching
+         * configuration utilities. 11,22 has to be written to
+         * enable the device config registers.
+         * We can also use this in the future as a version check (check
+         * if config utility matches). */
+        switch(data)
+        {
+            case 11:
+                dev_config_lock = 1;     // first step
+                break;
+            case 22:
+                if (dev_config_lock == 1)
+                    dev_config_lock = 2; // second step: unlocked
+                break;
+            default:
+                dev_config_lock = 0;     // locked
+                break;
+        }
+    }
 
-    // ignore any register access, unless magic word was set (11,22)
-    if (((uint16_t*)slot_memory)[0] != 11+22*256)
+    if (dev_config_lock != 2)
         return;
 
     switch(reg)
     {
-    case 0xF0:
+    case 0x0:
         if(data & 0x01)
             SET_IFLAG(1, IFLAGS_SCANLINEEMU);
         if(data & 0x02)
@@ -66,7 +85,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // soft-monochrome color setting
-    case 0xF1:
+    case 0x1:
         if (data & 0x03)
             color_mode = (data & 0x3)-1;
         //0x30
@@ -77,23 +96,23 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // character generator write offset
-    case 0xF2:
+    case 0x2:
         char_write_offset = data << 3;
         break;
 
     // character generator write
-    case 0xF3:
+    case 0x3:
         character_rom[char_write_offset] = data;
         char_write_offset = (char_write_offset + 1) % sizeof(character_rom);
         break;
 
     // device command
-    case 0xF4:
+    case 0x4:
         execute_device_command(data);
         break;
 
     // set local/main character set
-    case 0xF5:
+    case 0x5:
         if (data < MAX_FONT_COUNT)
         {
             // load a standard alternate character ROM
@@ -103,7 +122,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // set alternate character set
-    case 0xF6:
+    case 0x6:
         if (data < MAX_FONT_COUNT)
         {
             // load a standard alternate character ROM
@@ -118,7 +137,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // set VIDEO7 (and other future) properties
-    case 0xF7:
+    case 0x7:
         if(data & 0x1)
             SET_IFLAG(1, IFLAGS_VIDEO7);
         if(data & 0x2)
@@ -126,12 +145,12 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         break;
 
     // configure machine type
-    case 0xF8:
+    case 0x8:
         if (data < MACHINE_MAX_CFG)
             cfg_machine = data;
         break;
 
-    case 0xF9:
+    case 0x9:
         if (data == 0)
         {
             // 0 unlocks the menu dialog

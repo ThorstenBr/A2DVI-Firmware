@@ -261,7 +261,7 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
         {
             if ((address & 0xFF00) == card_rom_address)
             {
-                device_write(address & 0xFF, data);
+                // access to card's ROM area
                 devicerom_counter++;
                 return;
             }
@@ -357,6 +357,10 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
         }
         devicereg_counter++;
     }
+    if (AccessMode == WriteDev)
+    {
+        device_write(address & 0xF, data);
+    }
 }
 
 void __time_critical_func(businterface)(uint32_t value)
@@ -390,8 +394,8 @@ void __time_critical_func(businterface)(uint32_t value)
                 soft_switches   = SOFTSW_TEXT_MODE;
                 //internal_flags &= ~(IFLAGS_TERMINAL | IFLAGS_TEST);
                 internal_flags |= IFLAGS_V7_MODE3;
-                // clear magic word unlocking config registers in slot mem area
-                ((uint16_t*)slot_memory)[0] = 0;
+                // clear dev register lock
+                dev_config_lock = 0;
                 reset_counter++;
             }
             // fall-through

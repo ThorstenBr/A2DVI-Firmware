@@ -2,6 +2,15 @@
 
 This is a firmware project for a digital DVI/HDMI Apple II video card.
 
+The project is currently being tested. Firmware builds and gerber files
+will be published once initial testing is completed. Currently (July 2024)
+we're waiting for a batch of updated PCBs.
+
+Please be a little patient. Check out the discussion topic in the
+AppleFritter forum, if you want to help with testing.
+
+# How A2DVI Works
+
 # Project Status
 
 ## Completed Features
@@ -30,7 +39,7 @@ This is a firmware project for a digital DVI/HDMI Apple II video card.
 
 * **Flash** configuration.
 
-* Apple II **card registers** for configuration.
+* Apple II **Card registers** for configuration.
 
 * **Configuration menu**
 
@@ -38,29 +47,30 @@ This is a firmware project for a digital DVI/HDMI Apple II video card.
 
 * Double-LORES in color.
 
+* Load custom fonts.
 
 # License
-The A2DVI Firmware is released under the [MIT License](/LICENSE):
+The A2DVI firmware is released under the [MIT License](/LICENSE):
 
 * Copyright (c) 2024 Thorsten Brehm
 
 <br>
 
-A2DVI was an idea by Ralle Palaveev and his matching hardware project is found here:
+A2DVI was an idea by Ralle Palaveev. His matching hardware project:
 
 * [A2DVI Hardware](https://github.com/rallepalaveev/A2DVI). MIT License. Copyright (c) 2024 Ralle Palaveev.
 
 <br><br>
 The firmware project is based on awesome work from the following Apple II Analog VGA projects:
 
-* [AppleII-VGA](https://github.com/markadev/AppleII-VGA). MIT License. Copyright (c) 2021-2022, Mark Aikens.
+* [AppleII-VGA](https://github.com/markadev/AppleII-VGA). MIT License. Copyright (c) 2021-2022 Mark Aikens.
 
-* [Analog Firmware](https://github.com/V2RetroComputing/analog-firmware). MIT License. Copyright (c) 2022-2023, David Kuder.
+* [Analog Firmware](https://github.com/V2RetroComputing/analog-firmware). MIT License. Copyright (c) 2022-2023 David Kuder.
 
 <br><br>
 This project uses a customized variant of the PicoDVI library - and reuses many of Luke's genius ideas for the custom *Apple II to DVI/TMDS* encoding:
 
-* [PicoDVI](https://github.com/Wren6991/PicoDVI). [BSD3 License](/libraries/libdvi/LICENSE). Copyright (c) 2021, Luke Wren.
+* [PicoDVI](https://github.com/Wren6991/PicoDVI). [BSD3 License](/libraries/libdvi/LICENSE). Copyright (c) 2021 Luke Wren.
 
 <br><br>
 *Apple II Forever!*

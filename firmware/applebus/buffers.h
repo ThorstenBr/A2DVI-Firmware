@@ -17,7 +17,6 @@ extern volatile uint16_t card_rom_address;
 
 extern uint8_t apple_memory[MAX_ADDRESS];
 extern uint8_t private_memory[MAX_ADDRESS];
-extern uint8_t slot_memory[256];
 
 extern volatile uint8_t jumpers;
 
