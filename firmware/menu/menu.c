@@ -112,7 +112,7 @@ void __time_critical_func(clearTextScreen)(void)
     }
 }
 
-void clearLine(uint8_t line, TPrintMode PrintMode)
+void __time_critical_func(clearLine)(uint8_t line, TPrintMode PrintMode)
 {
     uint32_t ScreenOffset = (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
     char blank = (PrintMode == PRINTMODE_NORMAL) ? ' '|0x80 : ' ';
@@ -139,8 +139,8 @@ void __time_critical_func(showTitle)(TPrintMode PrintMode)
 
     centerY(22, "(C) 2024 T.BREHM, R.PALAVEEV ET AL.", PrintMode);
     centerY(23, "GITHUB.COM/RALLEPALAVEEV/A2DVI", PrintMode);
-    //centerY(23, "GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE", PrintMode);
 }
+
 
 const char* MachineNames[MACHINE_MAX_CFG+1] =
 {
@@ -217,7 +217,7 @@ static void menuShowFrame()
 }
 
 //   1234567890123456789012345678901234567890
-static const char* AboutText[]=
+static const char* DELAYED_COPY_DATA(AboutText)[]=
 {
     "A2DVI IS A DVI/HDMI  GRAPHICS  CARD  FOR", //3
     "APPLE II COMPUTERS,  GENERATING  A  TRUE", //4
@@ -239,19 +239,15 @@ static const char* AboutText[]=
     0
 };
 
-void menuShowAbout()
+void DELAYED_COPY_CODE(menuShowAbout)()
 {
-    //centerY(2,  "ABOUT A2DVI", PRINTMODE_NORMAL);
-
     for (uint y=0;AboutText[y];y++)
     {
         printXY(0,2+y, AboutText[y], PRINTMODE_NORMAL);
     }
-
-    //centerY(11, "APPLE II FOREVER!", PRINTMODE_NORMAL);
 }
 
-void menuShowTest()
+void DELAYED_COPY_CODE(menuShowTest)()
 {
     // initialize the screen buffer area
     clearTextScreen();
@@ -342,10 +338,16 @@ void menuShowDebug()
         printXY(X1,10, "DEV ROM ACCESS:", PRINTMODE_NORMAL);
         int2str(devicerom_counter, s, 14);
         printXY(X2, 10, s, PRINTMODE_NORMAL);
+
+#ifdef FEATURE_TEST
+        printXY(X1,11, "BOOT TIME:", PRINTMODE_NORMAL);
+        int2str(boot_time, s, 14);
+        printXY(X2, 11, s, PRINTMODE_NORMAL);
+#endif
     }
 }
 
-bool menuDoSelection(bool increase)
+bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
 {
     switch(CurrentMenu)
     {
@@ -627,7 +629,7 @@ static inline bool menuCheckKeys(char key)
     return false;
 }
 
-void menuShow(char key)
+void DELAYED_COPY_CODE(menuShow)(char key)
 {
     menuShowFrame();
 

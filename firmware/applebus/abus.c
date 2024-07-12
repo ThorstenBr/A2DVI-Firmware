@@ -31,11 +31,12 @@ SOFTWARE.
 #include "buffers.h"
 #include "businterface.h"
 #include "config/config.h"
+
 #ifdef APPLE_MODEL_IIPLUS
-#include "videx_vterm.h"
+    #include "videx_vterm.h"
 #endif
 
-void abus_init()
+void __time_critical_func(abus_init)()
 {
 #ifdef APPLE_MODEL_IIPLUS
     videx_vterm_init();
@@ -45,6 +46,9 @@ void abus_init()
 
 void __time_critical_func(abus_loop)()
 {
+    // initialize the Apple II bus interface
+    abus_init();
+
     uint32_t count = 100;
     while(1)
     {

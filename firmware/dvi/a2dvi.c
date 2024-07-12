@@ -25,7 +25,6 @@ SOFTWARE.
 #include <stdlib.h>
 #include "pico/stdlib.h"
 #include "hardware/clocks.h"
-#include "hardware/vreg.h"
 
 #include "a2dvi.h"
 #include "dvi.h"
@@ -34,25 +33,29 @@ SOFTWARE.
 #include "dvi_timing.h"
 #include "render/render.h"
 #include "util/dmacopy.h"
+#include "config/config.h"
 
 // clock/DVI configuration
-#define VREG_VSEL         VREG_VOLTAGE_1_20
 #define DVI_TIMING        dvi_timing_640x480p_60hz
 #define DVI_SERIAL_CONFIG pico_a2dvi_cfg
 
 struct dvi_inst dvi0;
 
-void a2dvi_init()
+static void a2dvi_init()
 {
-    vreg_set_voltage(VREG_VSEL);
-    sleep_ms(10);
+    // wait a bit, until the raised core VCC has settled
+    sleep_ms(5);
+    // shift into higher gears...
     set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
 }
 
-void a2dvi_loop()
+void DELAYED_COPY_CODE(a2dvi_loop)()
 {
-    // stop others from using the DMA (it would interfere with the DVI processing)
-    disable_memcpy32dma();
+    // free DMA channel and stop others from using it (would interfere with the DVI processing)
+    dmacopy_disable_dma();
+
+    // CPU clock configuration required for DVI
+    a2dvi_init();
 
     // configure DVI
     dvi0.timing = &DVI_TIMING;

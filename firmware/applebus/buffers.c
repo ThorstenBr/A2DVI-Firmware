@@ -6,6 +6,10 @@ volatile uint32_t frame_counter;
 volatile uint32_t devicereg_counter;
 volatile uint32_t devicerom_counter;
 
+#ifdef FEATURE_TEST
+         uint32_t boot_time;
+#endif
+
 volatile uint32_t soft_switches = SOFTSW_TEXT_MODE;
 volatile uint32_t internal_flags = IFLAGS_V7_MODE3;
 
@@ -28,4 +32,4 @@ volatile uint8_t *hgr_p3  = private_memory + 0x2000;
 volatile uint8_t *hgr_p4  = private_memory + 0x4000;
 
 // The currently programmed character generator ROMs for text mode (US + local char set)
-uint8_t __attribute__((section (".videodata."))) character_rom[2* 256 * 8];
+uint8_t __attribute__((section (".appledata."))) character_rom[2* 256 * 8];

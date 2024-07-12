@@ -32,10 +32,10 @@ SOFTWARE.
 #include "pico/time.h"
 #include "debug/debug.h"
 #include "menu/menu.h"
+#include "applebus/abus.h"
 #include "applebus/buffers.h"
 #include "applebus/businterface.h"
 #include "applebus/abus_pin_config.h"
-#include "render/render.h"
 #include "config/config.h"
 #include "duck.h"
 
@@ -99,9 +99,14 @@ void sleep(int Milliseconds)
 {
     while (Milliseconds--)
     {
+#if 1
+        if (0 == Milliseconds % 100)
+            gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
+#endif
         debug_check_bootsel();
         sleep_ms(1);
     }
+    gpio_put(PICO_DEFAULT_LED_PIN, 1);
 }
 
 void togglePages()
@@ -417,11 +422,17 @@ void test_menu()
         sleep(TestDelayMilliseconds/3);
     }
 #endif
+
+    showTitle(PRINTMODE_INVERSE);
+    menuShowDebug();
+    sleep(TestDelayMilliseconds);
 }
 
 void test_loop()
 {
-//    sleep(1000*3);
+    // initialize the Apple II bus interface
+    abus_init();
+
 #if 0
     test_config();
 #else

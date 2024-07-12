@@ -8,6 +8,10 @@ extern volatile uint32_t frame_counter;
 extern volatile uint32_t devicereg_counter;
 extern volatile uint32_t devicerom_counter;
 
+#ifdef FEATURE_TEST
+extern          uint32_t boot_time;
+#endif
+
 extern volatile uint8_t  reset_state;
 
 extern volatile uint8_t  cardslot;

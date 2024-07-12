@@ -38,13 +38,26 @@ SOFTWARE.
 #include "applebus/buffers.h"
 
 #ifdef FEATURE_TEST
+volatile bool debug_flash_released;
+
+// ATTENTION: This temporarily DISABLES flash access. Not a good idea,
+// since we need the flash at run-time, to read/write config data,
+// to read/write fonts etc.
+// So we only use this function for convenience in test mode.
 bool __no_inline_not_in_flash_func(get_bootsel_button)(void)
 {
     const uint CS_PIN_INDEX = 1;
 
+    // do not access the button (which disables flash), unless we have the
+    // go (main init code is complete).
+    if (!debug_flash_released)
+        return 1;
+
+#if 0
     // Must disable interrupts, as interrupt handlers may be in flash, and we
     // are about to temporarily disable flash access!
     uint32_t flags = save_and_disable_interrupts();
+#endif
 
     // Set chip select to Hi-Z
     hw_write_masked(&ioqspi_hw->io[CS_PIN_INDEX].ctrl,
@@ -64,9 +77,19 @@ bool __no_inline_not_in_flash_func(get_bootsel_button)(void)
             GPIO_OVERRIDE_NORMAL << IO_QSPI_GPIO_QSPI_SS_CTRL_OEOVER_LSB,
             IO_QSPI_GPIO_QSPI_SS_CTRL_OEOVER_BITS);
 
+#if 0
     restore_interrupts(flags);
+#endif
 
     return button_state;
+}
+#endif
+
+#ifdef FEATURE_TEST
+static void debug_flashmode()
+{
+    gpio_put(LED_PIN, 0);
+    reset_usb_boot(0,0);
 }
 #endif
 
@@ -79,12 +102,29 @@ void debug_init()
 }
 
 #ifdef FEATURE_TEST
+void debug_error(uint32_t error_code)
+{
+    gpio_put(LED_PIN, 0);
+    sleep_ms(2000);
+
+    for (int i=0;i<error_code;i++)
+    {
+        gpio_put(LED_PIN, 1);
+        sleep_ms(500);
+        gpio_put(LED_PIN, 0);
+        sleep_ms(500);
+    }
+
+    debug_flashmode();
+}
+#endif
+
+#ifdef FEATURE_TEST
 void __no_inline_not_in_flash_func(debug_check_bootsel)()
 {
     if(0 == get_bootsel_button())
     {
-        gpio_put(LED_PIN, 0);
-        reset_usb_boot(0,0);
+        debug_flashmode();
     }
 }
 #endif

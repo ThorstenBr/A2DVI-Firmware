@@ -24,5 +24,4 @@ SOFTWARE.
 
 #pragma once
 
-void a2dvi_init(void);
 void a2dvi_loop(void);

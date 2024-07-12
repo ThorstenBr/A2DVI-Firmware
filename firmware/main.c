@@ -26,6 +26,7 @@ SOFTWARE.
 #include <string.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
+#include "hardware/vreg.h"
 
 #include "dvi/a2dvi.h"
 #include "applebus/abus.h"
@@ -39,12 +40,19 @@ SOFTWARE.
 
 #ifdef FEATURE_TEST
     #include "test/tests.h"
+    #define FUNCTION_PROFILER
 #endif
+
+#include "debug/profiler.h"
+
+#define VREG_VSEL         VREG_VOLTAGE_1_20
 
 int main()
 {
-    // basic CPU configuration required for DVI
-    a2dvi_init();
+    // slightly rise the core voltage, preparation for overclocking
+    vreg_set_voltage(VREG_VSEL);
+
+    PROFILER_INIT(boot_time);
 
     // load config settings
     config_load();
@@ -53,20 +61,27 @@ int main()
     showTitle(PRINTMODE_NORMAL);
     centerY(11, "NO 6502 BUS ACTIVITY", PRINTMODE_FLASH);
 
-    // initialize the Apple II bus interface
-    abus_init();
-
-#ifndef FEATURE_TEST
-    // process the Apple II bus interface on core 1
-    multicore_launch_core1(abus_loop);
-#else
-    // start testsuite on core1, simulating some 6502 activity and
-    // cycle through the test cases
-    multicore_launch_core1(test_loop);
-#endif
-
     // enable LED etc
     debug_init();
+
+#ifdef FEATURE_TEST
+    // start testsuite, simulating some 6502 activity and
+    // cycle through the test cases
+    multicore_launch_core1(test_loop);
+
+    PROFILER_STOP(boot_time);
+    // convert to us
+    boot_time /= 125;
+#else
+    // process the Apple II bus interface on core 1
+    multicore_launch_core1(abus_loop);
+#endif
+
+    // Finish copying remaining data and code from flash to RAM
+    memcpy32(__ram_delayed_copy_start__, __ram_delayed_copy_source__, ((uint32_t)__ram_delayed_copy_end__) - (uint32_t) __ram_delayed_copy_start__);
+
+    // when testing: release flash, so we can access the BOOTSEL button
+    debug_flash_release();
 
     // DVI processing on core 0
     a2dvi_loop();

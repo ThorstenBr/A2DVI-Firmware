@@ -32,7 +32,8 @@ MEMORY
 {
     FLASH(rx) : ORIGIN = 0x10000000, LENGTH = 2048k - __PERSISTENT_STORAGE_LEN
     FLASH_PERSISTENT(r) : ORIGIN = 0x10000000 + (2048k - __PERSISTENT_STORAGE_LEN), LENGTH = __PERSISTENT_STORAGE_LEN
-    RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 256k
+    RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 128k
+    APPLEDATA(rwx) : ORIGIN = 0x20020000, LENGTH = 128k
     SCRATCH_X(rwx) : ORIGIN = 0x20040000, LENGTH = 4k
     SCRATCH_Y(rwx) : ORIGIN = 0x20041000, LENGTH = 4k
 }
@@ -183,10 +184,28 @@ SECTIONS
     /* __etext is (for backwards compatibility) the name of the .data init source pointer (...) */
     __etext = LOADADDR(.data);
 
+    .delayed_copy : {
+        __ram_delayed_copy_start__ = .;
+        *(.delayed_code.*)
+        . = ALIGN(4);
+
+        *(.delayed_data.*)
+        . = ALIGN(4);
+        __ram_delayed_copy_end__ = .;
+    } > RAM AT> FLASH
+    __ram_delayed_copy_source__ = LOADADDR(.delayed_copy);
+
     .uninitialized_data (NOLOAD): {
         . = ALIGN(4);
         *(.uninitialized_data*)
     } > RAM
+
+    .appledata (NOLOAD): {
+        __appledata_start__ = .;
+        *(.appledata.*)
+        . = ALIGN(4);
+        __appledata_end__ = .;
+    } > APPLEDATA
 
     /* Start and end symbols must be word-aligned */
     .scratch_x : {

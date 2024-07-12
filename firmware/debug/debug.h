@@ -26,6 +26,15 @@ SOFTWARE.
 
 #define LED_PIN     PICO_DEFAULT_LED_PIN
 
+#ifdef FEATURE_TEST
+    extern volatile bool debug_flash_released;
+    #define debug_flash_release() {debug_flash_released=true;}
+    void debug_error(uint32_t error_code);
+#else
+    #define debug_flash_release() {}
+    #define debug_error(error_code) {}
+#endif
+
 bool get_bootsel_button(void);
 void debug_init();
 void debug_check_bootsel();

@@ -40,22 +40,6 @@ uint8_t DELAYED_COPY_DATA(dgr_dot_pattern)[32] = {
 
 static void render_dgr_line(bool p2, uint line);
 
-void DELAYED_COPY_CODE(render_dgr)() {
-    for(uint line=0; line < 24; line++) {
-        render_dgr_line(PAGE2SEL, line);
-    }
-}
-
-
-void DELAYED_COPY_CODE(render_mixed_dgr)() {
-    for(uint line=0; line < 20; line++) {
-        render_dgr_line(PAGE2SEL, line);
-    }
-
-    render_mixed_text();
-}
-
-
 static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
 {
     // Construct two scanlines for the two different colored cells at the same time
@@ -191,4 +175,20 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
 
     // send original buffer
     dvi_send_scanline(tmdsbuf2);
+}
+
+void DELAYED_COPY_CODE(render_dgr)()
+{
+    for(uint line=0; line < 24; line++) {
+        render_dgr_line(PAGE2SEL, line);
+    }
+}
+
+void DELAYED_COPY_CODE(render_mixed_dgr)()
+{
+    for(uint line=0; line < 20; line++) {
+        render_dgr_line(PAGE2SEL, line);
+    }
+
+    render_mixed_text();
 }
