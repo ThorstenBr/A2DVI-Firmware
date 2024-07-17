@@ -38,8 +38,25 @@ SOFTWARE.
 #endif
 
 
-static unsigned int char_write_offset;
+static uint32_t custom_rom_font_nr;
+static uint32_t custom_rom_font_type; // 0==Apple II font style, 1==Apple IIe font style
+static uint32_t custom_rom_write_offset;
+static uint32_t custom_rom_write_count = CHARACTER_ROM_SIZE+1;
+
 uint8_t dev_config_lock;
+
+static uint8_t reverse_7bits(uint8_t data)
+{
+	uint8_t result = 0;
+	for (uint8_t i=0;i<7;i++)
+	{
+		if (data & (1<<i))
+		{
+			result |= 1 << (6-i);
+		}
+	}
+	return result;
+}
 
 // Handle a write to one of the registers on this device's slot
 void device_write(uint_fast8_t reg, uint_fast8_t data)
@@ -95,15 +112,44 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
             SET_IFLAG(0, IFLAGS_FORCED_MONO);
         break;
 
-    // character generator write offset
+    // select custom font rom to be written
     case 0x2:
-        char_write_offset = data << 3;
+		if (data == 0xff)
+		{
+			if (custom_rom_write_count == CHARACTER_ROM_SIZE)
+			{
+				// write font block to flash
+				if (config_flash_write(CUSTOM_FONT_ROM(custom_rom_font_nr & ~1), custom_font_buffer, CHARACTER_ROM_SIZE*2))
+				{
+					invalid_fonts &= ~(1 << custom_rom_font_nr);
+					config_font_update();
+					menuShowSaved();
+					// need to reload both charsets (updated font may be actively selected)
+					reload_charsets = 3;
+				}
+			}
+		}
+		else
+		if ((data & 0x7F) < 0x20)
+		{
+			custom_rom_write_offset = CHARACTER_ROM_SIZE * (data & 1);
+			custom_rom_font_nr      = data & 0x1F;
+			custom_rom_write_count  = 0;
+			custom_rom_font_type    = data >> 7; // 0==Apple II font style, 1==Apple IIe font style
+			// read selected font block from flash
+			memcpy32(custom_font_buffer, CUSTOM_FONT_ROM(custom_rom_font_nr & ~1), CHARACTER_ROM_SIZE*2);
+		}
         break;
 
     // character generator write
     case 0x3:
-        character_rom[char_write_offset] = data;
-        char_write_offset = (char_write_offset + 1) % sizeof(character_rom);
+		if (custom_rom_write_count < CHARACTER_ROM_SIZE)
+		{
+			custom_font_buffer[custom_rom_write_offset++] = (custom_rom_font_type == 0) ? reverse_7bits(data) : (data & 0x7F) ^ 0x7f;
+			custom_rom_write_count++;
+		}
+		else
+			custom_rom_write_count = CHARACTER_ROM_SIZE+1;
         break;
 
     // device command

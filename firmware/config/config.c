@@ -42,6 +42,7 @@ volatile bool language_switch = false; // false: main/local char set, true: alte
 uint8_t cfg_local_charset = 0;
 uint8_t cfg_alt_charset = 0;
 uint8_t reload_charsets = 0;
+uint32_t invalid_fonts = 0xffffffff;
 volatile uint8_t color_mode = 1;
 
 // A block of flash is reserved for storing configuration persistently across power cycles
@@ -51,11 +52,11 @@ volatile uint8_t color_mode = 1;
 //  * 4K for a 'config' structure
 //  * the remaining is reserved for future use
 
-// A2DV(I)
-#define MAGIC_WORD_VALUE 0x41324456
+// DVI2
+#define CFG_MAGIC_WORD_VALUE 0x32495644
 
 // packed config structure (packed = do not padd to a multiple of 4 bytes)
-struct __attribute__((__packed__)) config
+struct __attribute__((__packed__)) config_t
 {
     // magic word determines if the stored configuration is valid
     uint32_t magic_word;
@@ -70,8 +71,6 @@ struct __attribute__((__packed__)) config
     uint8_t  local_charset; // selection for local language video ROM
     uint8_t  alt_charset;   // selection for alternate video ROM (usually fixed to US charset)
 
-    uint8_t  custom_char_rom[CHARACTER_ROM_SIZE];
-
     uint8_t  language_switch_enabled;
     uint8_t  video7_enabled;
     uint8_t  status_lines_enabled;
@@ -80,15 +79,30 @@ struct __attribute__((__packed__)) config
     // to determine if the field you're looking for is actually present in the stored config.
 };
 
+// 'FONT'
+#define FONT_MAGIC_WORD_VALUE 0x544e4f46
+
+struct __attribute__((__packed__))  fontdir_t
+{
+	uint32_t magic_word;
+    uint32_t invalid_fonts;   // bit mask identifying invalid fonts (1:invalid, 0:valid)
+};
+
 // This is a compile-time check to ensure the size of the config struct fits within one flash erase sector
-typedef char config_struct_size_check[(sizeof(struct config) <= FLASH_SECTOR_SIZE) - 1];
+typedef char config_struct_size_check[(sizeof(struct config_t) <= FLASH_SECTOR_SIZE) - 1];
 
-#define IS_STORED_IN_CONFIG(cfg, field) ((offsetof(struct config, field) + sizeof((cfg)->field)) <= (cfg)->size)
+#define IS_STORED_IN_CONFIG(cfg, field) ((offsetof(struct config_t, field) + sizeof((cfg)->field)) <= (cfg)->size)
 
 
-extern uint8_t __persistent_data_start[];
-static struct config *cfg = (struct config *)__persistent_data_start;
-// TODO static uint8_t *character_rom_storage = __persistent_data_start + FLASH_SECTOR_SIZE;
+extern uint8_t __config_data_start[];
+static struct config_t *cfg = (struct config_t *)__config_data_start;
+
+extern uint8_t __font_dir_start[];
+static struct fontdir_t *font_directory = (struct fontdir_t *)__font_dir_start;
+
+#if FLASH_SECTOR_SIZE != 2*CHARACTER_ROM_SIZE
+	#error Platform with unsupported flash segmentation. Needs adaption.
+#endif
 
 void __time_critical_func(set_machine)(compat_t machine)
 {
@@ -119,18 +133,60 @@ void __time_critical_func(set_machine)(compat_t machine)
     current_machine = machine;
 }
 
+bool config_flash_write(void* flash_address, uint8_t* data, uint32_t size)
+{
+	if (size > FLASH_SECTOR_SIZE)
+		return false;
+
+	const uint32_t flash_offset = ((uint32_t) flash_address) - XIP_BASE;
+
+	flash_range_erase(flash_offset, FLASH_SECTOR_SIZE);
+	flash_range_program(flash_offset, data, size);
+
+	return true;
+}
+
+void config_font_update(void)
+{
+    // We could use the "directory" to store the name of each custom font.
+    // But for now we save the effort - and just remember which font was
+    // uploaded and is valid.
+    const uint32_t flash_offset = ((uint32_t) font_directory) - XIP_BASE;
+
+    struct fontdir_t new_dir;
+    new_dir.magic_word = FONT_MAGIC_WORD_VALUE;
+    new_dir.invalid_fonts = invalid_fonts;
+    flash_range_erase(flash_offset, FLASH_SECTOR_SIZE);
+    flash_range_program(flash_offset, (uint8_t*) &new_dir, sizeof(new_dir));
+}
+
+static uint8_t check_valid_font(uint32_t font_nr)
+{
+	// hardcoded fonts are always ok
+	if (font_nr < (MAX_FONT_COUNT-CUSTOM_FONT_COUNT))
+		return font_nr;
+
+	// custom fonts: only valid when programmed
+	uint8_t custom_font = font_nr - (MAX_FONT_COUNT-CUSTOM_FONT_COUNT);
+
+    if ((invalid_fonts & (1 << custom_font)) == 0)
+		return font_nr;
+
+	return DEFAULT_LOCAL_CHARSET;
+}
+
 void config_load_charsets(void)
 {
     if (reload_charsets & 1)
     {
         // local font
-        memcpy32(character_rom, character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
+        memcpy32(character_rom, character_roms[check_valid_font(cfg_local_charset)], CHARACTER_ROM_SIZE);
     }
 
     if (reload_charsets & 2)
     {
         // alternate fixed US font (with language switch)
-        memcpy32(&character_rom[0x800], character_roms[cfg_alt_charset], CHARACTER_ROM_SIZE);
+        memcpy32(&character_rom[0x800], character_roms[check_valid_font(cfg_alt_charset)], CHARACTER_ROM_SIZE);
     }
 
     reload_charsets = 0;
@@ -138,7 +194,12 @@ void config_load_charsets(void)
 
 void config_load(void)
 {
-    if((cfg->magic_word != MAGIC_WORD_VALUE) || (cfg->size > FLASH_SECTOR_SIZE))
+    if (font_directory->magic_word == FONT_MAGIC_WORD_VALUE)
+    {
+        invalid_fonts = font_directory->invalid_fonts;
+    }
+
+    if((cfg->magic_word != CFG_MAGIC_WORD_VALUE) || (cfg->size > FLASH_SECTOR_SIZE))
     {
         config_load_defaults();
         return;
@@ -194,8 +255,8 @@ void config_load_defaults(void)
     cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
     cfg_alt_charset         = DEFAULT_ALT_CHARSET;
 
-    memcpy32(&character_rom[0],     character_roms[cfg_local_charset], CHARACTER_ROM_SIZE);
-    memcpy32(&character_rom[0x800], character_roms[cfg_alt_charset],   CHARACTER_ROM_SIZE);
+	// reload both character sets
+    reload_charsets = 3;
 
 #ifdef APPLE_MODEL_IIPLUS
     videx_vterm_disable();
@@ -206,14 +267,14 @@ void config_load_defaults(void)
 void config_save(void)
 {
     // the write buffer size must be a multiple of FLASH_PAGE_SIZE so round up
-    const int new_config_size = (sizeof(struct config) + FLASH_PAGE_SIZE - 1) & -FLASH_PAGE_SIZE;
-    struct config *new_config = malloc(new_config_size);
+    const int new_config_size = (sizeof(struct config_t) + FLASH_PAGE_SIZE - 1) & -FLASH_PAGE_SIZE;
+    struct config_t *new_config = malloc(new_config_size);
     memset(new_config, 0xff, new_config_size);
-    memset(new_config, 0, sizeof(struct config));
+    memset(new_config, 0, sizeof(struct config_t));
 
     // prepare header
-    new_config->magic_word = MAGIC_WORD_VALUE;
-    new_config->size       = sizeof(struct config);
+    new_config->magic_word = CFG_MAGIC_WORD_VALUE;
+    new_config->size       = sizeof(struct config_t);
 
     // set config properties
     new_config->scanline_emulation      = IS_IFLAG(IFLAGS_SCANLINEEMU);
@@ -226,14 +287,12 @@ void config_save(void)
     new_config->alt_charset             = cfg_alt_charset;
     new_config->language_switch_enabled = language_switch_enabled;
 
-    //memcpy32(new_config->character_rom, character_rom, CHARACTER_ROM_SIZE);
 #ifdef APPLE_MODEL_IIPLUS
     new_config->videx_vterm_enabled = videx_vterm_enabled;
 #endif
 
-    const uint32_t flash_offset = (uint32_t)cfg - XIP_BASE;
-    flash_range_erase(flash_offset, FLASH_SECTOR_SIZE);
-    flash_range_program(flash_offset, (uint8_t *)new_config, new_config_size);
+	// update flash
+    config_flash_write(cfg, (uint8_t *)new_config, new_config_size);
 
     free(new_config);
 }

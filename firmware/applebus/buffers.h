@@ -106,6 +106,7 @@ extern volatile uint32_t internal_flags;
 
 // charater ROM for US + local character set
 extern uint8_t character_rom[2*CHARACTER_ROM_SIZE];
+extern uint8_t custom_font_buffer[2*CHARACTER_ROM_SIZE];
 
 #define IS_IFLAG(FLAGS)             ((internal_flags & FLAGS)==FLAGS)
 #define SET_IFLAG(condition, FLAGS) { if (condition) internal_flags |= FLAGS;else internal_flags &= ~FLAGS; }

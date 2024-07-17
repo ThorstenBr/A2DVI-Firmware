@@ -172,7 +172,7 @@ const char* DELAYED_COPY_DATA(MenuForcedMono)[2] =
     "MONOCHROME"
 };
 
-const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_CFG_FONT+1] =
+const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_FONT_COUNT] =
 {
     "IIE US", //0
     "IIE UK", //1
@@ -189,7 +189,16 @@ const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_CFG_FONT+1] =
     "II+ VIDEX LOWER 1",//12
     "II+ VIDEX LOWER 2",//13
     "II+ PIG FONT",//14
-    "II+ JAPAN KATAKANA"//15
+    "II+ JAPAN KATAKANA",//15
+
+    "CUSTOM FONT 1",
+    "CUSTOM FONT 2",
+    "CUSTOM FONT 3",
+    "CUSTOM FONT 4",
+    "CUSTOM FONT 5",
+    "CUSTOM FONT 6",
+    "CUSTOM FONT 7",
+    "CUSTOM FONT 8"
 };
 
 static uint8_t CurrentMenu        = 0;
@@ -384,7 +393,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
         case 2:
             if (increase)
             {
-                if (cfg_local_charset+1 <= MAX_CFG_FONT)
+                if (cfg_local_charset+1 < MAX_FONT_COUNT)
                 {
                     cfg_local_charset++;
                     reload_charsets = 1;
@@ -654,11 +663,11 @@ void DELAYED_COPY_CODE(menuShow)(char key)
     centerY(2, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
 
     menuOption(5,1, "1 MACHINE TYPE:",      (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
-    menuOption(6,2, "2 CHARACTER SET:",     (cfg_local_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_local_charset] : "?");
+    menuOption(6,2, "2 CHARACTER SET:",     (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
     menuOption(7,3, "3 LANGUAGE SWITCH:",   MenuOnOff[language_switch_enabled]);
     if (language_switch_enabled)
     {
-        menuOption(8,4, "4 US CHARACTER SET:", (cfg_alt_charset <= MAX_CFG_FONT) ? MenuFontNames[cfg_alt_charset] : "?");
+        menuOption(8,4, "4 US CHARACTER SET:", (cfg_alt_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_alt_charset] : "?");
     }
 
     menuOption(10,5, "5 MONOCHROME COLOR:", MenuColorMode[color_mode]);

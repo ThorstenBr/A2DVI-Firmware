@@ -58,6 +58,27 @@ There are configuration utility disks for [ProDOS](/configutil/A2DVICONFIG_PRODO
 
 ![Config Utility](images/A2DVI_config.jpg)
 
+## Fonts
+The firmware already includes support for various font. Additional fonts can be uploaded as custom ROMs.
+
+Included fonts for Apple IIe:
+
+* US, UK, French, German, Spanish, Italian, Swedish/Finnish, Hebrew, Pravetz/Cyrillic
+
+Included fonts for Apple II:
+
+* US, VIDEX, Katakana, ...
+
+Custom video ROMs for Apple II and IIe are supported and can be uploaded with the ProDOS/DOS configuration utility.
+
+Supported formats:
+
+* Apple II 2KB video ROMs
+* Apple IIe 4KB video ROMs
+* Apple IIe 8KB Dual-Language video ROMs
+
+The configuration utility detects the correct format of the uploaded video (detected according to file size).
+
 ## Dual Language Support for Euro-Machines
 The A2DVI-Firmware has dual language support. If you have a "Euro-Apple IIe" with the language switch on the bottom side of your Apple II keyboard, then select "**LANGUAGE SWITCH: ENABLED**" in the configuration utility and select, both, the primary and secondary character set (primary is any font/character set, secondary is any US character set).
 

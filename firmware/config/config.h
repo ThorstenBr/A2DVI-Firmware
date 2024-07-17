@@ -47,9 +47,10 @@ extern volatile compat_t detected_machine;
 extern volatile compat_t cfg_machine;
 extern volatile compat_t current_machine;
 
-extern uint8_t cfg_local_charset;
-extern uint8_t cfg_alt_charset;
-extern uint8_t reload_charsets;
+extern uint32_t invalid_fonts;
+extern uint8_t  cfg_local_charset;
+extern uint8_t  cfg_alt_charset;
+extern uint8_t  reload_charsets;
 
 extern volatile bool language_switch_enabled;
 extern volatile bool language_switch;
@@ -82,3 +83,5 @@ extern void config_load         (void);
 extern void config_load_defaults(void);
 extern void config_load_charsets(void);
 extern void config_save         (void);
+extern bool config_flash_write  (void* flash_address, uint8_t* data, uint32_t size);
+extern void config_font_update  (void);

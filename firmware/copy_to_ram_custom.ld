@@ -3,7 +3,9 @@ This is a copy of memmap_copy_to_ram.ld from the pico-sdk that has been modified
 to block off part of flash for some persistent storage.
 */
 
-__PERSISTENT_STORAGE_LEN = 128k;
+__FLASH_CONFIG_LEN    = 60k; /* space for configuration data */
+__FLASH_FONT_DIR_LEN  =  4k; /* one sector for a "font directory" */
+__FLASH_FONT_ROMS_LEN = 64k; /* enough for 32 fonts of 2K */
 
 /* Based on GCC ARM embedded samples.
    Defines the following symbols for use by code:
@@ -30,12 +32,14 @@ __PERSISTENT_STORAGE_LEN = 128k;
 
 MEMORY
 {
-    FLASH(rx) : ORIGIN = 0x10000000, LENGTH = 2048k - __PERSISTENT_STORAGE_LEN
-    FLASH_PERSISTENT(r) : ORIGIN = 0x10000000 + (2048k - __PERSISTENT_STORAGE_LEN), LENGTH = __PERSISTENT_STORAGE_LEN
-    RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 128k
-    APPLEDATA(rwx) : ORIGIN = 0x20020000, LENGTH = 128k
-    SCRATCH_X(rwx) : ORIGIN = 0x20040000, LENGTH = 4k
-    SCRATCH_Y(rwx) : ORIGIN = 0x20041000, LENGTH = 4k
+    FLASH(rx)         : ORIGIN = 0x10000000, LENGTH = 2048k - __FLASH_CONFIG_LEN - __FLASH_FONT_DIR_LEN -__FLASH_FONT_ROMS_LEN
+    FLASH_CONFIG(r)   : ORIGIN = 0x10000000 + (2048k - __FLASH_CONFIG_LEN - __FLASH_FONT_DIR_LEN - __FLASH_FONT_ROMS_LEN), LENGTH = __FLASH_CONFIG_LEN
+    FLASH_FONT_DIR(r) : ORIGIN = 0x10000000 + (2048k - __FLASH_FONT_ROMS_LEN - __FLASH_FONT_DIR_LEN), LENGTH = __FLASH_FONT_DIR_LEN
+    FLASH_FONT_ROMS(r): ORIGIN = 0x10000000 + (2048k - __FLASH_FONT_ROMS_LEN), LENGTH = __FLASH_FONT_ROMS_LEN
+    RAM(rwx)          : ORIGIN = 0x20000000, LENGTH = 128k
+    APPLEDATA(rwx)    : ORIGIN = 0x20020000, LENGTH = 128k
+    SCRATCH_X(rwx)    : ORIGIN = 0x20040000, LENGTH = 4k
+    SCRATCH_Y(rwx)    : ORIGIN = 0x20041000, LENGTH = 4k
 }
 
 ENTRY(_entry_point)
@@ -263,12 +267,26 @@ SECTIONS
         __flash_binary_end = .;
     } > FLASH
 
-    /* .persistent_data section doesn't contain any symbols. It's only used to
+    /* .persistent data section doesn't contain any symbols. It's only used to
      * let the linker define the final address of persistent storage. */
-    .persistent_data (NOLOAD):
+    .flash_config (NOLOAD):
     {
-        __persistent_data_start = .;
-    } > FLASH_PERSISTENT
+        __config_data_start = .;
+    } > FLASH_CONFIG
+
+    /* .persistent data section doesn't contain any symbols. It's only used to
+     * let the linker define the final address of persistent storage. */
+    .flash_font_dir (NOLOAD):
+    {
+        __font_dir_start = .;
+    } > FLASH_FONT_DIR
+
+    /* .persistent data section doesn't contain any symbols. It's only used to
+     * let the linker define the final address of persistent storage. */
+    .flash_font_roms (NOLOAD):
+    {
+        __font_roms_start = .;
+    } > FLASH_FONT_ROMS
 
     /* stack limit is poorly named, but historically is maximum heap ptr */
     __StackLimit = ORIGIN(RAM) + LENGTH(RAM);
