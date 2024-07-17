@@ -68,6 +68,5 @@ void __time_critical_func(abus_loop)()
         bus_counter++;
 
         businterface(value);
-
     }
 }

@@ -122,7 +122,7 @@ Here are some photos showing A2DVI in action - using the DVI/HDMI connection.
 * Custom fonts.
 
 # License
-The A2DVI firmware is released under the [MIT License](/LICENSE):
+The A2DVI firmware is released under the [MIT License](/https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):
 
 * Copyright (c) 2024 Thorsten Brehm
 

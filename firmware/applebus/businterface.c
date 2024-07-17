@@ -212,6 +212,16 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
 
 static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32_t address, uint8_t data)
 {
+	if (address < 0x100)
+		last_address_zp = address;
+	else
+	if (address < 0x200)
+		last_address_stack = address;
+	else
+	if (address == last_address+1)
+		last_address_pc = address;
+	last_address = address;
+
     // Shadow parts of the Apple's memory by observing the bus write cycles
     if(AccessMode == WriteMem)
     {

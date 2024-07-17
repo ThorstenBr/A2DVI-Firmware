@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 # firmware version
-set(FW_VERSION "0.5")
+set(FW_VERSION "0.6")
 message(STATUS "Building firmware version ${FW_VERSION}")
 
 set(BINARY_NAME "A2DVI_v${FW_VERSION}")
@@ -58,6 +58,7 @@ add_executable(${BINARY_NAME}
 	dvi/tmds.c
 
 	render/render.c
+	render/render_status.c
 	render/render_text.c
 	render/render_lores.c
 	render/render_dgr.c

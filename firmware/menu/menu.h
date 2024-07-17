@@ -41,6 +41,7 @@ void centerY(uint32_t y, const char* pMsg, TPrintMode PrintMode);
 void clearTextScreen(void);
 void showTitle(TPrintMode PrintMode);
 void menuShow(char key);
+void menuShowSaved(void);
 
 #ifdef FEATURE_TEST
 void menuShowDebug();

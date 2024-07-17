@@ -77,9 +77,6 @@ extern volatile uint8_t color_mode;
     #define DELAYED_COPY_DATA(n) n
 #endif
 
-#define IS_IFLAG(FLAGS)             ((internal_flags & FLAGS)==FLAGS)
-#define SET_IFLAG(condition, FLAGS) { if (condition) internal_flags |= FLAGS;else internal_flags &= ~FLAGS; }
-
 extern void set_machine         (compat_t machine);
 extern void config_load         (void);
 extern void config_load_defaults(void);

@@ -26,7 +26,7 @@ SOFTWARE.
 #include "config/config.h"
 
 // TMDS data for RGB channels for a double pixel (a perfectly bit balanced pixel)
-uint32_t DELAYED_COPY_DATA(tmds_mono_double_pixel)[3*4] =
+uint32_t DELAYED_COPY_DATA(tmds_mono_double_pixel)[4*4] =
 {
     /* R                 G                    B               */
     TMDS_SYMBOL_255_255, TMDS_SYMBOL_255_255, TMDS_SYMBOL_255_255, /* white */
@@ -34,6 +34,7 @@ uint32_t DELAYED_COPY_DATA(tmds_mono_double_pixel)[3*4] =
     TMDS_SYMBOL_255_255, TMDS_SYMBOL_128_128, TMDS_SYMBOL_0_0,     /* amber */
 
     TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0,     /* black */
+    TMDS_SYMBOL_255_255, TMDS_SYMBOL_0_0,     TMDS_SYMBOL_0_0      /* red */
 };
 
 // TMDS data for RGB channels for a pattern of two pixels (a perfectly bit balanced pixel pair)

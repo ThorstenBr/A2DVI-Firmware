@@ -18,6 +18,9 @@ static struct dvi_inst *dma_irq_privdata[2];
 static void dvi_dma0_irq();
 static void dvi_dma1_irq();
 
+#define A2DVI_VGA_LINES (480)
+#define A2DVI_SCANLINES (2*192 + 2*16)
+
 void dvi_init(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_colour_queue)
 {
 	dvi_timing_state_init(&inst->timing_state);
@@ -210,9 +213,9 @@ static void __dvi_func(dvi_dma_irq_handler)(struct dvi_inst *inst)
 
 	// blank lines (overscan area, first 48 lines, last 48 lines (apple II letter box), and scanlines)
 	if ((inst->timing_state.v_state != DVI_STATE_ACTIVE)||
-		(inst->timing_state.v_ctr < 48)||
+		(inst->timing_state.v_ctr < (A2DVI_VGA_LINES-A2DVI_SCANLINES)/2)||
 		(((inst->scanline_emulation)&&(inst->timing_state.v_ctr & 1)==0))||
-		(inst->timing_state.v_ctr >= 432))
+		(inst->timing_state.v_ctr >= A2DVI_VGA_LINES/2+A2DVI_SCANLINES/2))
 	{
 		// Don't care
 		tmdsbuf = NULL;

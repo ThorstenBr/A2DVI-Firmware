@@ -75,7 +75,7 @@ SOFTWARE.
 
 //#define TEST_MENU
 
-const uint32_t TestDelaySeconds = 5;
+#define TestDelaySeconds 5
 const uint32_t TestDelayMilliseconds = TestDelaySeconds*1000;
 
 void clearBothPages()
