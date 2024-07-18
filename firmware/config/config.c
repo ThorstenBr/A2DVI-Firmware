@@ -39,6 +39,7 @@ volatile compat_t cfg_machine = MACHINE_AUTO;
 volatile compat_t current_machine = MACHINE_AUTO;
 volatile bool language_switch_enabled = false; // true: language switch enabled/not ignored, false: language switch disabled/ignored
 volatile bool language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
+volatile bool enhanced_font_enabled;
 uint8_t cfg_local_charset = 0;
 uint8_t cfg_alt_charset = 0;
 uint8_t reload_charsets = 0;
@@ -72,6 +73,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  alt_charset;   // selection for alternate video ROM (usually fixed to US charset)
 
     uint8_t  language_switch_enabled;
+    uint8_t  enhanced_font_enabled;
     uint8_t  video7_enabled;
     uint8_t  status_lines_enabled;
 
@@ -181,12 +183,24 @@ void config_load_charsets(void)
     {
         // local font
         memcpy32(character_rom, character_roms[check_valid_font(cfg_local_charset)], CHARACTER_ROM_SIZE);
+
+        if (!enhanced_font_enabled)
+        {
+            // unenhance the font, by overwriting the mousetext characters
+            memcpy32(&character_rom[0x40*8], &character_rom[0], 0x20*8);
+        }
     }
 
     if (reload_charsets & 2)
     {
         // alternate fixed US font (with language switch)
         memcpy32(&character_rom[0x800], character_roms[check_valid_font(cfg_alt_charset)], CHARACTER_ROM_SIZE);
+
+        if (!enhanced_font_enabled)
+        {
+            // unenhance the font, by overwriting the mousetext characters
+            memcpy32(&character_rom[0x800+0x40*8], &character_rom[0x800], 0x20*8);
+        }
     }
 
     reload_charsets = 0;
@@ -214,6 +228,7 @@ void config_load(void)
     SET_IFLAG(cfg->status_lines_enabled, IFLAGS_STATUSLINES);
 
     language_switch_enabled = (cfg->language_switch_enabled != 0);
+    enhanced_font_enabled   = (cfg->enhanced_font_enabled != 0);
 
     color_mode = (cfg->color_mode <= 2) ? cfg->color_mode : 0;
 
@@ -251,6 +266,7 @@ void config_load_defaults(void)
     set_machine(detected_machine);
 
     language_switch_enabled = true;
+    enhanced_font_enabled   = true;
 
     cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
     cfg_alt_charset         = DEFAULT_ALT_CHARSET;
@@ -286,6 +302,7 @@ void config_save(void)
     new_config->local_charset           = cfg_local_charset;
     new_config->alt_charset             = cfg_alt_charset;
     new_config->language_switch_enabled = language_switch_enabled;
+    new_config->enhanced_font_enabled   = enhanced_font_enabled;
 
 #ifdef APPLE_MODEL_IIPLUS
     new_config->videx_vterm_enabled = videx_vterm_enabled;

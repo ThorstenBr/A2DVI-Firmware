@@ -54,6 +54,7 @@ extern uint8_t  reload_charsets;
 
 extern volatile bool language_switch_enabled;
 extern volatile bool language_switch;
+extern volatile bool enhanced_font_enabled;
 
 enum {
     COLOR_MODE_BW    = 0,

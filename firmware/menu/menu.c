@@ -366,7 +366,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
 {
     switch(CurrentMenu)
     {
-        case 1:
+        case 0:
             if (increase)
             {
                 if (cfg_machine == MACHINE_AUTO)
@@ -390,7 +390,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             // update current machine type
             set_machine((cfg_machine == MACHINE_AUTO) ? detected_machine : cfg_machine);
             break;
-        case 2:
+        case 1:
             if (increase)
             {
                 if (cfg_local_charset+1 < MAX_FONT_COUNT)
@@ -407,6 +407,10 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                     reload_charsets = 1;
                 }
             }
+            break;
+        case 2:
+            enhanced_font_enabled = !enhanced_font_enabled;
+            reload_charsets = 3;
             break;
         case 3:
             language_switch_enabled = !language_switch_enabled;
@@ -542,16 +546,16 @@ static inline bool menuCheckKeys(char key)
     switch(key)
     {
         case 0: // reset command
-            CurrentMenu = 1;
+            CurrentMenu = 0;
             break;
-        case '1' ... '9':
+        case '0' ... '9':
             CurrentMenu = key-'0';
             if ((!language_switch_enabled)&&(CurrentMenu == 4))
                 CurrentMenu = 3;
             break;
         case 'I':// fall through
         case 11: // UP
-            if (CurrentMenu>1)
+            if (CurrentMenu>0)
             {
                 CurrentMenu--;
                 if ((!language_switch_enabled)&&(CurrentMenu == 4))
@@ -570,7 +574,7 @@ static inline bool menuCheckKeys(char key)
                     CurrentMenu++;
             }
             else
-                CurrentMenu = 1;
+                CurrentMenu = 0;
             break;
         case 'R':
             CurrentMenu = 10;
@@ -633,11 +637,6 @@ static inline bool menuCheckKeys(char key)
             break;
     }
 
-    if (CurrentMenu == 0)
-    {
-        CurrentMenu = 1;
-    }
-
     if (Cmd != -1)
     {
         return menuDoSelection(Cmd == 1);
@@ -662,8 +661,10 @@ void DELAYED_COPY_CODE(menuShow)(char key)
 
     centerY(2, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
 
-    menuOption(5,1, "1 MACHINE TYPE:",      (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
-    menuOption(6,2, "2 CHARACTER SET:",     (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
+    menuOption(4,0, "0 MACHINE TYPE:",      (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
+    menuOption(5,1, "1 CHARACTER SET:",     (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
+    menuOption(6,2, "2 ENHANCED FONT:",     MenuOnOff[enhanced_font_enabled & 1]);
+
     menuOption(7,3, "3 LANGUAGE SWITCH:",   MenuOnOff[language_switch_enabled]);
     if (language_switch_enabled)
     {
