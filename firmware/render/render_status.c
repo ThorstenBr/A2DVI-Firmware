@@ -45,11 +45,16 @@ void DELAYED_COPY_CODE(copy_str)(uint8_t* dest, const char* pMsg)
 	}
 }
 
-void DELAYED_COPY_CODE(render_status)(uint8_t line)
+/*0123456789012345678901234567890123456789
+ *DHGR MIX 40 P1 MONOCHROME ALTCHAR V7:3
+ *   80STR AUXR AUXW AUXZ C3ROM CXROM IOUD
+ */
+
+void DELAYED_COPY_CODE(render_status)(bool top)
 {
-	if (!IS_IFLAG(IFLAGS_STATUSLINES))
+	if (!IS_IFLAG(IFLAGS_DEBUG_LINES))
 	{
-		for (uint line=0;line<8;line++)
+		for (uint row=0;row<16;row++)
 		{
 			dvi_get_scanline(tmdsbuf);
 			dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
@@ -64,9 +69,12 @@ void DELAYED_COPY_CODE(render_status)(uint8_t line)
 		return;
 	}
 
-	if (line == 0)
+	if (top)
 	{
-		// clear status line
+		uint8_t* line1 = status_line;
+		uint8_t* line2 = &status_line[40];
+
+		// clear status lines
 		for (uint i=0;i<sizeof(status_line)/4/2;i++)
 		{
 			((uint32_t*)status_line)[i] = 0xA0A0A0A0;
@@ -76,80 +84,101 @@ void DELAYED_COPY_CODE(render_status)(uint8_t line)
 		switch(soft_switches & SOFTSW_MODE_MASK)
  		{
 			case 0:
-				copy_str(&status_line[0], (IS_IFLAG(SOFTSW_DGR)) ? "DGR" : "GR");
+				copy_str(&line1[0], (IS_SOFTSWITCH(SOFTSW_DGR)) ? "DGR" : "GR");
 				break;
 			case SOFTSW_MIX_MODE:
-				copy_str(&status_line[0], ((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR)) ? "DGR" : "DGR MIX");
+				copy_str(&line1[0], ((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR)) ? "DGR" : "DGR MIX");
 				break;
 			case SOFTSW_HIRES_MODE:
-				copy_str(&status_line[0], (IS_IFLAG(SOFTSW_DGR)) ? "DHGR" : "HGR");
+				copy_str(&line1[0], (IS_SOFTSWITCH(SOFTSW_DGR)) ? "DHGR" : "HGR");
 				break;
 			case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE:
-				copy_str(&status_line[0], ((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR)) ? "DHGR MIX" : "HGR");
+				copy_str(&line1[0], ((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR)) ? "DHGR MIX" : "HGR");
 				break;
 			default:
-				copy_str(&status_line[0], "TEXT");
+				copy_str(&line1[0], "TEXT");
 				break;
 		}
 
 		// show state of other soft-switches
-		copy_str(&status_line[9],   (IS_IFLAG(SOFTSW_PAGE_2)) ? "P2" : "P1");
-		copy_str(&status_line[9+3], (IS_IFLAG(SOFTSW_80COL))  ? "80" : "40");
+		copy_str(&line1[ 9], (IS_SOFTSWITCH(SOFTSW_80COL))  ? "80" : "40");
+		copy_str(&line1[12], (IS_SOFTSWITCH(SOFTSW_PAGE_2)) ? "P2" : "P1");
 
 		if (IS_SOFTSWITCH(SOFTSW_MONOCHROME))
 		{
-			copy_str(&status_line[9+3+3], "MONO");
+			copy_str(&line1[15], "MONOCHROME");
 		}
 
 		if (IS_SOFTSWITCH(SOFTSW_ALTCHAR))
 		{
-			copy_str(&status_line[9+3+3+5], "ALT");
+			copy_str(&line1[26], "ALTCHAR");
+		}
+
+		if (IS_IFLAG(IFLAGS_VIDEO7))
+		{
+			copy_str(&line1[34], "V7:");
+			line1[37] = 0x80|'0'|(internal_flags&0x3);
 		}
 
 		if (IS_SOFTSWITCH(SOFTSW_80STORE))
-			copy_str(&status_line[9+3+3+5+4], "80S");
+			copy_str(&line2[3], "80STR");
 
 		if (IS_SOFTSWITCH(SOFTSW_AUX_READ))
-			copy_str(&status_line[9+3+3+5+4+4], "XR");
+			copy_str(&line2[9], "AUXR");
 
 		if (IS_SOFTSWITCH(SOFTSW_AUX_WRITE))
-			copy_str(&status_line[9+3+3+5+4+4+3], "XW");
+			copy_str(&line2[14], "AUXW");
 
 		if (IS_SOFTSWITCH(SOFTSW_AUXZP))
-			copy_str(&status_line[9+3+3+5+4+4+3+3], "XZ");
+			copy_str(&line2[19], "AUXZ");
+
+		if (IS_SOFTSWITCH(SOFTSW_SLOT3ROM))
+		{
+			copy_str(&line2[24], "C3ROM");
+		}
+
+		if (IS_SOFTSWITCH(SOFTSW_CXROM))
+		{
+			copy_str(&line2[30], "CXROM");
+		}
 
 		if (IS_SOFTSWITCH(SOFTSW_IOUDIS))
 		{
-			copy_str(&status_line[9+3+3+5+4+4+3+3+3], "IOU");
+			copy_str(&line2[36], "IOUD");
 		}
 
-		// render status line
-		render_text40_line(status_line, 0, 4);
+		// render both lines
+		render_text40_line(line1, 0, 4);
+		render_text40_line(line2, 0, 4);
 	}
 	else
 	{
+		uint8_t* line1 = &status_line[80];
+		uint8_t* line2 = &status_line[120];
+
 		if ((frame_counter & 7) == 0) // do not update too fast, so data remains readable
 		{
 			// clear status line
 			for (uint i=0;i<sizeof(status_line)/4/2;i++)
 			{
-				((uint32_t*)status_line)[40/4+i] = 0xA0A0A0A0;
+				((uint32_t*)line1)[i] = 0xA0A0A0A0;
 			}
 
 			// program counter
-			copy_str(&status_line[40], "PC:");
-			int2hex(&status_line[43], last_address_pc, 4);
+			copy_str(&line1[0], "PC:");
+			int2hex(&line1[3], last_address_pc, 4);
 
 			// recent stack access
-			copy_str(&status_line[43+5], "S:");
-			int2hex(&status_line[43+5+2], last_address_stack, 3);
+			copy_str(&line1[3+5], "S:");
+			int2hex(&line1[3+5+2], last_address_stack, 3);
 
 			// recent zero-page access
-			copy_str(&status_line[43+5+2+4], "ZP:");
-			int2hex(&status_line[43+5+2+4+3], last_address_zp, 2);
+			copy_str(&line1[3+5+2+4], "ZP:");
+			int2hex(&line1[3+5+2+4+3], last_address_zp, 2);
 		}
 
-		// render status line
-		render_text40_line(&status_line[40], 0, 4);
+		// render both lines
+		render_text40_line(line1, 0, 4);
+		render_text40_line(line2, 0, 4);
 	}
 }

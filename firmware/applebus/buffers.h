@@ -27,7 +27,7 @@ extern volatile uint16_t card_rom_address;
 extern uint8_t apple_memory[MAX_ADDRESS];
 extern uint8_t private_memory[MAX_ADDRESS];
 
-extern uint8_t status_line[80];
+extern uint8_t status_line[4*40]; // 4 rows of 40 columns
 
 extern volatile uint8_t jumpers;
 
@@ -64,11 +64,12 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_PAGE_2         0x00000008ul
 
 // Apple IIe/c/gs softswitches
+#define SOFTSW_CXROM          0x00000010ul
 #define SOFTSW_80STORE        0x00000100ul
 #define SOFTSW_AUX_READ       0x00000200ul
 #define SOFTSW_AUX_WRITE      0x00000400ul
 #define SOFTSW_AUXZP          0x00000800ul
-//#define SOFTSW_SLOT3ROM       0x00001000ul
+#define SOFTSW_SLOT3ROM       0x00001000ul
 #define SOFTSW_80COL          0x00002000ul
 #define SOFTSW_ALTCHAR        0x00004000ul
 #define SOFTSW_DGR            0x00008000ul
@@ -83,7 +84,7 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_IOUDIS         0x00080000ul
 
 // V2 Analog specific softswitches
-#define IFLAGS_STATUSLINES    0x00100000ul
+#define IFLAGS_DEBUG_LINES    0x00100000ul
 #define IFLAGS_MENU_ENABLE    0x00200000ul
 #define IFLAGS_FORCED_MONO    0x00400000ul
 #define IFLAGS_SCANLINEEMU    0x00800000ul

@@ -50,4 +50,4 @@ extern void render_mixed_dhgr();
 extern void render_dgr();
 extern void render_mixed_dgr();
 
-extern void render_status(uint8_t line);
+extern void render_status(bool top);

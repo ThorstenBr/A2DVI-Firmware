@@ -63,51 +63,27 @@ The firmware has built-in support for various fonts. Additional custom fonts can
 
 Included fonts for Apple IIe:
 
-* US, UK, French, German, Spanish, Italian, Swedish/Finnish, Hebrew, Pravetz/Cyrillic
+* **US**, **UK**, **French**, **German**, **Italian**, **Spanish**, **Swedish/Finnish**, **Hebrew**, **Pravetz/Cyrillic**
 
 * The IIe fonts are "*enhanced character sets*" (include "mouse text characters" required for the "*enhanced* //e").
 There is a separate configuration option to disable "enhanced fonts": this replaces the mousetext characters with normal characters, like on an original "*unenhanced* Apple //e".
 
 Included fonts for Apple II:
 
-* US, VIDEX, Katakana, ...
+* **US**, **VIDEX**, **Katakana**, ...
 
+## Custom Fonts
 Custom video ROMs for Apple II and IIe are supported and can be uploaded with the ProDOS/DOS configuration utility.
 
 Supported formats:
 
-* Apple II 2KB video ROMs
-* Apple IIe 4KB video ROMs
-* Apple IIe 8KB Dual-Language video ROMs
+* **Apple II 2KB** video ROMs
+* **Apple IIe 4KB** video ROMs
+* **Apple IIe 8KB** Dual-Language video ROMs
 
 The configuration utility automatically detects the correct format of the uploaded video ROM (based on the file size), since the Apple II and IIe video ROMs used different formats (bit reversed & inverted).
 
-## Status Lines
-The configuration menu offers a debugging feature. Enabling "STATUS LINES" shows extra lines above and below the normal Apple II screen (in red):
-
-![A2DVI Status Lines](images/A2DVI_StatusLines.jpg)
-
-The line above the screen shows the status of the Apple II internal "soft switches": switches controlling the video and memory subsystem:
-
-* Displays the active display mode **TEXT**, **GR** (LORES graphics), **DGR** (double LORES), **HGR** (HIRES), **DHGR** (double HIRES) and text/graphics **MIX** modes.
-* **P1**/**P2**: Display page 1 or 2 selected.
-* **40**/**80**: 40/80 column display mode selected.
-* **MONO**: Monochrome mode selected.
-* **ALT**: Alternate characters selected.
-* **80S**: 80STORE is selected (page 2 switches between main/auxiliary memory, instead of toggling P1/P2 pages).
-* **XR**: Auxiliary Read is selected (reading from auxiliary memory, beyond 64KB).
-* **XW**: Auxiliary Write is selected (writing to auxiliary memory, beyond 64KB).
-* **XZ**: Auxiliary Zero-Page is selected (zero-page in auxiliary memory).
-* **IOU**: "IOU disable" is selected (IOU access for addresses $C058 to $C05F disabled).
-
-The status line below the Apple II screen shows:
-
-* **PC**: current program counter (6502 execution address).
-* **S**: stack pointer (in fact: most recent memory access to stack page).
-* **ZP**: most recent address accessed in zero-page.
-
-The displayed program counter and stack pointer isn't exact science. Of course, the 6502 runs to far quickly to see all addresses. And the card doesn't know the register contents of the 6502, however, it sees every bus cycle and every memory address. So it sees access to the stack area (0x100-0x1ff) and sees the address of instruction fetches.
-This can be helpful when debugging a program. It's also just cool (though maybe a bit nerdy :) ) to be able to see what the 6502 is currently doing.
+![A2DVI Custom Fonts](images/A2DVI_CustomFonts.jpg)
 
 ## Dual Language Support for Euro-Machines
 The A2DVI-Firmware has dual language support. If you have a "Euro-Apple IIe" with the language switch on the bottom side of your Apple II keyboard, then select "**LANGUAGE SWITCH: ENABLED**" in the configuration utility and select, both, the primary and secondary character set (primary is any font/character set, secondary is any US character set).
@@ -121,6 +97,38 @@ Connect the single pin on the A2DVI card to the language switch signal "ALTCHR",
 ![Wiring the language switch](images/A2DVI_ALTCHR_wire.jpg)
 
 ![Language Rocker Switch](images/ALTCHR_Rocker_Switch.jpg)
+
+## Debug Lines
+The configuration menu offers a debugging feature. Enabling "DEBUG LINES" shows extra lines above and below the normal Apple II screen (in red):
+
+![A2DVI Debug Lines](images/A2DVI_DebugLines.jpg)
+
+The first line shows the status of switches controlling Apple II's video subsystem:
+
+* **TEXT**, **GR** (LORES graphics), **DGR** (double LORES), **HGR** (HIRES), **DHGR** (double HIRES): the active video mode.
+* **MIX**: text/graphics mix mode enabled.
+* **40**/**80**: 40/80 column display mode selected.
+* **P1**/**P2**: Display page 1 or 2 selected.
+* **MONOCHROME**: Monochrome mode selected.
+* **ALTCHAR**: Alternate characters selected.
+* **V7:n**: Selected Video7 mode.
+
+The second line shows *soft switches* controlling Apple II(e)'s memory subsystem:
+
+* **80STR**: 80STORE is selected (page 2 switches between main/auxiliary memory, instead of toggling P1/P2 pages).
+* **AUXR**: Auxiliary Read is selected (reading from auxiliary memory, beyond 64KB).
+* **AUXW**: Auxiliary Write is selected (writing to auxiliary memory, beyond 64KB).
+* **AUXZ**: Auxiliary Zero-Page is selected (zero-page in auxiliary memory).
+* **IOUD**: "IOU disable" is selected (IOU access for addresses $C058 to $C05F disabled).
+
+The line below the Apple II screen shows 6502 activity:
+
+* **PC**: current program counter (6502 execution address).
+* **S**: stack pointer (in fact: most recent memory access to stack page).
+* **ZP**: most recent address accessed in zero-page.
+
+The displayed program counter and stack pointer isn't exact science. Of course, the 6502 runs to far quickly to see all addresses. And the card doesn't know the register contents of the 6502, however, it sees every bus cycle and every memory address. So it sees access to the stack area (0x100-0x1ff) and sees the address of instruction fetches.
+This can be helpful when debugging a program. It's also just cool (though maybe a bit nerdy :) ) to be able to see what the 6502 is currently doing.
 
 # Photos
 Here are some photos showing A2DVI in action - using the DVI/HDMI connection.

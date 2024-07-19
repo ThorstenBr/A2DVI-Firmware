@@ -27,7 +27,7 @@ volatile uint8_t reset_state = 0;
 uint8_t __attribute__((section (".appledata."))) apple_memory[MAX_ADDRESS];
 uint8_t __attribute__((section (".appledata."))) private_memory[MAX_ADDRESS];
 
-uint8_t __attribute__((section (".appledata."))) status_line[80];
+uint8_t __attribute__((section (".appledata."))) status_line[4*40]; // 4 rows of 40 columns
 
 volatile uint8_t *text_p1 = apple_memory   + 0x0400;
 volatile uint8_t *text_p2 = apple_memory   + 0x0800;

@@ -471,7 +471,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
             break;
         case 8:
-            SET_IFLAG(!IS_IFLAG(IFLAGS_STATUSLINES), IFLAGS_STATUSLINES);
+            SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
             break;
         case 9:
             SET_IFLAG(!IS_IFLAG(IFLAGS_VIDEO7), IFLAGS_VIDEO7);
@@ -674,7 +674,7 @@ void DELAYED_COPY_CODE(menuShow)(char key)
     menuOption(10,5, "5 MONOCHROME COLOR:", MenuColorMode[color_mode]);
     menuOption(11,6, "6 COLOR MODES:",      MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
     menuOption(12,7, "7 SCAN LINES:",       MenuOnOff[IS_IFLAG(IFLAGS_SCANLINEEMU)]);
-    menuOption(13,8, "8 STATUS LINES:",     MenuOnOff[IS_IFLAG(IFLAGS_STATUSLINES)]);
+    menuOption(13,8, "8 DEBUG LINES:",      MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);
     menuOption(14,9, "9 VIDEO7 MODES:",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
 
     menuOption(16,10, "R RESTORE DEFAULTS", 0);

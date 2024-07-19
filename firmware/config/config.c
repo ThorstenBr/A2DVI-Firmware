@@ -75,7 +75,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  language_switch_enabled;
     uint8_t  enhanced_font_enabled;
     uint8_t  video7_enabled;
-    uint8_t  status_lines_enabled;
+    uint8_t  debug_lines_enabled;
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
@@ -225,7 +225,7 @@ void config_load(void)
     SET_IFLAG(cfg->scanline_emulation,   IFLAGS_SCANLINEEMU);
     SET_IFLAG(cfg->forced_monochrome,    IFLAGS_FORCED_MONO);
     SET_IFLAG(cfg->video7_enabled,       IFLAGS_VIDEO7);
-    SET_IFLAG(cfg->status_lines_enabled, IFLAGS_STATUSLINES);
+    SET_IFLAG(cfg->debug_lines_enabled, IFLAGS_DEBUG_LINES);
 
     language_switch_enabled = (cfg->language_switch_enabled != 0);
     enhanced_font_enabled   = (cfg->enhanced_font_enabled != 0);
@@ -257,7 +257,7 @@ void config_load(void)
 void config_load_defaults(void)
 {
     SET_IFLAG(1, IFLAGS_SCANLINEEMU);
-    SET_IFLAG(0, IFLAGS_STATUSLINES);
+    SET_IFLAG(0, IFLAGS_DEBUG_LINES);
     SET_IFLAG(0, IFLAGS_FORCED_MONO);
     SET_IFLAG(0, IFLAGS_VIDEO7);
 
@@ -296,7 +296,7 @@ void config_save(void)
     new_config->scanline_emulation      = IS_IFLAG(IFLAGS_SCANLINEEMU);
     new_config->forced_monochrome       = IS_IFLAG(IFLAGS_FORCED_MONO);
     new_config->video7_enabled          = IS_IFLAG(IFLAGS_VIDEO7);
-    new_config->status_lines_enabled    = IS_IFLAG(IFLAGS_STATUSLINES);
+    new_config->debug_lines_enabled     = IS_IFLAG(IFLAGS_DEBUG_LINES);
     new_config->color_mode              = color_mode;
     new_config->machine_type            = cfg_machine;
     new_config->local_charset           = cfg_local_charset;

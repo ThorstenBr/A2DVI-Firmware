@@ -19,7 +19,7 @@ static void dvi_dma0_irq();
 static void dvi_dma1_irq();
 
 #define A2DVI_VGA_LINES (480)
-#define A2DVI_SCANLINES (2*192 + 2*16)
+#define A2DVI_SCANLINES (2*192 + 4*16)
 
 void dvi_init(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_colour_queue)
 {

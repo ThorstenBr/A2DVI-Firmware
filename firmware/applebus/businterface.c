@@ -147,6 +147,18 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
             soft_switches |= SOFTSW_80STORE;
         }
         break;
+    case 0x02:
+        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
+        {
+            soft_switches &= ~SOFTSW_AUX_READ;
+        }
+        break;
+    case 0x03:
+        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
+        {
+            soft_switches |= SOFTSW_AUX_READ;
+        }
+        break;
     case 0x04:
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
@@ -159,6 +171,18 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
             soft_switches |= SOFTSW_AUX_WRITE;
         }
         break;
+    case 0x06:
+        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
+        {
+            soft_switches &= ~SOFTSW_CXROM;
+        }
+        break;
+    case 0x07:
+        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
+        {
+            soft_switches |= SOFTSW_CXROM;
+        }
+        break;
     case 0x08:
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
@@ -169,6 +193,18 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_AUXZP;
+        }
+        break;
+    case 0x0a:
+        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
+        {
+            soft_switches &= ~SOFTSW_SLOT3ROM;
+        }
+        break;
+    case 0x0b:
+        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
+        {
+            soft_switches |= SOFTSW_SLOT3ROM;
         }
         break;
     case 0x0c:
