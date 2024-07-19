@@ -426,7 +426,7 @@ void __time_critical_func(businterface)(uint32_t value)
             if (address == 0xFA62) // Apple II reset vector address
             {
                 soft_switches   = SOFTSW_TEXT_MODE;
-                //internal_flags &= ~(IFLAGS_TERMINAL | IFLAGS_TEST);
+                internal_flags &= ~(IFLAGS_MENU_ENABLE);
                 internal_flags |= IFLAGS_V7_MODE3;
                 // clear dev register lock
                 dev_config_lock = 0;
