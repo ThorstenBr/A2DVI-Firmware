@@ -5,8 +5,10 @@
 #include "buffers.h"
 #include "config/config.h"
 #include "config/device_regs.h"
+#include "fonts/textfont.h"
 
-//volatile uint8_t *terminal_page = terminal_memory;
+uint8_t romx_unlocked;
+uint8_t romx_textbank;
 
 typedef enum
 {
@@ -49,6 +51,85 @@ static inline void __time_critical_func(machine_auto_detection)(uint32_t address
         }
     }
 }
+
+#if ROMX
+// Control sequences used by ROMX and ROMXe
+static inline void __time_critical_func(check_romx_read)(uint32_t address)
+{
+    switch(current_machine)
+    {
+        case MACHINE_IIE:
+            // Trigger on read sequence FACA FACA FAFE
+            if((address >> 8) == 0xFA)
+            {
+                switch(address & 0xFF)
+                {
+                    case 0xCA:
+                        romx_unlocked = (romx_unlocked == 1) ? 2 : 1;
+                        break;
+                    case 0xFE:
+                        romx_unlocked = (romx_unlocked == 2) ? 3 : 0;
+                        break;
+                    default:
+                        if(romx_unlocked != 3)
+                            romx_unlocked = 0;
+                        break;
+                }
+            }
+            else
+            if(romx_unlocked == 3)
+            {
+                if((address >> 4) == 0xF81)
+                {
+                    romx_textbank = (MAX_FONT_COUNT-CUSTOM_FONT_COUNT) + (address & 0xF);
+                }
+                else
+                if(address == 0xF851)
+                {
+                    cfg_local_charset = romx_textbank;
+                    reload_charsets   = 1;
+                    romx_unlocked     = 0;
+                }
+            }
+            break;
+        case MACHINE_II:
+            // Trigger on read sequence CACA CACA CAFE
+            if((address >> 8) == 0xCA)
+            {
+                switch(address & 0xFF)
+                {
+                    case 0xCA:
+                        romx_unlocked = (romx_unlocked == 1) ? 2 : 1;
+                        break;
+                    case 0xFE:
+                        romx_unlocked = (romx_unlocked == 2) ? 3 : 0;
+                        break;
+                    default:
+                        if(romx_unlocked != 3)
+                            romx_unlocked = 0;
+                        break;
+                }
+            }
+            else
+            if(romx_unlocked == 3)
+            {
+                if((address >> 4) == 0xCFD)
+                {
+                    romx_textbank = (MAX_FONT_COUNT-CUSTOM_FONT_COUNT) + (address & 0xF);
+                }
+                if((address >> 4) == 0xCFE)
+                {
+                    cfg_local_charset = romx_textbank;
+                    reload_charsets   = 1;
+                    romx_unlocked     = 0;
+                }
+            }
+            break;
+        default:
+            break;
+    }
+}
+#endif // ROMX
 
 static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessMode, uint32_t address, uint8_t data)
 {
@@ -277,6 +358,14 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
             }
         }
     }
+#if ROMX
+    else
+    if(AccessMode == ReadMem)
+    {
+        // Control sequences used by ROMX and ROMXe
+        check_romx_read(address);
+    }
+#endif
 
     // nothing to do addresses outside register area
     if ((address & 0xF800) != 0xc000)
@@ -288,71 +377,6 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
         apple2_softswitches(AccessMode, address, data);
         return;
     }
-
-#if 0
-    // Control sequences used by ROMX and ROMXe
-    switch(current_machine)
-    {
-        case MACHINE_IIE:
-            // Trigger on read sequence FACA FACA FAFE
-            if(AccessMode == ReadMem)
-            {
-                if((address >> 8) == 0xFA)
-                {
-                    switch(address & 0xFF) {
-                    case 0xCA:
-                        romx_unlocked = (romx_unlocked == 1) ? 2 : 1;
-                        break;
-                    case 0xFE:
-                        romx_unlocked = (romx_unlocked == 2) ? 3 : 0;
-                        break;
-                    default:
-                        if(romx_unlocked != 3)
-                            romx_unlocked = 0;
-                        break;
-                    }
-                } else if(romx_unlocked == 3) {
-                    if((address >> 4) == 0xF81) {
-                        romx_textbank = address & 0xF;
-                    }
-                    if(address == 0xF851) {
-                        romx_changed = 1;
-                        romx_unlocked = 0;
-                    }
-                }
-            }
-            break;
-        case MACHINE_II:
-            // Trigger on read sequence CACA CACA CAFE
-            if(AccessMode == ReadMem)
-            {
-                if((address >> 8) == 0xCA)
-                {
-                    switch(address & 0xFF) {
-                    case 0xCA:
-                        romx_unlocked = (romx_unlocked == 1) ? 2 : 1;
-                        break;
-                    case 0xFE:
-                        romx_unlocked = (romx_unlocked == 2) ? 3 : 0;
-                        break;
-                    default:
-                        if(romx_unlocked != 3)
-                            romx_unlocked = 0;
-                        break;
-                    }
-                } else if(romx_unlocked == 3) {
-                    if((address >> 4) == 0xCFD) {
-                        romx_textbank = address & 0xF;
-                    }
-                    if((address >> 4) == 0xCFE) {
-                        romx_changed = 1;
-                        romx_unlocked = 0;
-                    }
-                }
-            }
-            break;
-    }
-#endif
 
     // Card Registers
     if ((AccessMode == WriteDev)||
