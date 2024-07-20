@@ -323,10 +323,10 @@ void menuShowDebug()
 
     // show detected machine and slot
     {
-        const uint8_t X1 = 7;
+        const uint8_t X1 = 5;
         const uint8_t X2 = X1+17;
 
-        printXY(X1,2, "DETECTED SLOT:", PRINTMODE_NORMAL);
+        printXY(X1,2, "DETECTED SLOT:",    PRINTMODE_NORMAL);
         printXY(X1,4, "DETECTED MACHINE:", PRINTMODE_NORMAL);
 
         // show slot
