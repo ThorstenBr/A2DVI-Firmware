@@ -58,7 +58,7 @@ There are configuration utility disks for [ProDOS](/configutil/A2DVICONFIG_PRODO
 
 ![Config Utility](images/A2DVI_config.jpg)
 
-## Fonts
+## Built-in Fonts
 The firmware has built-in support for various fonts. Additional custom fonts can be uploaded using normal Apple II/IIe video ROM binaries.
 
 Included fonts for Apple IIe:
@@ -119,6 +119,8 @@ The second line shows *soft switches* controlling Apple II(e)'s memory subsystem
 * **AUXR**: Auxiliary Read is selected (reading from auxiliary memory, beyond 64KB).
 * **AUXW**: Auxiliary Write is selected (writing to auxiliary memory, beyond 64KB).
 * **AUXZ**: Auxiliary Zero-Page is selected (zero-page in auxiliary memory).
+* **C3ROM**: Slot 3 ROM is disabled (memory bank enabled).
+* **CXROM**: CX00 ROM area is disabled (memory bank enabled).
 * **IOUD**: "IOU disable" is selected (IOU access for addresses $C058 to $C05F disabled).
 
 The line below the Apple II screen shows 6502 activity:
@@ -127,7 +129,7 @@ The line below the Apple II screen shows 6502 activity:
 * **S**: stack pointer (in fact: most recent memory access to stack page).
 * **ZP**: most recent address accessed in zero-page.
 
-The displayed program counter and stack pointer isn't exact science. Of course, the 6502 runs to far quickly to see all addresses. And the card doesn't know the register contents of the 6502, however, it sees every bus cycle and every memory address. So it sees access to the stack area (0x100-0x1ff) and sees the address of instruction fetches.
+The displayed program counter and stack pointer isn't exact science. Of course, the 6502 runs to far quickly to see all addresses. And the card doesn't know the register contents of the 6502, however, it sees every bus cycle and every memory access. So it sees access to the stack area (0x100-0x1ff) and the addresses of instruction fetches.
 This can be helpful when debugging a program. It's also just cool (though maybe a bit nerdy :) ) to be able to see what the 6502 is currently doing.
 
 # Photos
