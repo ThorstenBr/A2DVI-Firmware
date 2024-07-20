@@ -116,7 +116,7 @@ void __time_critical_func(set_machine)(compat_t machine)
         case MACHINE_BASIS:
         case MACHINE_PRAVETZ:
         case MACHINE_II:
-            internal_flags &= ~(IFLAGS_IIGS_REGS||IFLAGS_IIE_REGS);
+            internal_flags &= ~(IFLAGS_IIGS_REGS|IFLAGS_IIE_REGS);
             break;
 
         case MACHINE_IIE:

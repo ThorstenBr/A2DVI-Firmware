@@ -104,47 +104,51 @@ void DELAYED_COPY_CODE(render_status)(bool top)
 		copy_str(&line1[ 9], (IS_SOFTSWITCH(SOFTSW_80COL))  ? "80" : "40");
 		copy_str(&line1[12], (IS_SOFTSWITCH(SOFTSW_PAGE_2)) ? "P2" : "P1");
 
-		if (IS_SOFTSWITCH(SOFTSW_MONOCHROME))
-		{
-			copy_str(&line1[15], "MONOCHROME");
-		}
-
-		if (IS_SOFTSWITCH(SOFTSW_ALTCHAR))
-		{
-			copy_str(&line1[26], "ALTCHAR");
-		}
-
 		if (IS_IFLAG(IFLAGS_VIDEO7))
 		{
 			copy_str(&line1[34], "V7:");
 			line1[37] = 0x80|'0'|(internal_flags&0x3);
 		}
 
-		if (IS_SOFTSWITCH(SOFTSW_80STORE))
-			copy_str(&line2[3], "80STR");
-
-		if (IS_SOFTSWITCH(SOFTSW_AUX_READ))
-			copy_str(&line2[9], "AUXR");
-
-		if (IS_SOFTSWITCH(SOFTSW_AUX_WRITE))
-			copy_str(&line2[14], "AUXW");
-
-		if (IS_SOFTSWITCH(SOFTSW_AUXZP))
-			copy_str(&line2[19], "AUXZ");
-
-		if (IS_SOFTSWITCH(SOFTSW_SLOT3ROM))
+		// Apple IIe specific registers
+		if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
 		{
-			copy_str(&line2[24], "C3ROM");
-		}
+			if (IS_SOFTSWITCH(SOFTSW_MONOCHROME))
+			{
+				copy_str(&line1[15], "MONOCHROME");
+			}
 
-		if (IS_SOFTSWITCH(SOFTSW_CXROM))
-		{
-			copy_str(&line2[30], "CXROM");
-		}
+			if (IS_SOFTSWITCH(SOFTSW_ALTCHAR))
+			{
+				copy_str(&line1[26], "ALTCHAR");
+			}
 
-		if (IS_SOFTSWITCH(SOFTSW_IOUDIS))
-		{
-			copy_str(&line2[36], "IOUD");
+			if (IS_SOFTSWITCH(SOFTSW_80STORE))
+				copy_str(&line2[3], "80STR");
+
+			if (IS_SOFTSWITCH(SOFTSW_AUX_READ))
+				copy_str(&line2[9], "AUXR");
+
+			if (IS_SOFTSWITCH(SOFTSW_AUX_WRITE))
+				copy_str(&line2[14], "AUXW");
+
+			if (IS_SOFTSWITCH(SOFTSW_AUXZP))
+				copy_str(&line2[19], "AUXZ");
+
+			if (IS_SOFTSWITCH(SOFTSW_SLOT3ROM))
+			{
+				copy_str(&line2[24], "C3ROM");
+			}
+
+			if (IS_SOFTSWITCH(SOFTSW_CXROM))
+			{
+				copy_str(&line2[30], "CXROM");
+			}
+
+			if (IS_SOFTSWITCH(SOFTSW_IOUDIS))
+			{
+				copy_str(&line2[36], "IOUD");
+			}
 		}
 
 		// render both lines
