@@ -36,6 +36,8 @@ bool PrintMode80Column = false;
 bool PrintModePage2    = false;
 #endif
 
+static bool MenuNeedsRedraw;
+
 void __time_critical_func(centerY)(uint32_t y, const char* pMsg, TPrintMode PrintMode)
 {
     uint32_t x = 0;
@@ -216,7 +218,7 @@ static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const ch
         printXY(20, y, pValue, PRINTMODE_NORMAL);
 }
 
-static void menuShowFrame()
+void __time_critical_func(menuShowFrame)()
 {
     soft_switches |= SOFTSW_TEXT_MODE;
     soft_switches &= ~(SOFTSW_MIX_MODE | SOFTSW_80COL | SOFTSW_PAGE_2 | SOFTSW_DGR | SOFTSW_HIRES_MODE);
@@ -227,8 +229,8 @@ static void menuShowFrame()
 
 void DELAYED_COPY_CODE(menuShowSaved)()
 {
-	menuShowFrame();
-	centerY(11, "SAVED!", PRINTMODE_NORMAL);
+    menuShowFrame();
+    centerY(11, "SAVED!", PRINTMODE_NORMAL);
 }
 
 //   1234567890123456789012345678901234567890
@@ -256,6 +258,7 @@ static const char* DELAYED_COPY_DATA(AboutText)[]=
 
 void DELAYED_COPY_CODE(menuShowAbout)()
 {
+    menuShowFrame();
     for (uint y=0;AboutText[y];y++)
     {
         printXY(0,2+y, AboutText[y], PRINTMODE_NORMAL);
@@ -316,6 +319,8 @@ void int2str(uint32_t value, char* pStrBuf, uint32_t digits)
 
 void menuShowDebug()
 {
+    menuShowFrame();
+
     // show detected machine and slot
     {
         const uint8_t X1 = 7;
@@ -547,6 +552,7 @@ static inline bool menuCheckKeys(char key)
     {
         case 0: // reset command
             CurrentMenu = 0;
+            MenuNeedsRedraw = true;
             break;
         case '0' ... '9':
             CurrentMenu = key-'0';
@@ -632,13 +638,15 @@ static inline bool menuCheckKeys(char key)
         case 27:
             // clear menu mode when exiting
             SET_IFLAG(0, IFLAGS_MENU_ENABLE);
-            break;
+            MenuNeedsRedraw = true;
+            return true;
         default:
             break;
     }
 
     if (Cmd != -1)
     {
+        MenuNeedsRedraw = true;
         return menuDoSelection(Cmd == 1);
     }
 
@@ -647,8 +655,6 @@ static inline bool menuCheckKeys(char key)
 
 void DELAYED_COPY_CODE(menuShow)(char key)
 {
-    menuShowFrame();
-
     if (IgnoreNextKeypress)
     {
         IgnoreNextKeypress = 0;
@@ -659,6 +665,11 @@ void DELAYED_COPY_CODE(menuShow)(char key)
             return;
     }
 
+    if (MenuNeedsRedraw)
+    {
+        menuShowFrame();
+        MenuNeedsRedraw = false;
+    }
     centerY(2, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
 
     menuOption(4,0, "0 MACHINE TYPE:",      (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");

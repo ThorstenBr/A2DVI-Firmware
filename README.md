@@ -178,6 +178,8 @@ Here are some photos showing A2DVI in action - using the DVI/HDMI connection.
 
 * **Custom fonts**.
 
+* **Debug display**.
+
 ## TODOs
 
 * Double-LORES in color.
