@@ -327,17 +327,16 @@ void menuShowDebug()
         const uint8_t X1 = 5;
         const uint8_t X2 = X1+17;
 
-        printXY(X1,2, "DETECTED SLOT:",    PRINTMODE_NORMAL);
-        printXY(X1,4, "DETECTED MACHINE:", PRINTMODE_NORMAL);
+        printXY(X1,   3, "DETECTED MACHINE:", PRINTMODE_NORMAL);
+        // show current machine type
+        printXY(X2+1, 3, (current_machine > MACHINE_MAX_CFG) ? "-" : MachineNames[current_machine], PRINTMODE_NORMAL);
 
         // show slot
+        printXY(X1,   4, "DETECTED SLOT:",    PRINTMODE_NORMAL);
         char s[16];
         s[0] = 0x80 | ((cardslot == 0) ? '-' : '0'+cardslot);
         s[1] = 0;
-        printXY(X2,2, s, PRINTMODE_NORMAL);
-
-        // show current machine type
-        printXY(X2, 4, (current_machine > MACHINE_MAX_CFG) ? "-" : MachineNames[current_machine], PRINTMODE_NORMAL);
+        printXY(X2+1,4, s, PRINTMODE_NORMAL);
 
         // show statistics
         printXY(X1, 6, "BUS CYCLES:", PRINTMODE_NORMAL);

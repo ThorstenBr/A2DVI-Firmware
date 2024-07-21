@@ -459,6 +459,7 @@ void __time_critical_func(businterface)(uint32_t value)
                 // clear dev register lock
                 dev_config_lock = 0;
                 reset_counter++;
+                bus_overflow_counter = 0;
             }
             // fall-through
         default:
