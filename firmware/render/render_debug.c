@@ -73,80 +73,83 @@ void DELAYED_COPY_CODE(render_debug)(bool top)
         uint8_t* line1 = status_line;
         uint8_t* line2 = &status_line[40];
 
-        // clear status lines
-        for (uint i=0;i<sizeof(status_line)/4/2;i++)
+        if ((frame_counter & 3) == 0) // do not update too fast, so data remains readable
         {
-            ((uint32_t*)status_line)[i] = 0xA0A0A0A0;
-        }
-
-        // show graphics/text mode
-        switch(soft_switches & SOFTSW_MODE_MASK)
-        {
-            case 0:
-                copy_str(&line1[0], (IS_SOFTSWITCH(SOFTSW_DGR)) ? "DGR" : "GR");
-                break;
-            case SOFTSW_MIX_MODE:
-                copy_str(&line1[0], ((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR)) ? "DGR" : "DGR MIX");
-                break;
-            case SOFTSW_HIRES_MODE:
-                copy_str(&line1[0], (IS_SOFTSWITCH(SOFTSW_DGR)) ? "DHGR" : "HGR");
-                break;
-            case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE:
-                copy_str(&line1[0], ((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR)) ? "DHGR MIX" : "HGR");
-                break;
-            default:
-                copy_str(&line1[0], "TEXT");
-                break;
-        }
-
-        // show state of other soft-switches
-        copy_str(&line1[ 9], (IS_SOFTSWITCH(SOFTSW_80COL))  ? "80" : "40");
-        copy_str(&line1[12], (IS_SOFTSWITCH(SOFTSW_PAGE_2)) ? "P2" : "P1");
-
-        if (IS_IFLAG(IFLAGS_VIDEO7))
-        {
-            copy_str(&line1[34], "V7:");
-            line1[37] = 0x80|'0'|(internal_flags&0x3);
-        }
-
-        // Apple IIe specific registers
-        if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
-        {
-            if (IS_SOFTSWITCH(SOFTSW_MONOCHROME))
+            // clear status lines
+            for (uint i=0;i<sizeof(status_line)/4/2;i++)
             {
-                copy_str(&line1[15], "MONOCHROME");
+                ((uint32_t*)status_line)[i] = 0xA0A0A0A0;
             }
 
-            if (IS_SOFTSWITCH(SOFTSW_ALTCHAR))
+            // show graphics/text mode
+            switch(soft_switches & SOFTSW_MODE_MASK)
             {
-                copy_str(&line1[26], "ALTCHAR");
+                case 0:
+                    copy_str(&line1[0], (IS_SOFTSWITCH(SOFTSW_DGR)) ? "DGR" : "GR");
+                    break;
+                case SOFTSW_MIX_MODE:
+                    copy_str(&line1[0], ((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR)) ? "DGR" : "DGR MIX");
+                    break;
+                case SOFTSW_HIRES_MODE:
+                    copy_str(&line1[0], (IS_SOFTSWITCH(SOFTSW_DGR)) ? "DHGR" : "HGR");
+                    break;
+                case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE:
+                    copy_str(&line1[0], ((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR)) ? "DHGR MIX" : "HGR");
+                    break;
+                default:
+                    copy_str(&line1[0], "TEXT");
+                    break;
             }
 
-            if (IS_SOFTSWITCH(SOFTSW_80STORE))
-                copy_str(&line2[3], "80STR");
+            // show state of other soft-switches
+            copy_str(&line1[ 9], (IS_SOFTSWITCH(SOFTSW_80COL))  ? "80" : "40");
+            copy_str(&line1[12], (IS_SOFTSWITCH(SOFTSW_PAGE_2)) ? "P2" : "P1");
 
-            if (IS_SOFTSWITCH(SOFTSW_AUX_READ))
-                copy_str(&line2[9], "AUXR");
-
-            if (IS_SOFTSWITCH(SOFTSW_AUX_WRITE))
-                copy_str(&line2[14], "AUXW");
-
-            if (IS_SOFTSWITCH(SOFTSW_AUXZP))
-                copy_str(&line2[19], "AUXZ");
-
-            if (IS_SOFTSWITCH(SOFTSW_SLOT3ROM))
+            if (IS_IFLAG(IFLAGS_VIDEO7))
             {
-                copy_str(&line2[24], "C3ROM");
+                copy_str(&line1[34], "V7:");
+                line1[37] = 0x80|'0'|(internal_flags&0x3);
             }
 
-            if (IS_SOFTSWITCH(SOFTSW_CXROM))
+            // Apple IIe specific registers
+            if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
             {
-                copy_str(&line2[30], "CXROM");
-            }
+                if (IS_SOFTSWITCH(SOFTSW_MONOCHROME))
+                {
+                    copy_str(&line1[15], "MONOCHROME");
+                }
 
-            if (IS_SOFTSWITCH(SOFTSW_IOUDIS))
-            {
-                copy_str(&line2[36], "IOUD");
+                if (IS_SOFTSWITCH(SOFTSW_ALTCHAR))
+                {
+                    copy_str(&line1[26], "ALTCHAR");
+                }
+
+                if (IS_SOFTSWITCH(SOFTSW_80STORE))
+                    copy_str(&line2[3], "80STR");
+
+                if (IS_SOFTSWITCH(SOFTSW_AUX_READ))
+                    copy_str(&line2[9], "AUXR");
+
+                if (IS_SOFTSWITCH(SOFTSW_AUX_WRITE))
+                    copy_str(&line2[14], "AUXW");
+
+                if (IS_SOFTSWITCH(SOFTSW_AUXZP))
+                    copy_str(&line2[19], "AUXZ");
+
+                if (IS_SOFTSWITCH(SOFTSW_SLOT3ROM))
+                {
+                    copy_str(&line2[24], "C3ROM");
+                }
+
+                if (IS_SOFTSWITCH(SOFTSW_CXROM))
+                {
+                    copy_str(&line2[30], "CXROM");
+                }
+
+                if (IS_SOFTSWITCH(SOFTSW_IOUDIS))
+                {
+                    copy_str(&line2[36], "IOUD");
+                }
             }
         }
 
@@ -163,7 +166,7 @@ void DELAYED_COPY_CODE(render_debug)(bool top)
         uint8_t* line1 = &status_line[80];
         uint8_t* line2 = &status_line[120];
 
-        if ((frame_counter & 7) == 0) // do not update too fast, so data remains readable
+        if ((frame_counter & 0xF) == 0) // do not update too fast, so data remains readable
         {
             // clear status line
             for (uint i=0;i<sizeof(status_line)/4/2;i++)
@@ -172,21 +175,21 @@ void DELAYED_COPY_CODE(render_debug)(bool top)
             }
 
             // program counter
-            copy_str(&line1[0], "PC:");
-            int2hex(&line1[3], last_address_pc, 4);
+            copy_str(&line2[0], "PC:");
+            int2hex(&line2[3], last_address_pc, 4);
 
             // recent stack access
-            copy_str(&line1[8], "S:");
-            int2hex(&line1[10], last_address_stack, 3);
+            copy_str(&line2[8], "S:");
+            int2hex(&line2[10], last_address_stack, 3);
 
             // recent zero-page access
-            copy_str(&line1[14], "ZP:");
-            int2hex(&line1[17], last_address_zp, 2);
+            copy_str(&line2[14], "ZP:");
+            int2hex(&line2[17], last_address_zp, 2);
 
             if (IS_IFLAG(IFLAGS_TEST))
             {
-                copy_str(&line1[33], "OV:");
-                int2hex(&line1[36], bus_overflow_counter, 4);
+                copy_str(&line2[33], "OV:");
+                int2hex(&line2[36], bus_overflow_counter, 4);
             }
         }
 
