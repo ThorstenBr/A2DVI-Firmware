@@ -36,6 +36,14 @@ SOFTWARE.
     #include "videx_vterm.h"
 #endif
 
+void __time_critical_func(abus_clear_fifo)(void)
+{
+    while (abus_pio_fifo_level())
+    {
+        (void) abus_pio_blocking_read();
+    }
+}
+
 void __time_critical_func(abus_init)()
 {
 #ifdef APPLE_MODEL_IIPLUS
@@ -57,6 +65,9 @@ void __time_critical_func(abus_loop)()
             gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
             count = 100*1000;
         }
+
+        if (abus_pio_is_full())
+            bus_overflow_counter++;
 
         uint32_t value = abus_pio_blocking_read();
 

@@ -183,6 +183,11 @@ void DELAYED_COPY_CODE(render_status)(bool top)
             copy_str(&line1[14], "ZP:");
             int2hex(&line1[17], last_address_zp, 2);
 
+            if (IS_IFLAG(IFLAGS_TEST))
+            {
+                copy_str(&line1[33], "OV:");
+                int2hex(&line1[36], bus_overflow_counter, 4);
+            }
         }
 
         // render both lines

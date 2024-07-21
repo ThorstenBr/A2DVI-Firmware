@@ -26,6 +26,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include "pico/stdlib.h"
 
+#include "applebus/abus.h"
 #include "applebus/buffers.h"
 #include "config/config.h"
 #include "fonts/textfont.h"
@@ -204,7 +205,7 @@ const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_FONT_COUNT] =
 };
 
 static uint8_t CurrentMenu        = 0;
-static uint8_t IgnoreNextKeypress = 0;
+static bool    IgnoreNextKeypress = false;
 
 static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const char* pValue)
 {
@@ -343,26 +344,30 @@ void menuShowDebug()
         int2str(bus_counter, s, 14);
         printXY(X2, 6, s, PRINTMODE_NORMAL);
 
-        printXY(X1, 7, "FRAMES:", PRINTMODE_NORMAL);
-        int2str(frame_counter, s, 14);
+        printXY(X1,7, "BUS OVERFLOWS:", PRINTMODE_NORMAL);
+        int2str(bus_overflow_counter, s, 14);
         printXY(X2, 7, s, PRINTMODE_NORMAL);
 
-        printXY(X1, 8, "RESETS:", PRINTMODE_NORMAL);
-        int2str(reset_counter, s, 14);
+        printXY(X1, 8, "FRAME COUNTER:", PRINTMODE_NORMAL);
+        int2str(frame_counter, s, 14);
         printXY(X2, 8, s, PRINTMODE_NORMAL);
 
-        printXY(X1, 9, "DEV REG ACCESS:", PRINTMODE_NORMAL);
-        int2str(devicereg_counter, s, 14);
+        printXY(X1, 9, "RESET COUNTER:", PRINTMODE_NORMAL);
+        int2str(reset_counter, s, 14);
         printXY(X2, 9, s, PRINTMODE_NORMAL);
 
-        printXY(X1,10, "DEV ROM ACCESS:", PRINTMODE_NORMAL);
+        printXY(X1,10, "DEV REG ACCESS:", PRINTMODE_NORMAL);
+        int2str(devicereg_counter, s, 14);
+        printXY(X2,10, s, PRINTMODE_NORMAL);
+
+        printXY(X1,11, "DEV ROM ACCESS:", PRINTMODE_NORMAL);
         int2str(devicerom_counter, s, 14);
-        printXY(X2, 10, s, PRINTMODE_NORMAL);
+        printXY(X2,11, s, PRINTMODE_NORMAL);
 
 #ifdef FEATURE_TEST
-        printXY(X1,11, "BOOT TIME:", PRINTMODE_NORMAL);
+        printXY(X1,18, "BOOT TIME:", PRINTMODE_NORMAL);
         int2str(boot_time, s, 14);
-        printXY(X2, 11, s, PRINTMODE_NORMAL);
+        printXY(X2, 18, s, PRINTMODE_NORMAL);
 #endif
     }
 }
@@ -477,6 +482,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             break;
         case 8:
             SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
+            SET_IFLAG(0, IFLAGS_TEST);
             break;
         case 9:
             SET_IFLAG(!IS_IFLAG(IFLAGS_VIDEO7), IFLAGS_VIDEO7);
@@ -504,7 +510,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             {
                 config_save();
                 menuShowSaved();
-                IgnoreNextKeypress = 1;
+                IgnoreNextKeypress = true;
                 return true;
             }
             break;
@@ -512,7 +518,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             if (increase)
             {
                 menuShowAbout();
-                IgnoreNextKeypress = 1;
+                IgnoreNextKeypress = true;
                 return true;
             }
             break;
@@ -520,7 +526,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             if (increase)
             {
                 menuShowTest();
-                IgnoreNextKeypress = 1;
+                IgnoreNextKeypress = true;
                 return true;
             }
             break;
@@ -528,7 +534,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             if (increase)
             {
                 menuShowDebug();
-                IgnoreNextKeypress = 1;
+                IgnoreNextKeypress = true;
                 return true;
             }
             break;
@@ -640,6 +646,12 @@ static inline bool menuCheckKeys(char key)
             SET_IFLAG(0, IFLAGS_MENU_ENABLE);
             MenuNeedsRedraw = true;
             return true;
+        case '!':
+            if (IS_IFLAG(IFLAGS_DEBUG_LINES))
+            {
+                SET_IFLAG(!IS_IFLAG(IFLAGS_TEST), IFLAGS_TEST);
+            }
+            break;
         default:
             break;
     }
@@ -657,12 +669,15 @@ void DELAYED_COPY_CODE(menuShow)(char key)
 {
     if (IgnoreNextKeypress)
     {
-        IgnoreNextKeypress = 0;
+        IgnoreNextKeypress = false;
     }
     else
+    if (menuCheckKeys(key))
     {
-        if (menuCheckKeys(key))
-            return;
+        /* Yes, the menu stuff is too slow for the bus cycle loop. But
+         * it doesn't matter here, just wipe the FIFO. */
+        abus_clear_fifo();
+        return;
     }
 
     if (MenuNeedsRedraw)
@@ -698,4 +713,13 @@ void DELAYED_COPY_CODE(menuShow)(char key)
 
     // show some special characters, for immediate feedback when selecting character sets
     printXY(40-11, 21, "[{\\~#$`^|}]", PRINTMODE_NORMAL);
+
+    /* We're drawing the menu inside the bus cycle loop. That's too slow, of course.
+     * But it doesn't matter, since we know the config utility isn't doing anything
+     * interesting in the bus cycles immediately after writing the menu register.
+     * So we're good to just ignore a few cycles. But we wipe the FIFO to simplify
+     * testing, so we keep the statistics clean (overflow counter). Otherwise real/serious
+     * bus FIFO overflows could get lost in the flood of expected/accepted overflows.
+     */
+    abus_clear_fifo();
 }

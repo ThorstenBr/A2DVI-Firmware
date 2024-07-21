@@ -44,7 +44,7 @@ struct dvi_inst dvi0;
 static void a2dvi_init()
 {
     // wait a bit, until the raised core VCC has settled
-    sleep_ms(5);
+    sleep_ms(2);
     // shift into higher gears...
     set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
 }

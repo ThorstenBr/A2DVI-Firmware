@@ -1,7 +1,8 @@
 #include "buffers.h"
 
-volatile uint32_t reset_counter = 1;
+volatile uint32_t reset_counter;
 volatile uint32_t bus_counter;
+volatile uint32_t bus_overflow_counter;
 volatile uint32_t frame_counter;
 volatile uint32_t devicereg_counter;
 volatile uint32_t devicerom_counter;

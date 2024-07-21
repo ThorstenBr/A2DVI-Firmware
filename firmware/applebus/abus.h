@@ -29,6 +29,7 @@ SOFTWARE.
 
 void abus_init();
 void abus_loop();
+void abus_clear_fifo();
 
 #define ACCESS_WRITE(value)    ((value & (1u << (CONFIG_PIN_APPLEBUS_RW     - CONFIG_PIN_APPLEBUS_DATA_BASE))) == 0)
 #define ACCESS_READ(value)     ((value & (1u << (CONFIG_PIN_APPLEBUS_RW     - CONFIG_PIN_APPLEBUS_DATA_BASE))) != 0)
