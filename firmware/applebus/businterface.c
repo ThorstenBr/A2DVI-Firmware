@@ -329,69 +329,61 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
 
 static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32_t address, uint8_t data)
 {
-	if (address < 0x100)
-		last_address_zp = address;
-	else
-	if (address < 0x200)
-		last_address_stack = address;
-	else
-	if (address == last_address+1)
-		last_address_pc = address;
-	last_address = address;
+    if (address < 0x100)
+        last_address_zp = address;
+    else
+    if (address < 0x200)
+        last_address_stack = address;
+    else
+    if (address == last_address+1)
+        last_address_pc = address;
+    last_address = address;
 
     // Shadow parts of the Apple's memory by observing the bus write cycles
     if(AccessMode == WriteMem)
     {
-        if(address < 0xc000)
+        if(address < 0xC000)
         {
             // Mirror Video Memory from MAIN & AUX banks
-            if(soft_switches & SOFTSW_80STORE)
+            if ((soft_switches & SOFTSW_80STORE)&&
+                (((address >= 0x400) && (address < 0x800))||
+                ((soft_switches & SOFTSW_HIRES_MODE) && (address >= 0x2000) && (address < 0x4000))))
             {
+                // 80STORE is on AND address is within an active display page
                 if(soft_switches & SOFTSW_PAGE_2)
-                {
-                    if((address >= 0x400) && (address < 0x800))
-                    {
-                        private_memory[address] = data;
-                        return;
-                    }
-                    if((soft_switches & SOFTSW_HIRES_MODE) && (address >= 0x2000) && (address < 0x4000))
-                    {
-                        private_memory[address] = data;
-                        return;
-                    }
-                }
+                    private_memory[address] = data;
+                else
+                    apple_memory[address] = data;
+                // nothing else to do
+                return;
             }
-            else
-            if(soft_switches & SOFTSW_AUX_WRITE)
+
+            if (address >= 0x200)
             {
-                if((address >= 0x200) && (address < 0xC000))
+                if(soft_switches & SOFTSW_AUX_WRITE)
                 {
                     private_memory[address] = data;
                     return;
                 }
-            }
-
-            if((address >= 0x200) && (address < 0xC000))
-            {
-                apple_memory[address] = data;
-                if (address < 0x800)
+                else
                 {
-                    machine_auto_detection(address);
+                    apple_memory[address] = data;
+                    if (address < 0x800)
+                    {
+                        machine_auto_detection(address);
+                    }
                 }
+
+                // Nothing left to do for RAM write.
                 return;
             }
-
-            // Nothing left to do for RAM accesses.
-            return;
         }
         else
+        if ((address & 0xFF00) == card_rom_address)
         {
-            if ((address & 0xFF00) == card_rom_address)
-            {
-                // access to card's ROM area
-                devicerom_counter++;
-                return;
-            }
+            // access to card's ROM area
+            devicerom_counter++;
+            return;
         }
     }
 #if ROMX
@@ -410,8 +402,7 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
     // Shadow the soft-switches by observing all read & write bus cycles
     if(address < 0xc080)
     {
-        apple2_softswitches(AccessMode, address, data);
-        return;
+        return apple2_softswitches(AccessMode, address, data);
     }
 
     // Card Registers
@@ -427,6 +418,7 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
         }
         devicereg_counter++;
     }
+
     if (AccessMode == WriteDev)
     {
         device_write(address & 0xF, data);
