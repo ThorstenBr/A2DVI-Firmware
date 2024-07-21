@@ -46,7 +46,7 @@ void DELAYED_COPY_CODE(render_loop)()
 #endif
 
         {
-			render_status(true);
+            render_debug(true);
 
             switch(soft_switches & SOFTSW_MODE_MASK)
             {
@@ -97,7 +97,7 @@ void DELAYED_COPY_CODE(render_loop)()
 
         }
 
-        render_status(false);
+        render_debug(false);
 
         update_text_flasher();
 

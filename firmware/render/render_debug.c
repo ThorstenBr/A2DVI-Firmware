@@ -45,7 +45,7 @@ void DELAYED_COPY_CODE(copy_str)(uint8_t* dest, const char* pMsg)
     }
 }
 
-void DELAYED_COPY_CODE(render_status)(bool top)
+void DELAYED_COPY_CODE(render_debug)(bool top)
 {
     if (!IS_IFLAG(IFLAGS_DEBUG_LINES))
     {
