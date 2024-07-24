@@ -144,6 +144,19 @@ Here are some photos showing A2DVI in action - using the DVI/HDMI connection.
 ![Screenshot 5](images/A2DVI_Screenshot5.jpg)
 ![Screenshot 6](images/A2DVI_Screenshot6.jpg)
 
+# Firmware Updates
+Firmware updates of an A2DVI card are easy and safe:
+
+1. Switch off your Apple II. (*It's otherwise safe to update the A2DVI card while it is still plugged in the Apple II.*)
+2. Press the white "BOOTSEL" button on top of the A2DVI's PICO module. *Keep the button depressed.*
+3. While the button is still depressed, connect the USB cable between your PC/Mac and the PICO module.
+4. Your PC/Mac should recognize a new mass storage device.
+5. Drag & drop the firmware file from the Release's ZIP-file (e.g. "A2DVI-vX.Y.uf2", see [Releases](https://github.com/ThorstenBr/A2DVI-Firmware/releases)) to the mass storage drive.
+6. After 2 seconds the LED should light up. The firmware update is complete.
+7. Disconnect the USB cable. Switch on the Apple II... :)
+
+![A2DVI Firmware Update](images/A2DVI_FirmwareUpdate.jpg)
+
 # Project Status
 
 ## Completed Features
