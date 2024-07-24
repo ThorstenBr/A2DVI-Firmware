@@ -48,45 +48,45 @@ pico_sdk_init()
 include(../libraries/libdvi/CMakeLists.txt)
 
 add_executable(${BINARY_NAME}
-	main.c
-	applebus/abus.c
-	applebus/abus_setup.c
-	applebus/buffers.c
-	applebus/businterface.c
+    main.c
+    applebus/abus.c
+    applebus/abus_setup.c
+    applebus/buffers.c
+    applebus/businterface.c
 
-	dvi/a2dvi.c
-	dvi/tmds.c
+    dvi/a2dvi.c
+    dvi/tmds.c
 
-	render/render.c
-	render/render_debug.c
-	render/render_text.c
-	render/render_lores.c
-	render/render_dgr.c
-	render/render_hires.c
-	render/render_dhgr.c
+    render/render.c
+    render/render_debug.c
+    render/render_text.c
+    render/render_lores.c
+    render/render_dgr.c
+    render/render_hires.c
+    render/render_dhgr.c
 
-	config/config.c
-	config/device_regs.c
+    config/config.c
+    config/device_regs.c
 
-	menu/menu.c
+    menu/menu.c
 
-	debug/debug.c
-	util/dmacopy.c
+    debug/debug.c
+    util/dmacopy.c
 
-	fonts/textfont.c
-	${FONTS}
+    fonts/textfont.c
+    ${FONTS}
 
-	${TEST_SOURCES}
+    ${TEST_SOURCES}
 )
 
 target_compile_options(${BINARY_NAME} PRIVATE -Wall)
 
 target_link_libraries(${BINARY_NAME}
-	pico_stdlib
-	pico_multicore
-	pico_util
-	hardware_flash
-	libdvi
+    pico_stdlib
+    pico_multicore
+    pico_util
+    hardware_flash
+    libdvi
 )
 
 target_include_directories(${BINARY_NAME} PUBLIC lib/PicoDVI/software/include)
