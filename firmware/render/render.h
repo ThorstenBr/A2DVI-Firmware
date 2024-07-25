@@ -51,3 +51,7 @@ extern void render_dgr();
 extern void render_mixed_dgr();
 
 extern void render_debug(bool top);
+
+#ifdef FEATURE_TEST
+extern void render_tmds_test();
+#endif

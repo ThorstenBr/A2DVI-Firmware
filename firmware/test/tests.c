@@ -36,6 +36,7 @@ SOFTWARE.
 #include "applebus/buffers.h"
 #include "applebus/businterface.h"
 #include "applebus/abus_pin_config.h"
+#include "render/render.h"
 #include "config/config.h"
 #include "duck.h"
 
@@ -62,6 +63,10 @@ SOFTWARE.
 
 #define REG_CARD          (0xC080 | 0x30)
 
+
+//#define TEST_TMDS
+
+#ifndef TEST_TMDS
 #define TEST_40_COLUMNS
 #define TEST_80_COLUMNS
 #define TEST_LORES
@@ -72,6 +77,7 @@ SOFTWARE.
 
 #define TEST_PAGE_SWITCH
 #define TEST_ALTCHAR_SWTICH
+#endif
 
 //#define TEST_MENU
 
@@ -427,6 +433,120 @@ void test_menu()
     menuShowDebug();
     sleep(TestDelayMilliseconds);
 }
+
+#ifdef TEST_TMDS
+void render_tmds_test()
+{
+    static uint32_t count = 0;
+    count++;
+
+    uint8_t tmds_mode = (count/(5*60)) % 8;
+    uint32_t r,g,b;
+
+    for(uint y=0; y < 192; y++)
+    {
+        dvi_get_scanline(tmdsbuf);
+        dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+
+        for(uint col=0; col < 280;col++)
+        {
+            uint16_t symbol = 0;
+            //if ((y<=113)&&(y>=112))
+            //if ((y<=117)&&(y>=116-4))
+            if (y<128)
+            {
+                if (col == 0)
+                {
+                    symbol = y;
+                }
+                else
+                if (col == 64)
+                {
+                    symbol = (y+128);//240/241  //244
+                }
+                else
+                if (col == 128)
+                {
+                    symbol = (y+256);
+                }
+                else
+                if (col == 192)
+                {
+                    symbol = (y+256+128); // 496
+                }
+            }
+            switch(tmds_mode)
+            {
+                case 0:
+                    r = (col & 0x3) ? 0x7fd00 : 0x7fe00;
+                    g = 0x7fd00;
+                    b = 0x7fd00;
+                    break;
+                case 1:
+                    r = 0x7fd00;
+                    g = (col & 0x3) ? 0x7fd00 : 0x7fe00;
+                    b = 0x7fd00;
+                    break;
+                case 2:
+                    r = 0x7fd00;
+                    g = 0x7fd00;
+                    b = (col & 0x3) ? 0x7fd00 : 0x7fe00;
+                    break;
+                case 3:
+                    r = (col & 0x3) ? 0x7fd00 : 0x7fe00;
+                    g = (col & 0x3) ? 0x7fd00 : 0x7fe00;
+                    b = (col & 0x3) ? 0x7fd00 : 0x7fe00;
+                    break;
+                case 4:
+                    r = (col & 0x3) ? 0x7fd00 : 0xf1e03;
+                    g = 0x7fd00;
+                    b = 0x7fd00;
+                    break;
+                case 5:
+                    r = 0x7fd00;
+                    g = (col & 0x3) ? 0x7fd00 : 0xf1e03;
+                    b = 0x7fd00;
+                    break;
+                case 6:
+                    r = 0x7fd00;
+                    g = 0x7fd00;
+                    b = (col & 0x3) ? 0x7fd00 : 0xf1e03;
+                    break;
+                case 7:
+                    r = (col & 0x3) ? 0x7fd00 : 0xf1e03;
+                    g = (col & 0x3) ? 0x7fd00 : 0xf1e03;
+                    b = (col & 0x3) ? 0x7fd00 : 0xf1e03;
+                    break;
+                case 8:
+                    r = tmds_hires_color_patterns_red[symbol];
+                    g = tmds_hires_color_patterns_blue[0];
+                    b = tmds_hires_color_patterns_red[0];
+                    break;
+                case 9:
+                    r = tmds_hires_color_patterns_red[0];
+                    g = tmds_hires_color_patterns_blue[0];
+                    b = tmds_hires_color_patterns_red[symbol];
+                    break;
+                case 10:
+                    r = tmds_hires_color_patterns_red[symbol];
+                    g = tmds_hires_color_patterns_blue[symbol];
+                    b = tmds_hires_color_patterns_red[symbol];
+                    break;
+                default:
+                    r = tmds_hires_color_patterns_red[0];
+                    g = tmds_hires_color_patterns_blue[symbol];
+                    b = tmds_hires_color_patterns_red[0];
+                    break;
+            }
+
+            *(tmdsbuf_blue++)  = r;
+            *(tmdsbuf_green++) = g;
+            *(tmdsbuf_red++)   = b;
+        }
+        dvi_send_scanline(tmdsbuf);
+    }
+}
+#endif // TEST_TMDS
 
 void test_loop()
 {
