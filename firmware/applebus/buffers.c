@@ -32,6 +32,7 @@ volatile uint32_t bus_overflow_counter;
 volatile uint32_t frame_counter;
 volatile uint32_t devicereg_counter;
 volatile uint32_t devicerom_counter;
+volatile uint32_t vblank_counter;
 
 volatile uint16_t last_address;
 volatile uint16_t last_address_stack;

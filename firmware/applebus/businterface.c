@@ -161,103 +161,107 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
 {
     switch(address & 0x7f)
     {
-    case 0x00:
+    case 0x00: // 80STOREOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_80STORE;
         }
         break;
-    case 0x01:
+    case 0x01: // 80STOREON
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_80STORE;
         }
         break;
-    case 0x02:
+    case 0x02: // RAMRDOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_AUX_READ;
         }
         break;
-    case 0x03:
+    case 0x03: // RAMRDON
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_AUX_READ;
         }
         break;
-    case 0x04:
+    case 0x04: // RAMWRTOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_AUX_WRITE;
         }
         break;
-    case 0x05:
+    case 0x05: // RAMWRTON
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_AUX_WRITE;
         }
         break;
-    case 0x06:
+    case 0x06: // INTCXROMOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_CXROM;
         }
         break;
-    case 0x07:
+    case 0x07: // INTCXROMON
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_CXROM;
         }
         break;
-    case 0x08:
+    case 0x08: // ALTZPOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_AUXZP;
         }
         break;
-    case 0x09:
+    case 0x09: // ALTZPON
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_AUXZP;
         }
         break;
-    case 0x0a:
+    case 0x0a: // SLOTC3ROMOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_SLOT3ROM;
         }
         break;
-    case 0x0b:
+    case 0x0b: // SLOTC3ROMOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_SLOT3ROM;
         }
         break;
-    case 0x0c:
+    case 0x0c: // 80COLOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_80COL;
         }
         break;
-    case 0x0d:
+    case 0x0d: // 80COLON
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_80COL;
         }
         break;
-    case 0x0e:
+    case 0x0e: // ALTCHARSETOFF
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_ALTCHAR;
         }
         break;
-    case 0x0f:
+    case 0x0f: // ALTCHARSETON
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_ALTCHAR;
         }
         break;
-    case 0x21:
+    case 0x19: // VBLANK
+        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == ReadMem))
+            vblank_counter += 1;
+        break;
+    case 0x21: // COLOR/MONO
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             if(data & 0x80)
@@ -296,37 +300,37 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
         }
         break;
 #endif
-    case 0x50:
+    case 0x50: // TEXTOFF
         soft_switches &= ~SOFTSW_TEXT_MODE;
         break;
-    case 0x51:
+    case 0x51: // TEXTON
         soft_switches |= SOFTSW_TEXT_MODE;
         break;
-    case 0x52:
+    case 0x52: // MIXEDOFF
         soft_switches &= ~SOFTSW_MIX_MODE;
         break;
-    case 0x53:
+    case 0x53: // MIXEDON
         soft_switches |= SOFTSW_MIX_MODE;
         break;
-    case 0x54:
+    case 0x54: // PAGE2OFF
         soft_switches &= ~SOFTSW_PAGE_2;
         break;
-    case 0x55:
+    case 0x55: // PAGE2ON
         soft_switches |= SOFTSW_PAGE_2;
         break;
-    case 0x56:
+    case 0x56: // HIRESOFF
         soft_switches &= ~SOFTSW_HIRES_MODE;
         break;
-    case 0x57:
+    case 0x57: // HIRESON
         soft_switches |= SOFTSW_HIRES_MODE;
         break;
-    case 0x5e:
+    case 0x5e: // DGRON
         if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
         {
             soft_switches |= SOFTSW_DGR;
         }
         break;
-    case 0x5f:
+    case 0x5f: // DGROFF
         // Video 7 shift register
         if(soft_switches & SOFTSW_DGR)
         {
@@ -338,13 +342,13 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
             soft_switches &= ~SOFTSW_DGR;
         }
         break;
-    case 0x7e:
+    case 0x7e: // IOUDISOFF
         if((internal_flags & IFLAGS_IIE_REGS) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_IOUDIS;
         }
         break;
-    case 0x7f:
+    case 0x7f: // IOUDISON
         if((internal_flags & IFLAGS_IIE_REGS) && (AccessMode == WriteMem))
         {
             soft_switches &= ~SOFTSW_IOUDIS;

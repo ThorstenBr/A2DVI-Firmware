@@ -40,7 +40,7 @@ void dvi_init(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_col
 	queue_init_with_spinlock(&inst->q_colour_valid, sizeof(void*),  8, spinlock_colour_queue);
 	queue_init_with_spinlock(&inst->q_colour_free,  sizeof(void*),  8, spinlock_colour_queue);
 
-	dvi_setup_scanline_for_vblank(inst->timing, inst->dma_cfg, true, &inst->dma_list_vblank_sync);
+	dvi_setup_scanline_for_vblank(inst->timing, inst->dma_cfg, true,  &inst->dma_list_vblank_sync);
 	dvi_setup_scanline_for_vblank(inst->timing, inst->dma_cfg, false, &inst->dma_list_vblank_nosync);
 	dvi_setup_scanline_for_active(inst->timing, inst->dma_cfg, (void*)SRAM_BASE, &inst->dma_list_active);
 	dvi_setup_scanline_for_active(inst->timing, inst->dma_cfg, NULL, &inst->dma_list_error);
@@ -253,6 +253,8 @@ static void __dvi_func(dvi_dma_irq_handler)(struct dvi_inst *inst)
 		case DVI_STATE_SYNC:
 			_dvi_load_dma_op(inst->dma_cfg, &inst->dma_list_vblank_sync);
 			break;
+		//case DVI_STATE_FRONT_PORCH:
+		//case DVI_STATE_BACK_PORCH:
 		default:
 			_dvi_load_dma_op(inst->dma_cfg, &inst->dma_list_vblank_nosync);
 			break;

@@ -215,10 +215,10 @@ const struct dvi_timing __dvi_const(dvi_timing_1600x900p_reduced_30hz) = {
 // RAM because they see a lot of DMA traffic
 const uint32_t __dvi_const(dvi_ctrl_syms)[4] =
 {
-	0xd5354,
-	0x2acab,
-	0x55154,
-	0xaaeab
+	0xd5354, //C1=0,C0=0: VSYNC=0,HSYNC=0
+	0x2acab, //C1=0,C0=1: VSYNC=0,HSYNC=1
+	0x55154, //C1=1,C0=0: VSYNC=1,HSYNC=0
+	0xaaeab  //C1=1,C0=1: VSYNC=1,HSYNC=1
 };
 
 #if 0 // RED

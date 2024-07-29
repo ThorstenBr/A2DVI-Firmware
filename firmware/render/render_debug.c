@@ -105,6 +105,12 @@ void DELAYED_COPY_CODE(render_debug)(bool top)
             copy_str(&line1[ 9], (IS_SOFTSWITCH(SOFTSW_80COL))  ? "80" : "40");
             copy_str(&line1[12], (IS_SOFTSWITCH(SOFTSW_PAGE_2)) ? "P2" : "P1");
 
+            if (IS_IFLAG(IFLAGS_TEST) && vblank_counter)
+            {
+                copy_str(&line1[28], "VSYNC");
+                vblank_counter = 0;
+            }
+
             if (IS_IFLAG(IFLAGS_VIDEO7))
             {
                 copy_str(&line1[34], "V7:");
