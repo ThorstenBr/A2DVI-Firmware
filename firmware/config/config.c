@@ -265,11 +265,11 @@ void config_load_defaults(void)
     SET_IFLAG(0, IFLAGS_VIDEO7);
     SET_IFLAG(0, IFLAGS_TEST);
 
-    color_mode              = COLOR_MODE_GREEN;
+    color_mode              = COLOR_MODE_BW;
     cfg_machine             = MACHINE_AUTO;
     set_machine(detected_machine);
 
-    language_switch_enabled = true;
+    language_switch_enabled = false;
     enhanced_font_enabled   = true;
 
     cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
