@@ -42,32 +42,35 @@ SOFTWARE.
 
 #ifdef FEATURE_TEST
 
-#define REG_SW_40COL      0xc00c
-#define REG_SW_80COL      0xc00d
-#define REG_SW_NORMCHAR   0xc00e
-#define REG_SW_ALTCHAR    0xc00f
+#define REG_SW_80STORE_OFF 0xc000
+#define REG_SW_80STORE     0xc001
+#define REG_SW_40COL       0xc00c
+#define REG_SW_80COL       0xc00d
+#define REG_SW_NORMCHAR    0xc00e
+#define REG_SW_ALTCHAR     0xc00f
 
-#define REG_SW_MONOCHROME 0xc021
+#define REG_SW_MONOCHROME  0xc021
 
-#define REG_SW_TEXT_OFF   0xc050  // enables LORES by default
-#define REG_SW_TEXT       0xc051
-#define REG_SW_MIX_OFF    0xc052
-#define REG_SW_MIX        0xc053
-#define REG_SW_PAGE_1     0xc054
-#define REG_SW_PAGE_2     0xc055
-#define REG_SW_HIRES_OFF  0xc056
-#define REG_SW_HIRES      0xc057
+#define REG_SW_TEXT_OFF    0xc050  // enables LORES by default
+#define REG_SW_TEXT        0xc051
+#define REG_SW_MIX_OFF     0xc052
+#define REG_SW_MIX         0xc053
+#define REG_SW_PAGE_1      0xc054
+#define REG_SW_PAGE_2      0xc055
+#define REG_SW_HIRES_OFF   0xc056
+#define REG_SW_HIRES       0xc057
 
-#define REG_SW_DGR        0xc05e
-#define REG_SW_DGR_OFF    0xc05f
+#define REG_SW_DGR         0xc05e
+#define REG_SW_DGR_OFF     0xc05f
 
-#define REG_CARD          (0xC080 | 0x30)
+#define REG_CARD          (0xc080 | 0x30)
 
 
 //#define TEST_TMDS
 
 #ifndef TEST_TMDS
 #define TEST_40_COLUMNS
+#define TEST_40_COLUMNS_COLOR
 #define TEST_80_COLUMNS
 #define TEST_LORES
 #define TEST_HIRES
@@ -281,6 +284,54 @@ void test80columns()
 
     simulateWrite(REG_SW_40COL, 0);          // disable 80column mode
     PrintMode80Column = false;
+#endif
+}
+
+void test40columns_color()
+{
+#ifdef TEST_40_COLUMNS_COLOR
+    uint32_t save_iflags = internal_flags;
+
+    internal_flags |= IFLAGS_VIDEO7;
+    internal_flags &= ~IFLAGS_FORCED_MONO;
+
+    clearBothPages();
+
+    // prepare PAGE1
+    PrintModePage2 = false;
+    for (uint x=0;x<40;x++)
+    {
+        char s[3];
+        if ((x&0xf)<10)
+            s[0] = '0'+(x&0xf);
+        else
+            s[0] = 'A'+(x&0xf)-10;
+        s[1] = 0;
+        printXY(x,0, s, PRINTMODE_NORMAL);
+        if (x<24)
+            printXY(0,x, s, PRINTMODE_NORMAL);
+    }
+    printXY(20-16,2, "A2DVI Test: 40 column color mode", PRINTMODE_NORMAL);
+    for (uint i=0;i<255;i++)
+    {
+        testPrintChar((20-8)+(i&0xf), 4+(i>>4), i);
+
+        PrintMode80Column = true;
+        testPrintChar(((20-8)+(i&0xf))<<1, 4+(i>>4), 0xD2);
+        PrintMode80Column = false;
+    }
+
+    simulateWrite(REG_SW_40COL,   0);        // disable 80column mode
+    simulateWrite(REG_SW_80STORE, 0);        // enable 80STORE
+    simulateWrite(REG_SW_DGR,     0);        // enable color mode
+
+    sleep(TestDelayMilliseconds);
+
+    toggleAltChar();                         // test mouse text
+    simulateWrite(REG_SW_DGR_OFF,     0);    // disable color mode
+    simulateWrite(REG_SW_80STORE_OFF, 0);    // disable 80STORE
+
+    internal_flags = save_iflags;
 #endif
 }
 
@@ -560,12 +611,15 @@ void test_loop()
     simulateWrite(REG_CARD+0x9, 0); // select US enhanced as alternate
 #endif
 
+    color_mode = COLOR_MODE_GREEN;
+
     while (1)
     {
         current_machine = MACHINE_IIE;
         internal_flags |= IFLAGS_IIE_REGS;
 
         // test text modes
+        test40columns_color();
         test40columns();
         test80columns();
 

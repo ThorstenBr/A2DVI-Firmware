@@ -112,6 +112,49 @@ void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int lin
     }
 }
 
+#define ADD_LORES_PIXEL(color) { \
+    uint32_t* pTmds = &tmds_lorescolor[color*3]; \
+    *(tmdsbuf_red++)   = pTmds[0]; \
+    *(tmdsbuf_green++) = pTmds[1]; \
+    *(tmdsbuf_blue++)  = pTmds[2]; \
+}
+
+void DELAYED_COPY_CODE(render_color_text40_line)(unsigned int line)
+{
+    const uint8_t *line_buf = (const uint8_t *)(text_p1 + ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
+    const uint8_t *color_buf = (const uint8_t *)(text_p3 + ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
+
+    for(uint glyph_line=0; glyph_line < 8; glyph_line++)
+    {
+        dvi_get_scanline(tmdsbuf);
+        dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+
+        for(uint col=0; col < 40; col++)
+        {
+            // Grab 7 pixels from the next character
+            uint32_t bits  = char_text_bits(line_buf[col], glyph_line);
+            uint8_t foreground_color = (color_buf[col] >> 4) & 0xf;
+            uint8_t background_color = (color_buf[col]     ) & 0xf;
+
+            // Translate each pair of bits into a pair of pixels
+            for(int i=0; i < 7; i++)
+            {
+                if (bits & 0x1)
+                {
+                    ADD_LORES_PIXEL(foreground_color);
+                }
+                else
+                {
+                    ADD_LORES_PIXEL(background_color);
+                }
+                bits >>= 1;
+            }
+        }
+
+        dvi_send_scanline(tmdsbuf);
+    }
+}
+
 void DELAYED_COPY_CODE(render_text80_line)(const uint8_t *page_a, const uint8_t *page_b, unsigned int line, uint8_t color_mode)
 {
     uint line_offset = ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40);
@@ -147,19 +190,16 @@ void DELAYED_COPY_CODE(render_text80_line)(const uint8_t *page_a, const uint8_t 
     }
 }
 
-void DELAYED_COPY_CODE(render_mixed_text)() {
-    uint line;
-
-#if 0
+void DELAYED_COPY_CODE(render_mixed_text)()
+{
     if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80STORE | SOFTSW_DGR)))
     {
-        for(line=20; line < 24; line++)
+        for(uint line=20; line < 24; line++)
         {
             render_color_text40_line(line);
         }
     }
     else
-#endif
     {
         const bool page2 = PAGE2SEL;
         const uint8_t *pageA = (const uint8_t *)(page2 ? text_p2 : text_p1);
@@ -169,7 +209,7 @@ void DELAYED_COPY_CODE(render_mixed_text)() {
         {
             // 80 column mode rendering
             const uint8_t *pageB = (const uint8_t *)(page2 ? text_p4 : text_p3);
-            for(line=20; line < 24; line++)
+            for(uint line=20; line < 24; line++)
             {
                 render_text80_line(pageA, pageB, line, cmode);
             }
@@ -177,7 +217,7 @@ void DELAYED_COPY_CODE(render_mixed_text)() {
         else
         {
             // 40 column mode rendering
-            for(line=20; line < 24; line++)
+            for(uint line=20; line < 24; line++)
             {
                 render_text40_line(pageA, line, cmode);
             }
@@ -190,16 +230,14 @@ void DELAYED_COPY_CODE(render_text)()
     const bool page2 = PAGE2SEL;
     const uint8_t *pageA = (const uint8_t *)(page2 ? text_p2 : text_p1);
 
-#if 0
     if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80STORE | SOFTSW_DGR)))
     {
-        for(line=0; line < 24; line++)
+        for(uint line=0; line < 24; line++)
         {
-            render_color_text40_line(pageA, line);
+            render_color_text40_line(line);
         }
     }
     else
-#endif
     {
         if(soft_switches & SOFTSW_80COL)
         {

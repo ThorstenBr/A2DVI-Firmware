@@ -37,6 +37,7 @@ extern void update_text_flasher();
 extern void render_text();
 extern void render_mixed_text();
 extern void render_text40_line(const uint8_t *page, unsigned int line, uint8_t color_mode);
+extern void render_color_text40_line(unsigned int line);
 
 extern void render_lores();
 extern void render_mixed_lores();

@@ -175,6 +175,8 @@ Firmware updates of an A2DVI card are easy and safe:
 
 * **graphics/text mix modes**
 
+* **Video-7 40 column color mode**
+
 * **Scanline emulation**
 
 * **Monochrome mode** and **monochrome color** configurable (b/w, green, amber).
