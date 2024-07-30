@@ -88,7 +88,7 @@ struct __attribute__((__packed__)) config_t
 
 struct __attribute__((__packed__))  fontdir_t
 {
-	uint32_t magic_word;
+    uint32_t magic_word;
     uint32_t invalid_fonts;   // bit mask identifying invalid fonts (1:invalid, 0:valid)
 };
 
@@ -105,7 +105,7 @@ extern uint8_t __font_dir_start[];
 static struct fontdir_t *font_directory = (struct fontdir_t *)__font_dir_start;
 
 #if FLASH_SECTOR_SIZE != 2*CHARACTER_ROM_SIZE
-	#error Platform with unsupported flash segmentation. Needs adaption.
+    #error Platform with unsupported flash segmentation. Needs adaption.
 #endif
 
 void __time_critical_func(set_machine)(compat_t machine)
@@ -139,15 +139,15 @@ void __time_critical_func(set_machine)(compat_t machine)
 
 bool config_flash_write(void* flash_address, uint8_t* data, uint32_t size)
 {
-	if (size > FLASH_SECTOR_SIZE)
-		return false;
+    if (size > FLASH_SECTOR_SIZE)
+        return false;
 
-	const uint32_t flash_offset = ((uint32_t) flash_address) - XIP_BASE;
+    const uint32_t flash_offset = ((uint32_t) flash_address) - XIP_BASE;
 
-	flash_range_erase(flash_offset, FLASH_SECTOR_SIZE);
-	flash_range_program(flash_offset, data, size);
+    flash_range_erase(flash_offset, FLASH_SECTOR_SIZE);
+    flash_range_program(flash_offset, data, size);
 
-	return true;
+    return true;
 }
 
 void config_font_update(void)
@@ -166,17 +166,17 @@ void config_font_update(void)
 
 static uint8_t check_valid_font(uint32_t font_nr)
 {
-	// hardcoded fonts are always ok
-	if (font_nr < (MAX_FONT_COUNT-CUSTOM_FONT_COUNT))
-		return font_nr;
+    // hardcoded fonts are always ok
+    if (font_nr < (MAX_FONT_COUNT-CUSTOM_FONT_COUNT))
+        return font_nr;
 
-	// custom fonts: only valid when programmed
-	uint8_t custom_font = font_nr - (MAX_FONT_COUNT-CUSTOM_FONT_COUNT);
+    // custom fonts: only valid when programmed
+    uint8_t custom_font = font_nr - (MAX_FONT_COUNT-CUSTOM_FONT_COUNT);
 
     if ((invalid_fonts & (1 << custom_font)) == 0)
-		return font_nr;
+        return font_nr;
 
-	return DEFAULT_LOCAL_CHARSET;
+    return DEFAULT_LOCAL_CHARSET;
 }
 
 void config_load_charsets(void)
@@ -275,7 +275,7 @@ void config_load_defaults(void)
     cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
     cfg_alt_charset         = DEFAULT_ALT_CHARSET;
 
-	// reload both character sets
+    // reload both character sets
     reload_charsets = 3;
 
 #ifdef APPLE_MODEL_IIPLUS
@@ -313,7 +313,7 @@ void config_save(void)
     new_config->videx_vterm_enabled = videx_vterm_enabled;
 #endif
 
-	// update flash
+    // update flash
     config_flash_write(cfg, (uint8_t *)new_config, new_config_size);
 
     free(new_config);

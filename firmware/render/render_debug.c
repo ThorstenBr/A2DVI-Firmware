@@ -121,14 +121,10 @@ void DELAYED_COPY_CODE(render_debug)(bool top)
             if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
             {
                 if (IS_SOFTSWITCH(SOFTSW_MONOCHROME))
-                {
                     copy_str(&line1[15], "MONOCHROME");
-                }
 
                 if (IS_SOFTSWITCH(SOFTSW_ALTCHAR))
-                {
                     copy_str(&line1[26], "ALTCHAR");
-                }
 
                 if (IS_SOFTSWITCH(SOFTSW_80STORE))
                     copy_str(&line2[3], "80STR");
@@ -143,19 +139,13 @@ void DELAYED_COPY_CODE(render_debug)(bool top)
                     copy_str(&line2[19], "AUXZ");
 
                 if (IS_SOFTSWITCH(SOFTSW_SLOT3ROM))
-                {
                     copy_str(&line2[24], "C3ROM");
-                }
 
                 if (IS_SOFTSWITCH(SOFTSW_CXROM))
-                {
-                    copy_str(&line2[30], "CXROM");
-                }
+                     copy_str(&line2[30], "CXROM");
 
                 if (IS_SOFTSWITCH(SOFTSW_IOUDIS))
-                {
                     copy_str(&line2[36], "IOUD");
-                }
             }
         }
 
