@@ -32,8 +32,19 @@ SOFTWARE.
 
 bool mono_rendering = false;
 
+void DELAYED_COPY_CODE(render_init)()
+{
+    // clear status lines
+    for (uint i=0;i<sizeof(status_line)/4;i++)
+    {
+        ((uint32_t*)status_line)[i] = 0xA0A0A0A0;
+    }
+}
+
 void DELAYED_COPY_CODE(render_loop)()
 {
+    render_init();
+
     for(;;)
     {
 #if 0
