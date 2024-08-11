@@ -1,5 +1,9 @@
 *.gch
 *.pyc
-_BUILD
-build*
+_BUILD/PICO
+_BUILD/PICO2
+_BUILD/RELEASE
+_BUILD/localsettings.mk
+_BUILD/*.zip
+_BUILD/*.uf2
 firmware/fonts/raw
