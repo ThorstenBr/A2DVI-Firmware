@@ -4,7 +4,25 @@ cmake_minimum_required(VERSION 3.18)
 set(FW_VERSION "0.8")
 message(STATUS "Building firmware version ${FW_VERSION}")
 
-set(BINARY_NAME "A2DVI_v${FW_VERSION}")
+option(FEATURE_PICO2 "Build project for PICO2 (RP2350) instead of original PICO (RP2040)" OFF)
+option(FEATURE_TEST  "Build test firmware instead of normal firmware" OFF)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+if (FEATURE_PICO2)
+    set(FAMILY rp2350)
+    set(PICO_PLATFORM rp2350)
+    set(FW_TYPE "_PICO2")
+    message(STATUS "Building for PICO2 (RP2350)...")
+else()
+    set(FAMILY rp2040)
+    set(PICO_PLATFORM rp2040)
+    set(FW_TYPE "")
+    message(STATUS "Building for PICO (RP2040)...")
+endif()
+
+set(BINARY_NAME "A2DVI_v${FW_VERSION}${FW_TYPE}")
 
 if (FEATURE_TEST)
     message(STATUS "Building TEST version")
@@ -15,11 +33,6 @@ else()
     message(STATUS "Building Release version")
 endif()
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
-set(FAMILY rp2040)
-set(PICO_PLATFORM rp2040)
 set(BOARD pico_sdk)
 
 set(PICO_STDIO_UART OFF)
