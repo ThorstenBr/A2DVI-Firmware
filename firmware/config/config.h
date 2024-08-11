@@ -56,7 +56,7 @@ extern volatile bool language_switch_enabled;
 extern volatile bool language_switch;
 extern volatile bool enhanced_font_enabled;
 
-enum {
+typedef enum {
     COLOR_MODE_BW    = 0,
     COLOR_MODE_GREEN = 1,
     COLOR_MODE_AMBER = 2

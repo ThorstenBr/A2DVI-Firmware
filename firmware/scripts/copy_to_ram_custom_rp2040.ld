@@ -1,5 +1,5 @@
 /*
-This is a copy of memmap_copy_to_ram.ld from the pico-sdk that has been modified
+This is a copy of rp2040/memmap_copy_to_ram.ld from the pico-sdk that has been modified
 to block off part of flash for some persistent storage.
 */
 

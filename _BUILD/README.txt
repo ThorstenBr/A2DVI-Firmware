@@ -6,6 +6,10 @@ A2DVI Firmware
 * A2DVI_vX.Y_PICO2.uf2:
   Firmware for boards with the newer PICO2 module (RP2350).
 
+Newer PICO2 modules are clearly marked with a "PICO2" imprint in large white letters.
+If your PICO doesn't state a version, then it's an original PICO (RP2040).
+
+
 
 Firmware Update
 ===============

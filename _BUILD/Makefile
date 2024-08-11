@@ -39,12 +39,12 @@ ZIP := A2DVI_$(VERSION).zip
 
 .PHONY: all prepare pico pico2 pack
 
-# build for PICO modules
-all: prepare pico
+# build for both PICO modules
+all: prepare pico pico2
 	make -C. pack
 
-# build for PICO2 modules
-all_pico2: prepare pico pico2
+# build for original PICO module only
+all_pico: prepare pico
 	make -C. pack
 
 # prepare release output directory
@@ -55,15 +55,15 @@ prepare:
 # build for PICO modules
 pico: PICO/RELEASE PICO/TEST
 	rm -f PICO/RELEASE/A2DVI_v*.*
-	make -C PICO/RELEASE
-	make -C PICO/TEST
+	make $(A2DVI_MAKE_FLAGS) -C PICO/RELEASE
+	make $(A2DVI_MAKE_FLAGS) -C PICO/TEST
 	cp PICO/RELEASE/A2DVI_v*.uf2 RELEASE/.
 
 # build for PICO2 modules
 pico2: PICO2/RELEASE PICO2/TEST
 	rm -f PICO2/RELEASE/A2DVI_v*.*
-	make -C PICO2/RELEASE
-	make -C PICO2/TEST
+	make $(A2DVI_MAKE_FLAGS) -C PICO2/RELEASE
+	make $(A2DVI_MAKE_FLAGS) -C PICO2/TEST
 	cp PICO2/RELEASE/A2DVI_v*_PICO2.uf2 RELEASE/.
 
 # pack release files

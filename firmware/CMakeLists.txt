@@ -14,11 +14,13 @@ if (FEATURE_PICO2)
     set(FAMILY rp2350)
     set(PICO_PLATFORM rp2350)
     set(FW_TYPE "_PICO2")
+    set(A2DVI_LINK_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/copy_to_ram_custom_rp2350.ld)
     message(STATUS "Building for PICO2 (RP2350)...")
 else()
     set(FAMILY rp2040)
     set(PICO_PLATFORM rp2040)
     set(FW_TYPE "")
+    set(A2DVI_LINK_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/copy_to_ram_custom_rp2040.ld)
     message(STATUS "Building for PICO (RP2040)...")
 endif()
 
@@ -122,4 +124,5 @@ pico_set_binary_type(${BINARY_NAME} copy_to_ram)
 # create map/bin/hex file etc.
 pico_add_extra_outputs(${BINARY_NAME})
 
-pico_set_linker_script(${BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/copy_to_ram_custom.ld)
+# use platform-specific linker script
+pico_set_linker_script(${BINARY_NAME} ${A2DVI_LINK_SCRIPT})
