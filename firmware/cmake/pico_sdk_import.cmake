@@ -58,7 +58,7 @@ if (NOT PICO_SDK_PATH)
     endif ()
 endif ()
 
-get_filename_component(PICO_SDK_PATH "${PICO_SDK_PATH}" REALPATH BASE_DIR "${CMAKE_BINARY_DIR}")
+get_filename_component(PICO_SDK_PATH "${PICO_SDK_PATH}" ABSOLUTE BASE_DIR "${CMAKE_BINARY_DIR}")
 if (NOT EXISTS ${PICO_SDK_PATH})
     message(FATAL_ERROR "Directory '${PICO_SDK_PATH}' not found")
 endif ()

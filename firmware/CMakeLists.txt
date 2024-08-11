@@ -27,6 +27,16 @@ set(PICO_STDIO_USB  OFF)
 
 # Pull in SDK (must be before project)
 include(cmake/pico_sdk_import.cmake)
+message(STATUS "Detected PICO_SDK version: ${PICO_SDK_VERSION_MAJOR}.${PICO_SDK_VERSION_MINOR}.${PICO_SDK_VERSION_REVISION}")
+
+# Check SDK version
+if (${PICO_SDK_VERSION_MAJOR} LESS "2")
+    message(FATAL_ERROR "PICO_SDK 2.0.0 or newer is required. Please upgrade your SDK.")
+endif()
+
+if (${PICO_SDK_VERSION_MAJOR} GREATER "2")
+    message(WARNING "Your newer PICO_SDK version is untested. Currently A2DVI is tested with PICO_SDK 2.x. Consider using an older SDK.")
+endif()
 
 enable_language(C CXX ASM)
 project(A2DVI C CXX ASM)
