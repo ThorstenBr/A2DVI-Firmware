@@ -54,7 +54,7 @@ void dvi_serialiser_init(struct dvi_serialiser_cfg *cfg) {
 
 	for (uint i = cfg->pins_clk; i <= cfg->pins_clk + 1; ++i) {
 		gpio_set_function(i, GPIO_FUNC_PWM);
-		dvi_configure_pad(i, cfg->invert_clockpair);
+		dvi_configure_pad(i, cfg->invert_diffpairs);
 	}
 }
 

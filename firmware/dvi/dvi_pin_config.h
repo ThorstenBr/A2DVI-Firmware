@@ -16,8 +16,7 @@ static const struct dvi_serialiser_cfg pico_a2dvi_cfg = {
 	.sm_tmds = {0, 1, 2},
 	.pins_tmds = {20, 18, 16},
 	.pins_clk = 14,
-	.invert_diffpairs = false,
-	.invert_clockpair = false
+	.invert_diffpairs = false
 };
 
 #endif

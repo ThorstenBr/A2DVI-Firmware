@@ -12,7 +12,6 @@ struct dvi_serialiser_cfg {
 	uint pins_tmds[N_TMDS_LANES];
 	uint pins_clk;
 	bool invert_diffpairs;
-	bool invert_clockpair;
 	uint prog_offs;
 };
 
