@@ -194,14 +194,14 @@ Firmware updates of an A2DVI card are easy and safe:
 
 * **Debug display**.
 
-* **PICO2 (RP2350) support **.
+* **PICO2 (RP2350) support**.
 
 ## TODOs
 
 * Double-LORES in color.
 
 # License
-The A2DVI firmware is released under the [MIT License](/https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):
+The A2DVI firmware is released under the [MIT License](https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):
 
 * Copyright (c) 2024 Thorsten Brehm
 
