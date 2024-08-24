@@ -5,22 +5,21 @@ It directly produces a digital video stream from the Apple II's memory content.
 The signal is output via an HDMI connector, connecting the Apple II to modern displays with HDMI (or DVI) inputs.
 No more analog signal conversion required.
 
+![A2DVI PCB v1.2](images/A2DVI_PCB1.jpg)
+
 The project is a collaboration with Ralle Palaveev. His related hardware project is here:
 
 * [A2DVI Hardware](https://github.com/rallepalaveev/A2DVI)
 
-<b>
-Hardware and firmware are already working, however, the project is currently being tested.
-Firmware builds and Gerber files will be published once initial testing is completed.
-Currently (July 2024) we're waiting for a batch of updated PCBs.
-</b>
+The hardware is based on the PICO controller board.
+Both, original **PICO (RP2040)** and newer **PICO2 (RP2350)** mouldes are supported.
+Separate firmware is provided for the two PICO variants.
 
-<b>
-Please be a little patient.
-Check out the discussion topic in the AppleFritter forum, if you want to help with testing.
-</b>
+![PICO_vs_PICO2](images/PICO_PICO2.jpg)
 
-![A2DVI PCB v1.2](images/A2DVI_PCB1.jpg)
+*Currently, there is no difference in A2DVI functionality when using PICO or PICO2.
+PICO2 is pin-compatible but has a more powerful CPU, more memory, more flash and improved I/O.
+However, the original PICO is capable enough for A2DVI - and still has resources available for future extensions.*
 
 # About the A2DVI-Firmware
 The firmware is based on a combination of the Apple II VGA firmware projects by Mark Aikens and David Kuder.
@@ -31,7 +30,7 @@ Here's a brief look at the architecture:
 
 <pre>
                       +-------------------------------------------------------------------------+
-                      |                         PICO Microcontroller (RP2040)                   |
+                      |                   PICO Microcontroller (RP2040 or RP2350)               |
                       |                                                                         |
      +------+         |     +---------+         +-----------------+        +-----------------+  |
      | 6502 |_________|_____| PIO #1  |_________|   ARM Core #1   |________|   ARM Core #2   |  |
@@ -194,6 +193,8 @@ Firmware updates of an A2DVI card are easy and safe:
 * **Custom fonts**.
 
 * **Debug display**.
+
+* **PICO2 (RP2350) support **.
 
 ## TODOs
 
