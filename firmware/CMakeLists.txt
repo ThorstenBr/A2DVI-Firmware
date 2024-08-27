@@ -81,6 +81,8 @@ add_executable(${BINARY_NAME}
 
     dvi/a2dvi.c
     dvi/tmds.c
+    dvi/tmds_lores.c
+    dvi/tmds_hires.c
 
     render/render.c
     render/render_debug.c

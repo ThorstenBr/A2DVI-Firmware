@@ -1,6 +1,6 @@
-# A2DVI Firmware: Apple II Digital Video
+# A2DVI Firmware: Digital Video for Apple II Computers
 
-This is a firmware project for a digital DVI/HDMI Apple II video card.
+This is a firmware project for a digital DVI/HDMI video card for Apple II.
 It directly produces a digital video stream from the Apple II's memory content.
 The signal is output via an HDMI connector, connecting the Apple II to modern displays with HDMI (or DVI) inputs.
 No more analog signal conversion required.
