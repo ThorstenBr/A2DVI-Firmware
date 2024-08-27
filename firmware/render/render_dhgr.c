@@ -247,6 +247,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             }
         }
     }
+#endif
     else
     if(internal_flags & IFLAGS_INTERP)
     {
@@ -270,24 +271,31 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             {
                 dots &= 0xfffffffe;
                 dots |= (dots >> 4) & 1;
-                pixeldata = dhgr_palette[dots & 0xf];
+                uint8_t dhgr_index = dots & 0xf; // index for first pixel
                 dots &= 0xfffffffc;
                 dots |= (dots >> 4) & 3;
-                pixeldata |= dhgr_palette[dots & 0xf] << 16;
-                sl->data[sl_pos++] = pixeldata;
+                dhgr_index |= (dots & 0xf)<<4;   // index for second pixel
+
+                // add 2 pixels
+                *(tmdsbuf_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf_green++) = tmds_dhgr_green[dhgr_index];
+                *(tmdsbuf_blue++)  = tmds_dhgr_blue[dhgr_index];
 
                 dots &= 0xfffffff8;
                 dots |= (dots >> 4) & 7;
-                pixeldata = dhgr_palette[dots & 0xf];
+                dhgr_index = dots & 0xf;         // index for third pixel
                 dots >>= 4;
-                pixeldata |= dhgr_palette[dots & 0xf] << 16;
-                sl->data[sl_pos++] = pixeldata;
+                dhgr_index |= (dots & 0xf)<<4;   // index for fourth pixel
+
+                // add 2 pixels
+                *(tmdsbuf_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf_green++) = tmds_dhgr_green[dhgr_index];
+                *(tmdsbuf_blue++)  = tmds_dhgr_blue[dhgr_index];
 
                 dotc -= 4;
             }
         }
     }
-#endif
     else
     {
         while(i < 40)

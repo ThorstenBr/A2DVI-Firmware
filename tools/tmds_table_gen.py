@@ -172,7 +172,7 @@ enc = TMDSEncode()
 ###
 # Generate 2bpp table based on above experiment:
 
-if __file__=="__main__":
+if __name__=="__main__":
 	levels_2bpp_even = [0x05, 0x50, 0xaf, 0xfa]
 	levels_2bpp_odd  = [0x04, 0x51, 0xae, 0xfb]
 

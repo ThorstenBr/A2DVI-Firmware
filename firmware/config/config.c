@@ -78,6 +78,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  debug_lines_enabled;
 
     uint8_t  test_mode_enabled;
+    uint8_t  interp_enabled;
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
@@ -229,6 +230,10 @@ void config_load(void)
     SET_IFLAG(cfg->video7_enabled,       IFLAGS_VIDEO7);
     SET_IFLAG(cfg->debug_lines_enabled,  IFLAGS_DEBUG_LINES);
     SET_IFLAG(cfg->test_mode_enabled,    IFLAGS_TEST);
+    if(IS_STORED_IN_CONFIG(cfg, interp_enabled))
+    {
+        SET_IFLAG(cfg->interp_enabled,   IFLAGS_INTERP);
+    }
 
     language_switch_enabled = (cfg->language_switch_enabled != 0);
     enhanced_font_enabled   = (cfg->enhanced_font_enabled != 0);
@@ -248,9 +253,12 @@ void config_load(void)
     config_load_charsets();
 
 #ifdef APPLE_MODEL_IIPLUS
-    if(IS_STORED_IN_CONFIG(cfg, videx_vterm_enabled) && cfg->videx_vterm_enabled) {
+    if(IS_STORED_IN_CONFIG(cfg, videx_vterm_enabled) && cfg->videx_vterm_enabled)
+    {
         videx_vterm_enable();
-    } else {
+    }
+    else
+    {
         videx_vterm_disable();
     }
 #endif
@@ -264,6 +272,7 @@ void config_load_defaults(void)
     SET_IFLAG(0, IFLAGS_FORCED_MONO);
     SET_IFLAG(0, IFLAGS_VIDEO7);
     SET_IFLAG(0, IFLAGS_TEST);
+    SET_IFLAG(1, IFLAGS_INTERP);
 
     color_mode              = COLOR_MODE_BW;
     cfg_machine             = MACHINE_AUTO;
@@ -302,6 +311,7 @@ void config_save(void)
     new_config->video7_enabled          = IS_IFLAG(IFLAGS_VIDEO7);
     new_config->debug_lines_enabled     = IS_IFLAG(IFLAGS_DEBUG_LINES);
     new_config->test_mode_enabled       = IS_IFLAG(IFLAGS_TEST);
+    new_config->interp_enabled          = IS_IFLAG(IFLAGS_INTERP);
     new_config->color_mode              = color_mode;
     new_config->machine_type            = cfg_machine;
     new_config->local_charset           = cfg_local_charset;
