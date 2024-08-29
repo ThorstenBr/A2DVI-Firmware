@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 # firmware version
-set(FW_VERSION "0.8")
+set(FW_VERSION "0.9")
 message(STATUS "Building firmware version ${FW_VERSION}")
 
 option(FEATURE_PICO2 "Build project for PICO2 (RP2350) instead of original PICO (RP2040)" OFF)

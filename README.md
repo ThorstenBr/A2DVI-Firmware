@@ -166,7 +166,7 @@ Firmware updates of an A2DVI card are easy and safe:
 
 * **LORES graphics**
 
-* **Double-LORES graphics**: monochrome only / color support pending.
+* **Double-LORES graphics**
 
 * **HIRES graphics**
 
@@ -198,7 +198,6 @@ Firmware updates of an A2DVI card are easy and safe:
 
 ## TODOs
 
-* Double-LORES in color.
 
 # License
 The A2DVI firmware is released under the [MIT License](https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):

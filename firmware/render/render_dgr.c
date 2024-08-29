@@ -55,9 +55,7 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
     uint i = 0;
     uint_fast8_t dotc = 0;
 
-#if 0
     if(mono_rendering)
-#endif
     {
         uint32_t pattern1=0, pattern2=0;
         uint8_t color_offset = color_mode*12;
@@ -93,7 +91,6 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
             }
         }
     }
-#if 0
     else
     {
         uint32_t color1 = 0, color2 = 0;
@@ -115,43 +112,55 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
             {
                 color1 &= 0xfffffffe;
                 color1 |= (color1 >> 4) & 1;
-                pixeldata = dhgr_palette[color1 & 0xf];
+                uint8_t dhgr_index = color1 & 0xf; // index for first pixel
 
                 color1 &= 0xfffffffc;
                 color1 |= (color1 >> 4) & 3;
-                pixeldata |= dhgr_palette[color1 & 0xf] << 16;
-                sl1->data[sl_pos] = pixeldata;
+                dhgr_index |= (color1 & 0xf)<<4;   // index for second pixel
+
+                // add 2 pixels
+                *(tmdsbuf1_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf1_green++) = tmds_dhgr_green[dhgr_index];
+                *(tmdsbuf1_blue++)  = tmds_dhgr_blue[dhgr_index];
 
                 color2 &= 0xfffffffe;
                 color2 |= (color2 >> 4) & 1;
-                pixeldata = dhgr_palette[color2 & 0xf];
+                dhgr_index = color2 & 0xf;         // index for first pixel
                 color2 &= 0xfffffffc;
                 color2 |= (color2 >> 4) & 3;
-                pixeldata |= dhgr_palette[color2 & 0xf] << 16;
-                sl2->data[sl_pos] = pixeldata;
+                dhgr_index |= (color2 & 0xf)<<4;   // index for second pixel
 
-                sl_pos++;
+                // add 2 pixels
+                *(tmdsbuf2_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf2_green++) = tmds_dhgr_green[dhgr_index];
+                *(tmdsbuf2_blue++)  = tmds_dhgr_blue[dhgr_index];
 
                 color1 &= 0xfffffff8;
                 color1 |= (color1 >> 4) & 7;
-                pixeldata = dhgr_palette[color1 & 0xf];
+                dhgr_index = color1 & 0xf;         // index for first pixel
                 color1 >>= 4;
-                pixeldata |= dhgr_palette[color1 & 0xf] << 16;
-                sl1->data[sl_pos] = pixeldata;
+                dhgr_index |= (color1 & 0xf)<<4;   // index for second pixel
+
+                // add 2 pixels
+                *(tmdsbuf1_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf1_green++) = tmds_dhgr_green[dhgr_index];
+                *(tmdsbuf1_blue++)  = tmds_dhgr_blue[dhgr_index];
 
                 color2 &= 0xfffffff8;
                 color2 |= (color2 >> 4) & 7;
-                pixeldata = dhgr_palette[color2 & 0xf];
+                dhgr_index = color2 & 0xf;         // index for first pixel
                 color2 >>= 4;
-                pixeldata |= dhgr_palette[color2 & 0xf] << 16;
-                sl2->data[sl_pos] = pixeldata;
+                dhgr_index |= (color2 & 0xf)<<4;   // index for second pixel
 
-                sl_pos++;
+                // add 2 pixels
+                *(tmdsbuf2_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf2_green++) = tmds_dhgr_green[dhgr_index];
+                *(tmdsbuf2_blue++)  = tmds_dhgr_blue[dhgr_index];
+
                 dotc -= 4;
             }
         }
     }
-#endif
 
     // repeat this line 3 more times (4x in total)
     for (uint yrepeat=0;yrepeat<3;yrepeat++)
