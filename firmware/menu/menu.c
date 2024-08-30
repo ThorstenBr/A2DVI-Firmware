@@ -32,12 +32,23 @@ SOFTWARE.
 #include "fonts/textfont.h"
 #include "menu.h"
 
+// number of elements in the menu
+#define MENU_ENTRY_COUNT (17)
+
+// number of non-config elements in the two column menu area
+#define MENU_ENTRIES_NONCFG (6)
+
+// offset of the first non-config menu element
+#define MENU_OFS_NONCFG (MENU_ENTRY_COUNT-MENU_ENTRIES_NONCFG)
+
 #ifdef FEATURE_TEST
 bool PrintMode80Column = false;
 bool PrintModePage2    = false;
 #endif
 
-static bool MenuNeedsRedraw;
+static uint8_t CurrentMenu        = 0;
+static bool    IgnoreNextKeypress = false;
+static bool    MenuNeedsRedraw;
 
 void __time_critical_func(centerY)(uint32_t y, const char* pMsg, TPrintMode PrintMode)
 {
@@ -162,6 +173,15 @@ const char* DELAYED_COPY_DATA(MenuOnOff)[2] =
     "ENABLED"
 };
 
+const char* DELAYED_COPY_DATA(MenuRendering)[4] =
+{
+//   12345678901234567890
+    "DISABLED",
+    "ENABLED",
+    "DOUBLE HIRES ONLY",
+    "DOUBLE LORES ONLY"
+};
+
 const char* DELAYED_COPY_DATA(MenuColorMode)[COLOR_MODE_AMBER+1] =
 {
     "BLACK & WHITE",
@@ -204,12 +224,9 @@ const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_FONT_COUNT] =
     "CUSTOM FONT 8"
 };
 
-static uint8_t CurrentMenu        = 0;
-static bool    IgnoreNextKeypress = false;
-
 static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const char* pValue)
 {
-    uint x = (Selection>=13) ? 20:0;
+    uint x = (Selection >= (MENU_OFS_NONCFG+3)) ? 20:0;
     char MenuKey[2];
     MenuKey[0] = pMenu[0];
     MenuKey[1] = 0;
@@ -225,7 +242,7 @@ void __time_critical_func(menuShowFrame)()
     soft_switches &= ~(SOFTSW_MIX_MODE | SOFTSW_80COL | SOFTSW_PAGE_2 | SOFTSW_DGR | SOFTSW_HIRES_MODE);
 
     showTitle(PRINTMODE_INVERSE);
-    centerY(20, "'ESC' TO EXIT", PRINTMODE_NORMAL);
+    centerY(21, "'ESC' TO EXIT", PRINTMODE_NORMAL);
 }
 
 void DELAYED_COPY_CODE(menuShowSaved)()
@@ -480,8 +497,17 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
             break;
         case 8:
-            SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
-            SET_IFLAG(0, IFLAGS_TEST);
+            if (increase)
+            {
+                if (rendering_fx < FX_DGR_ONLY)
+                    rendering_fx++;
+            }
+            else
+            {
+                if (rendering_fx > 0)
+                    rendering_fx--;
+            }
+            config_setflags();
             break;
         case 9:
             SET_IFLAG(!IS_IFLAG(IFLAGS_VIDEO7), IFLAGS_VIDEO7);
@@ -490,21 +516,25 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 internal_flags |= IFLAGS_V7_MODE3;
             }
             break;
-        case 10: // restore
+        case 10:
+            SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
+            SET_IFLAG(0, IFLAGS_TEST);
+            break;
+        case MENU_OFS_NONCFG+0: // restore
             if (increase)
             {
                 config_load_defaults();
                 set_machine((cfg_machine == MACHINE_AUTO) ? detected_machine : cfg_machine);
             }
             break;
-        case 11: // load config
+        case MENU_OFS_NONCFG+1: // load config
             if (increase)
             {
                 config_load();
                 set_machine((cfg_machine == MACHINE_AUTO) ? detected_machine : cfg_machine);
             }
             break;
-        case 12: // flash
+        case MENU_OFS_NONCFG+2: // flash
             if (increase)
             {
                 config_save();
@@ -513,7 +543,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 return true;
             }
             break;
-        case 13:  // about
+        case MENU_OFS_NONCFG+3:  // about
             if (increase)
             {
                 menuShowAbout();
@@ -521,18 +551,18 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 return true;
             }
             break;
-        case 14: // test
+        case MENU_OFS_NONCFG+4:
             if (increase)
             {
-                menuShowTest();
+                menuShowDebug();
                 IgnoreNextKeypress = true;
                 return true;
             }
             break;
-        case 15:
+        case MENU_OFS_NONCFG+5: // test
             if (increase)
             {
-                menuShowDebug();
+                menuShowTest();
                 IgnoreNextKeypress = true;
                 return true;
             }
@@ -559,26 +589,57 @@ static inline bool menuCheckKeys(char key)
             CurrentMenu = 0;
             MenuNeedsRedraw = true;
             break;
+
+        // MENU ELEMENT SELECTION KEYS
         case '0' ... '9':
             CurrentMenu = key-'0';
             if ((!language_switch_enabled)&&(CurrentMenu == 4))
                 CurrentMenu = 3;
             break;
+        case 'D':
+            CurrentMenu = 10;
+            break;
+        case 'R':
+            CurrentMenu = MENU_OFS_NONCFG+0;
+            Cmd = 1;
+            break;
+        case 'L':
+            CurrentMenu = MENU_OFS_NONCFG+1;
+            Cmd = 1;
+            break;
+        case 'S':
+            CurrentMenu = MENU_OFS_NONCFG+2;
+            Cmd = 1;
+            break;
+        case 'A':
+            CurrentMenu = MENU_OFS_NONCFG+3;
+            Cmd = 1;
+            break;
+        case 'B':
+            CurrentMenu = MENU_OFS_NONCFG+4;
+            Cmd = 1;
+            break;
+        case 'T':
+            CurrentMenu = MENU_OFS_NONCFG+5;
+            Cmd = 1;
+            break;
+
+        // ARROW & CURSOR MOVEMENT KEYS
         case 'I':// fall through
         case 11: // UP
-            if (CurrentMenu>0)
+            if (CurrentMenu > 0)
             {
                 CurrentMenu--;
                 if ((!language_switch_enabled)&&(CurrentMenu == 4))
                     CurrentMenu--;
             }
             else
-                CurrentMenu = 15;
+                CurrentMenu = (MENU_ENTRY_COUNT-1);
             break;
         case 'M':// fall through
-        case 9: // TAB
+        case 9:  // TAB
         case 10: // DOWN
-            if (CurrentMenu<14)
+            if (CurrentMenu < (MENU_ENTRY_COUNT-1))
             {
                 CurrentMenu++;
                 if ((!language_switch_enabled)&&(CurrentMenu == 4))
@@ -587,39 +648,15 @@ static inline bool menuCheckKeys(char key)
             else
                 CurrentMenu = 0;
             break;
-        case 'R':
-            CurrentMenu = 10;
-            Cmd = 1;
-            break;
-        case 'L':
-            CurrentMenu = 11;
-            Cmd = 1;
-            break;
-        case 'S':
-            CurrentMenu = 12;
-            Cmd = 1;
-            break;
-        case 'A':
-            CurrentMenu = 13;
-            Cmd = 1;
-            break;
-        case 'T':
-            CurrentMenu = 14;
-            Cmd = 1;
-            break;
-        case 'D':
-            CurrentMenu = 15;
-            Cmd = 1;
-            break;
         case 'J':// fall-through
         case 127: // DEL
-        case 8: //LEFT
-            if (CurrentMenu < 9)
+        case 8:   //LEFT
+            if (CurrentMenu < MENU_OFS_NONCFG)
             {
                 Cmd = 0;
             }
             else
-            if (CurrentMenu >= 12)
+            if (CurrentMenu >= MENU_OFS_NONCFG+3)
             {
                 CurrentMenu -= 3;
             }
@@ -630,22 +667,22 @@ static inline bool menuCheckKeys(char key)
             break;
         case 'K':// fall-through
         case 21: //RIGHT
-            if (CurrentMenu < 10)
+            if (CurrentMenu < MENU_OFS_NONCFG)
             {
                 Cmd = 1;
             }
             else
-            if (CurrentMenu < 13)
+            if (CurrentMenu+3 < MENU_ENTRY_COUNT)
             {
                 CurrentMenu += 3;
             }
             break;
-        case 27:
+        case 27: // ESCAPE
             // clear menu mode when exiting
             SET_IFLAG(0, IFLAGS_MENU_ENABLE);
             MenuNeedsRedraw = true;
             return true;
-        case '!':
+        case '!': // special debug feature
             if (IS_IFLAG(IFLAGS_DEBUG_LINES))
             {
                 SET_IFLAG(!IS_IFLAG(IFLAGS_TEST), IFLAGS_TEST);
@@ -686,29 +723,31 @@ void DELAYED_COPY_CODE(menuShow)(char key)
     }
     centerY(2, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
 
-    menuOption(4,0, "0 MACHINE TYPE:",      (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
-    menuOption(5,1, "1 CHARACTER SET:",     (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
-    menuOption(6,2, "2 ENHANCED FONT:",     MenuOnOff[enhanced_font_enabled & 1]);
+    menuOption(4,0, "0 MACHINE TYPE:",       (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
+    menuOption(5,1, "1 CHARACTER SET:",      (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
+    menuOption(6,2, "2 ENHANCED FONT:",      MenuOnOff[enhanced_font_enabled & 1]);
 
-    menuOption(7,3, "3 LANGUAGE SWITCH:",   MenuOnOff[language_switch_enabled]);
+    menuOption(7,3, "3 LANGUAGE SWITCH:",    MenuOnOff[language_switch_enabled]);
     if (language_switch_enabled)
     {
         menuOption(8,4, "4 US CHARACTER SET:", (cfg_alt_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_alt_charset] : "?");
     }
 
-    menuOption(10,5, "5 MONOCHROME COLOR:", MenuColorMode[color_mode]);
-    menuOption(11,6, "6 COLOR MODES:",      MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
-    menuOption(12,7, "7 SCAN LINES:",       MenuOnOff[IS_IFLAG(IFLAGS_SCANLINEEMU)]);
-    menuOption(13,8, "8 DEBUG LINES:",      MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);
-    menuOption(14,9, "9 VIDEO7 MODES:",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
+    menuOption(10,5,  "5 MONOCHROME MODE:",  MenuColorMode[color_mode]);
+    menuOption(11,6,  "6 COLOR MODE:",       MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
+    menuOption(12,7,  "7 SCAN LINES:",       MenuOnOff[IS_IFLAG(IFLAGS_SCANLINEEMU)]);
 
-    menuOption(16,10, "R RESTORE DEFAULTS", 0);
-    menuOption(17,11, "L LOAD FROM FLASH", 0);
-    menuOption(18,12, "S SAVE TO FLASH", 0);
+    menuOption(13,8,  "8 ANALOG RENDER FX:", MenuRendering[rendering_fx]);
+    menuOption(14,9,  "9 VIDEO7 MODES:",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
+    menuOption(15,10, "D DEBUG MONITOR:",    MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);
 
-    menuOption(16,13,  "A ABOUT", 0);
-    menuOption(17,14,  "T TEST", 0);
-    menuOption(18,15,  "D DEBUG", 0);
+    menuOption(17,11, "R RESTORE DEFAULTS",  0);
+    menuOption(18,12, "L LOAD FROM FLASH",   0);
+    menuOption(19,13, "S SAVE TO FLASH",     0);
+
+    menuOption(17,14, "A ABOUT",             0);
+    menuOption(18,15, "B DEBUG",             0);
+    menuOption(19,16, "T TEST",              0);
 
     // show some special characters, for immediate feedback when selecting character sets
     printXY(40-11, 21, "[{\\~#$`^|}]", PRINTMODE_NORMAL);

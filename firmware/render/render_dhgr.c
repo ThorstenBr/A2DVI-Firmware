@@ -249,7 +249,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
     }
 #endif
     else
-    if(internal_flags & IFLAGS_INTERP)
+    if(internal_flags & IFLAGS_INTERP_DHGR)
     {
         // Preload black into the sliding window
         dots = 0;

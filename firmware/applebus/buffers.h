@@ -116,7 +116,8 @@ extern volatile uint32_t internal_flags;
 #define IFLAGS_MENU_ENABLE    0x00200000ul
 #define IFLAGS_FORCED_MONO    0x00400000ul
 #define IFLAGS_SCANLINEEMU    0x00800000ul
-#define IFLAGS_INTERP         0x01000000ul
+#define IFLAGS_INTERP_DGR     0x01000000ul
+#define IFLAGS_INTERP_DHGR    0x02000000ul
 //#define IFLAGS_GRILL          0x02000000ul
 #define IFLAGS_VIDEO7         0x04000000ul
 //#define IFLAGS_OLDCOLOR       0x08000000ul

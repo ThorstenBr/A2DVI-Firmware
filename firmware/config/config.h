@@ -43,14 +43,24 @@ typedef enum
     MACHINE_AUTO    = 0xff
 } compat_t;
 
+typedef enum {
+    FX_NONE       = 0,
+    FX_ENABLED    = 1,
+    FX_DHGR_ONLY  = 2,
+    FX_DGR_ONLY   = 3
+} rendering_fx_t;
+
 extern volatile compat_t detected_machine;
 extern volatile compat_t cfg_machine;
 extern volatile compat_t current_machine;
+
+extern    rendering_fx_t rendering_fx;
 
 extern uint32_t invalid_fonts;
 extern uint8_t  cfg_local_charset;
 extern uint8_t  cfg_alt_charset;
 extern uint8_t  reload_charsets;
+
 
 extern volatile bool language_switch_enabled;
 extern volatile bool language_switch;
@@ -86,3 +96,4 @@ extern void config_load_charsets(void);
 extern void config_save         (void);
 extern bool config_flash_write  (void* flash_address, uint8_t* data, uint32_t size);
 extern void config_font_update  (void);
+extern void config_setflags     (void);

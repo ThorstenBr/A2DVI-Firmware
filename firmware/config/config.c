@@ -45,6 +45,7 @@ uint8_t cfg_alt_charset = 0;
 uint8_t reload_charsets = 0;
 uint32_t invalid_fonts = 0xffffffff;
 volatile uint8_t color_mode = 1;
+rendering_fx_t rendering_fx = FX_ENABLED;
 
 // A block of flash is reserved for storing configuration persistently across power cycles
 // and firmware updates.
@@ -78,7 +79,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  debug_lines_enabled;
 
     uint8_t  test_mode_enabled;
-    uint8_t  interp_enabled;
+    rendering_fx_t rendering_fx;
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
@@ -209,6 +210,12 @@ void config_load_charsets(void)
     reload_charsets = 0;
 }
 
+void config_setflags(void)
+{
+    SET_IFLAG(((rendering_fx==FX_ENABLED)||(rendering_fx == FX_DGR_ONLY)), IFLAGS_INTERP_DGR);
+    SET_IFLAG(((rendering_fx==FX_ENABLED)||(rendering_fx == FX_DHGR_ONLY)),IFLAGS_INTERP_DHGR);
+}
+
 void config_load(void)
 {
     if (font_directory->magic_word == FONT_MAGIC_WORD_VALUE)
@@ -230,10 +237,11 @@ void config_load(void)
     SET_IFLAG(cfg->video7_enabled,       IFLAGS_VIDEO7);
     SET_IFLAG(cfg->debug_lines_enabled,  IFLAGS_DEBUG_LINES);
     SET_IFLAG(cfg->test_mode_enabled,    IFLAGS_TEST);
-    if(IS_STORED_IN_CONFIG(cfg, interp_enabled))
+    if(IS_STORED_IN_CONFIG(cfg, rendering_fx))
     {
-        SET_IFLAG(cfg->interp_enabled,   IFLAGS_INTERP);
+        rendering_fx = cfg->rendering_fx;
     }
+    config_setflags();
 
     language_switch_enabled = (cfg->language_switch_enabled != 0);
     enhanced_font_enabled   = (cfg->enhanced_font_enabled != 0);
@@ -272,7 +280,8 @@ void config_load_defaults(void)
     SET_IFLAG(0, IFLAGS_FORCED_MONO);
     SET_IFLAG(0, IFLAGS_VIDEO7);
     SET_IFLAG(0, IFLAGS_TEST);
-    SET_IFLAG(1, IFLAGS_INTERP);
+    rendering_fx = FX_ENABLED;
+    config_setflags();
 
     color_mode              = COLOR_MODE_BW;
     cfg_machine             = MACHINE_AUTO;
@@ -311,7 +320,7 @@ void config_save(void)
     new_config->video7_enabled          = IS_IFLAG(IFLAGS_VIDEO7);
     new_config->debug_lines_enabled     = IS_IFLAG(IFLAGS_DEBUG_LINES);
     new_config->test_mode_enabled       = IS_IFLAG(IFLAGS_TEST);
-    new_config->interp_enabled          = IS_IFLAG(IFLAGS_INTERP);
+    new_config->rendering_fx            = rendering_fx;
     new_config->color_mode              = color_mode;
     new_config->machine_type            = cfg_machine;
     new_config->local_charset           = cfg_local_charset;

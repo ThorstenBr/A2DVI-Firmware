@@ -113,7 +113,7 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
         }
     }
     else
-    if(internal_flags & IFLAGS_INTERP)
+    if(internal_flags & IFLAGS_INTERP_DGR)
     {
         // based David's DGR renderer - with artifacts
         uint32_t color1 = 0, color2 = 0;
