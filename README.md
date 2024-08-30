@@ -55,7 +55,30 @@ Here's a brief look at the architecture:
 The firmware supports various configuration properties.
 There are configuration utility disks for [ProDOS](/configutil/A2DVICONFIG_PRODOS.po) and [DOS3.3](/configutil/A2DVICONFIG_DOS33.dsk).
 
-![Config Utility](images/A2DVI_config.jpg)
+![Config Utility](images/A2DVI_Config.jpg)
+
+## Machine Type
+The A2DVI firmware tries to auto-detect your machine type - and adjusts various features and register sets according to your machine.
+You can also set the machine type manually. If your A2DVI is installed in a specific/fixed machine, it's recommended to set the configuration to a fixed type.
+
+## Rendering Options
+* **Monochrome Mode**: configures the display of monochrom video modes. Selects display as black & white, green or amber (the most popular 1980s CRT types).
+* **Color Mode**: configures the display of color video modes. Selects "color" or "monochrome". When "monochrome" is selected, then all video modes are in monochrome.
+* **Scan Lines**: enables an effect to mimic the look of original CRT screens with scan lines.
+* **Analog Rendering Effects**: configures the rendering of double-LORES and double-HIRES video modes.
+You can disable the effects, enable them for all modes, or only enable them for double-LORES/HIRES selectively.
+Analog rendering effects try to mimic effects of original composite monitors. Graphics of sophisticated games often relied on these display effects.
+Recommendation is to enable the effects, or to enable them at least for "double-HIRES" (the highest resolution mode).
+For the low resolution mode ("double-LORES") the composite effects are usually not so important (just a matter of taste).
+
+The following screenshots show a comparison of double-HIRES with analog effects disabled (plain rendering) and with the effects enabled:
+
+* The plain rendering shows *perfect pixels*: each pixel has exactly the color as the program dictates.
+However, there were no perfect digital displays in the 1980s and this is not how it would have looked. Note how, though the pixels are perfect, you can barely read the copyright text.
+
+* Note how you can now read the copyright text more easily, with "analog effect rendering" enabled.
+
+![A2DVI Rendering Options](images/A2DVI_Rendering.jpg)
 
 ## Built-in Fonts
 The firmware has built-in support for various fonts. Additional custom fonts can be uploaded using normal Apple II/IIe video ROM binaries.
@@ -97,10 +120,10 @@ Connect the single pin on the A2DVI card to the language switch signal "ALTCHR",
 
 ![Language Rocker Switch](images/ALTCHR_Rocker_Switch.jpg)
 
-## Debug Lines
-The configuration menu offers a debugging feature. Enabling "DEBUG LINES" shows extra lines above and below the normal Apple II screen (in red):
+## Debug Monitor
+The configuration menu offers a debugging feature. Enabling the "**DEBUG MONITOR**" shows extra lines above and below the normal Apple II screen (in red):
 
-![A2DVI Debug Lines](images/A2DVI_DebugLines.jpg)
+![A2DVI Debug Monitor](images/A2DVI_DebugLines.jpg)
 
 The first line shows the status of switches controlling Apple II's video subsystem:
 
@@ -141,6 +164,7 @@ Here are some photos showing A2DVI in action - using the DVI/HDMI connection.
 ![Screenshot 3](images/A2DVI_Screenshot3.jpg)
 ![Screenshot 4](images/A2DVI_Screenshot4.jpg)
 ![Screenshot 5](images/A2DVI_Screenshot5.jpg)
+![Screenshot 7](images/A2DVI_Screenshot7.jpg)
 ![Screenshot 6](images/A2DVI_Screenshot6.jpg)
 
 # Firmware Updates
