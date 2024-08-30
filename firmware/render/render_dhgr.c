@@ -267,7 +267,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 i++;
             }
 
-            while((dotc >= 8) || ((dotc > 0) && (i == 40)))
+            while((dotc >= 8) || ((dotc > 4) && (i == 40)))
             {
                 dots &= 0xfffffffe;
                 dots |= (dots >> 4) & 1;
