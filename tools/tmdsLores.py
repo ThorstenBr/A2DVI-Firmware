@@ -48,12 +48,12 @@ LoresRgb2 = [
     (0x2a, 0x2a, 0xe5), # darkblue
     (0xc7, 0x34, 0xff), # purple
     (0x00, 0x80, 0x00), # darkgreen
-    (0x80, 0x80, 0x80), # grey1
+    (0x80, 0x80, 0x80), # gray1 (dark gray)
     (0x0d, 0xa1, 0xff), # mediumblue
     (0xaa, 0xaa, 0xff), # lightblue
     (0x55, 0x55, 0x00), # brown
     (0xf2, 0x5e, 0x00), # orange
-    (0x80, 0x80, 0x80), # grey2
+    (0xC0, 0xC0, 0xC0), # gray2 (light gray)
     (0xff, 0x89, 0xe5), # pink
     (0x38, 0xcb, 0x00), # green
     (0xd5, 0xd5, 0x1a), # yellow
@@ -84,8 +84,30 @@ def doublePixEncode(value):
 # get RGB data
 LoresRgb1 = parseRgbData(LoresPalette)
 
+ColorNames = [
+    "black",
+    "magenta",
+    "darkblue",
+    "purple",
+    "darkgreen",
+    "gray1 (dark gray)",
+    "mediumblue",
+    "lightblue",
+    "brown",
+    "orange",
+    "gray2 (light gray)",
+    "pink",
+    "green",
+    "yellow",
+    "aqua",
+    "white"
+]
+
 # print RGB TMDS symbols for a double pixel
 print("LORES palette TMDS symbols:")
-print("// R        G        B")
+print("    // R        G        B")
+i=0
 for (r,g,b) in LoresRgb2:
-    print(doublePixEncode(r)+", "+doublePixEncode(g)+", "+doublePixEncode(b)+",")
+    print("   ",doublePixEncode(r)+", "+doublePixEncode(g)+", "+doublePixEncode(b)+", //", ColorNames[i])
+    i+=1
+print("-------------------------")
