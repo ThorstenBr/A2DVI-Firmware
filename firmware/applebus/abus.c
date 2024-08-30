@@ -36,6 +36,8 @@ SOFTWARE.
     #include "videx_vterm.h"
 #endif
 
+//#define FEATURE_DEBUG_INTERPOLATION
+
 void __time_critical_func(abus_clear_fifo)(void)
 {
     while (abus_pio_fifo_level())
@@ -73,7 +75,17 @@ void __time_critical_func(abus_loop)()
 
         if (language_switch_enabled)
         {
+#ifdef FEATURE_DEBUG_INTERPOLATION
+            #warning WARNING: DEBUG feature is enabled! ***************
+            bool l = language_switch;
+#endif
             language_switch = LANGUAGE_SWITCH(value);
+#ifdef FEATURE_DEBUG_INTERPOLATION
+            if (l != language_switch)
+            {
+                SET_IFLAG(language_switch, IFLAGS_INTERP);
+            }
+#endif
         }
 
         bus_counter++;
