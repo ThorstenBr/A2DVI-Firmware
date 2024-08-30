@@ -34,9 +34,30 @@ SOFTWARE.
 uint8_t DELAYED_COPY_DATA(dgr_dot_pattern)[32] = {
     0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
     0x08, 0x19, 0x2A, 0x3B, 0x4C, 0x5D, 0x6E, 0x7F,
+
     0x00, 0x44, 0x08, 0x4C, 0x11, 0x55, 0x19, 0x5D,
     0x22, 0x66, 0x2A, 0x6E, 0x33, 0x77, 0x3B, 0x7F,
 };
+
+// double lores to dhgr palette mapping (for odd columns, with "non-rotated" nibbles)
+static uint8_t dlores_dhgr_map[16] = {
+    0x00,0x08,0x01,0x09,0x02,0x0A,0x03,0x0B,
+    0x04,0x0C,0x05,0x0D,0x06,0x0E,0x07,0x0F
+};
+
+// add pixels to TMDS line
+#define ADD_TMDS_DGR_PIXELS(tmds_red, tmds_green, tmds_blue, dhgr_index, count) \
+{\
+    uint32_t r = tmds_dhgr_red  [dhgr_index];\
+    uint32_t g = tmds_dhgr_green[dhgr_index];\
+    uint32_t b = tmds_dhgr_blue [dhgr_index];\
+    for (uint x=0;x<count;x++)\
+    {\
+        *(tmds_red++)   = r;\
+        *(tmds_green++) = g;\
+        *(tmds_blue++)  = b;\
+    }\
+}
 
 static void render_dgr_line(bool p2, uint line);
 
@@ -92,7 +113,9 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
         }
     }
     else
+    if(internal_flags & IFLAGS_INTERP)
     {
+        // based David's DGR renderer - with artifacts
         uint32_t color1 = 0, color2 = 0;
         while(i < 40)
         {
@@ -158,6 +181,54 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
                 *(tmdsbuf2_blue++)  = tmds_dhgr_blue[dhgr_index];
 
                 dotc -= 4;
+            }
+        }
+    }
+    else
+    {
+        // plain DGR rendering - no artifacts
+        for(int i = 0; i < 40; i++)
+        {
+            // First pixel data is from aux memory
+            // Colors in even columns/aux mem are rotated to the right by 1 bit, which is how our DHGR palette is organized -
+            // so we do NOT need to rotate the nibbles.
+            uint8_t color1_l1 = line_bufb[i] & 0xf;
+            uint8_t color1_l2 = line_bufb[i] >> 4;
+
+            // Next pixel data is from main memory
+            // Colors in odd columns/main mem are in natural encoding/not rotated.
+            // However, our DHGR palette expects rotated nibbles - so we have to use a mapping.
+            uint8_t color2_l1 = dlores_dhgr_map[  line_bufa[i]       & 0xf] ;
+            uint8_t color2_l2 = dlores_dhgr_map[ (line_bufa[i] >> 4) & 0xf];
+
+            // line 1: 14 pixels
+            {
+                // add 3 double pixels to line 1
+                uint8_t index = color1_l1 | (color1_l1<<4);
+                ADD_TMDS_DGR_PIXELS(tmdsbuf1_red, tmdsbuf1_green, tmdsbuf1_blue, index, 3);
+
+                // add 1 double pixel to line 2
+                index = color1_l1 | (color2_l1<<4);
+                ADD_TMDS_DGR_PIXELS(tmdsbuf1_red, tmdsbuf1_green, tmdsbuf1_blue, index, 1);
+
+                // add 3 double pixels to line 1
+                index = color2_l1 | (color2_l1<<4);
+                ADD_TMDS_DGR_PIXELS(tmdsbuf1_red, tmdsbuf1_green, tmdsbuf1_blue, index, 3);
+            }
+
+            // line2: 14 pixels
+            {
+                // add 3 double pixels to line 2
+                uint8_t index = color1_l2 | (color1_l2<<4);
+                ADD_TMDS_DGR_PIXELS(tmdsbuf2_red, tmdsbuf2_green, tmdsbuf2_blue, index, 3);
+
+                // add 1 double pixel to line 2
+                index = color1_l2 | (color2_l2<<4);
+                ADD_TMDS_DGR_PIXELS(tmdsbuf2_red, tmdsbuf2_green, tmdsbuf2_blue, index, 1);
+
+                // add 3 double pixels to line 2
+                index = color2_l2 | (color2_l2<<4);
+                ADD_TMDS_DGR_PIXELS(tmdsbuf2_red, tmdsbuf2_green, tmdsbuf2_blue, index, 3);
             }
         }
     }
