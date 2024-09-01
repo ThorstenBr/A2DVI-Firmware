@@ -27,7 +27,8 @@ SOFTWARE.
 
 #define DEFAULT_ALT_CHARACTER_ROM textfont_iie_us_enhanced
 
-const uint8_t *character_roms[24] = {
+const uint8_t* character_roms[32] =
+{
     textfont_iie_us_enhanced,
     textfont_iie_uk_enhanced,
     textfont_iie_fr_ca_enhanced,
@@ -52,5 +53,13 @@ const uint8_t *character_roms[24] = {
     CUSTOM_FONT_ROM(4),
     CUSTOM_FONT_ROM(5),
     CUSTOM_FONT_ROM(6),
-    CUSTOM_FONT_ROM(7)
+    CUSTOM_FONT_ROM(7),
+    CUSTOM_FONT_ROM(8),
+    CUSTOM_FONT_ROM(9),
+    CUSTOM_FONT_ROM(10),
+    CUSTOM_FONT_ROM(11),
+    CUSTOM_FONT_ROM(12),
+    CUSTOM_FONT_ROM(13),
+    CUSTOM_FONT_ROM(14),
+    CUSTOM_FONT_ROM(15)
 };

@@ -221,7 +221,15 @@ const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_FONT_COUNT] =
     "CUSTOM FONT 5",
     "CUSTOM FONT 6",
     "CUSTOM FONT 7",
-    "CUSTOM FONT 8"
+    "CUSTOM FONT 8",
+    "CUSTOM FONT 9",
+    "CUSTOM FONT 10",
+    "CUSTOM FONT 11",
+    "CUSTOM FONT 12",
+    "CUSTOM FONT 13",
+    "CUSTOM FONT 14",
+    "CUSTOM FONT 15",
+    "CUSTOM FONT 16"
 };
 
 static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const char* pValue)

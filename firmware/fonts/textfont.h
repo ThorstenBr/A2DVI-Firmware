@@ -28,8 +28,8 @@ SOFTWARE.
 #include <stdint.h>
 #include "applebus/buffers.h"
 
-#define MAX_FONT_COUNT    24
-#define CUSTOM_FONT_COUNT 8   /* custom fonts are part of MAX_FONT_COUNT */
+#define MAX_FONT_COUNT    32
+#define CUSTOM_FONT_COUNT 16   /* custom fonts are part of MAX_FONT_COUNT */
 
 #define DEFAULT_LOCAL_CHARSET       0
 #define DEFAULT_ALT_CHARSET         0
@@ -38,7 +38,7 @@ extern uint8_t __font_roms_start[];
 
 #define CUSTOM_FONT_ROM(i) (&__font_roms_start[(i)*CHARACTER_ROM_SIZE])
 
-extern const uint8_t *character_roms[MAX_FONT_COUNT];
+extern const uint8_t* character_roms[MAX_FONT_COUNT];
 
 extern const uint8_t textfont_iie_us_enhanced[256 * 8];
 extern const uint8_t textfont_iie_us_unenhanced[256 * 8];

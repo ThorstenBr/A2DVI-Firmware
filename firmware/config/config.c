@@ -175,10 +175,13 @@ static uint8_t check_valid_font(uint32_t font_nr)
     // custom fonts: only valid when programmed
     uint8_t custom_font = font_nr - (MAX_FONT_COUNT-CUSTOM_FONT_COUNT);
 
+    // custom font is loaded/valid: use the custom font
     if ((invalid_fonts & (1 << custom_font)) == 0)
         return font_nr;
 
-    return DEFAULT_LOCAL_CHARSET;
+    // custom font is not valid/not programmed: use a font from a
+    // built-in font slot
+    return custom_font;
 }
 
 void config_load_charsets(void)
