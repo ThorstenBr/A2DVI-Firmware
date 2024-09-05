@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "a2dvi.h"
 #include "dvi.h"
+#include "tmds.h"
 #include "dvi_pin_config.h"
 #include "dvi_serialiser.h"
 #include "dvi_timing.h"
@@ -36,7 +37,16 @@ SOFTWARE.
 #include "config/config.h"
 
 // clock/DVI configuration
-#define DVI_TIMING        dvi_timing_640x480p_60hz
+#if DVI_X_RESOLUTION == 640
+    #define DVI_TIMING        dvi_timing_640x480p_60hz
+#endif
+#if DVI_X_RESOLUTION == 720
+    #define DVI_TIMING        dvi_timing_720x480p_60hz
+#endif
+#ifndef DVI_TIMING
+    #error Unsupported DVI resolution.
+#endif
+
 #define DVI_SERIAL_CONFIG pico_a2dvi_cfg
 
 struct dvi_inst dvi0;

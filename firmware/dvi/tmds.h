@@ -28,8 +28,9 @@ SOFTWARE.
 
 extern struct dvi_inst dvi0;
 
-#define DVI_WORDS_PER_CHANNEL (640/2)
-#define DVI_APPLE2_XOFS       ((640/2-560/2)/2)
+#define DVI_X_RESOLUTION       640
+#define DVI_WORDS_PER_CHANNEL (DVI_X_RESOLUTION/2)
+#define DVI_APPLE2_XOFS       ((DVI_X_RESOLUTION/2-560/2)/2)
 
 #define dvi_get_scanline(tmdsbuf)  \
     uint32_t* tmdsbuf;\
