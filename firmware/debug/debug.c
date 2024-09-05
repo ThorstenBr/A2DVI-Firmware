@@ -46,6 +46,11 @@ volatile bool debug_flash_released;
 // So we only use this function for convenience in test mode.
 bool __no_inline_not_in_flash_func(get_bootsel_button)(void)
 {
+#if !PICO_RP2040
+    // PICO2: access to bootsel button not working/not implemented yet
+    const uint button_state = 1;
+#else
+    // PICO1
     const uint CS_PIN_INDEX = 1;
 
     // do not access the button (which disables flash), unless we have the
@@ -53,11 +58,11 @@ bool __no_inline_not_in_flash_func(get_bootsel_button)(void)
     if (!debug_flash_released)
         return 1;
 
-#if 0
+  #if 0
     // Must disable interrupts, as interrupt handlers may be in flash, and we
     // are about to temporarily disable flash access!
     uint32_t flags = save_and_disable_interrupts();
-#endif
+  #endif
 
     // Set chip select to Hi-Z
     hw_write_masked(&ioqspi_hw->io[CS_PIN_INDEX].ctrl,
@@ -77,8 +82,9 @@ bool __no_inline_not_in_flash_func(get_bootsel_button)(void)
             GPIO_OVERRIDE_NORMAL << IO_QSPI_GPIO_QSPI_SS_CTRL_OEOVER_LSB,
             IO_QSPI_GPIO_QSPI_SS_CTRL_OEOVER_BITS);
 
-#if 0
+  #if 0
     restore_interrupts(flags);
+  #endif
 #endif
 
     return button_state;
