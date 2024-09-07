@@ -32,7 +32,7 @@
 ;  * JMP pin is mapped to the R/W signal
 ;  * IN pins are mapped to Data[7:0], ~DEVSEL, R/W and LANGS
 ;  * SET pins are mapped to the transceiver enable signals
-;  * input shift left & autopush @ 26 bits
+;  * input shift left & autopush @ 27 bits
 ;  * run at about 250MHz (4ns/instruction)
 ;
 ; SET bits for tranceiver control:

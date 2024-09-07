@@ -28,10 +28,36 @@ SOFTWARE.
 #include "abus_pin_config.h"
 #include "abus_setup.h"
 #include "abus.pio.h"
+#include "dvi/a2dvi.h"
+#include "debug/debug.h"
 
 #if CONFIG_PIN_APPLEBUS_PHI0 != PHI0_GPIO
 #error CONFIG_PIN_APPLEBUS_PHI0 and PHI0_GPIO must be set to the same pin
 #endif
+
+void a2dvi_check_hardware(void)
+{
+    // initialize transceiver GPIOs
+    gpio_init_mask(0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE);
+    for (uint i=0;i<3;i++)
+    {
+        gpio_set_pulls(CONFIG_PIN_APPLEBUS_CONTROL_BASE+i, false, false);
+    }
+
+    // check hardware
+    {
+        uint32_t bits = (gpio_get_all() >> CONFIG_PIN_APPLEBUS_CONTROL_BASE) & 0x7;
+        if (bits != 0x7)
+        {
+            // bad board hardware or defect: don't continue
+            while (1)
+            {
+                debug_sos();
+                debug_error(bits+1);
+            }
+        }
+    }
+}
 
 void abus_pio_setup(void)
 {

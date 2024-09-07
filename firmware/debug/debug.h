@@ -36,5 +36,6 @@ SOFTWARE.
 #endif
 
 bool get_bootsel_button(void);
-void debug_init();
-void debug_check_bootsel();
+void debug_init(void);
+void debug_check_bootsel(void);
+void debug_sos(void);

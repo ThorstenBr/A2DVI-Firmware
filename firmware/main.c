@@ -54,15 +54,18 @@ int main()
 
     PROFILER_INIT(boot_time);
 
+    // enable LED etc
+    debug_init();
+
+    // check hardware
+    a2dvi_check_hardware();
+
     // load config settings
     config_load();
 
     // initialize the screen buffer area
     showTitle(PRINTMODE_NORMAL);
     centerY(11, "NO 6502 BUS ACTIVITY", PRINTMODE_FLASH);
-
-    // enable LED etc
-    debug_init();
 
 #ifdef FEATURE_TEST
     // start testsuite, simulating some 6502 activity and

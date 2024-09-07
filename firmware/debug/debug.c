@@ -107,6 +107,30 @@ void debug_init()
     gpio_put(LED_PIN, 1);
 }
 
+void debug_blink(uint8_t count, uint32_t delay0, uint32_t delay1, uint32_t delay2)
+{
+    gpio_put(LED_PIN, 0);
+    sleep_ms(delay0);
+    for (int i=0;i<count;i++)
+    {
+        gpio_put(LED_PIN, 1);
+        sleep_ms(delay1);
+        gpio_put(LED_PIN, 0);
+        sleep_ms(delay2);
+    }
+}
+
+void debug_sos(void)
+{
+    debug_blink(3, 1000, 200, 200);
+    debug_blink(3,  500, 500, 200);
+    debug_blink(3,  500, 200, 200);
+
+#ifdef FEATURE_TEST
+    debug_flashmode();
+#endif
+}
+
 #ifdef FEATURE_TEST
 void debug_error(uint32_t error_code)
 {
