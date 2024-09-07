@@ -34,6 +34,14 @@ SOFTWARE.
 #define DEFAULT_LOCAL_CHARSET       0
 #define DEFAULT_ALT_CHARSET         0
 
+// for automatic font selection depending on machine type
+#define FONT_MIN_IIE      0
+#define FONT_MAX_IIE     10
+#define FONT_MIN_II      11
+#define FONT_MAX_II      15
+#define FONT_PRAVETZ      8
+#define FONT_MIN_CUSTOM  16
+
 extern uint8_t __font_roms_start[];
 
 #define CUSTOM_FONT_ROM(i) (&__font_roms_start[(i)*CHARACTER_ROM_SIZE])

@@ -58,8 +58,16 @@ There are configuration utility disks for [ProDOS](/configutil/A2DVICONFIG_PRODO
 ![Config Utility](images/A2DVI_Config.jpg)
 
 ## Machine Type
-The A2DVI firmware tries to auto-detect your machine type - and adjusts various features and register sets according to your machine.
-You can also set the machine type manually. If your A2DVI is installed in a specific/fixed machine, it's recommended to set the configuration to a fixed type.
+The A2DVI firmware tries to auto-detect your machine type - and adjusts various features and register sets accordingly.
+
+This also automatically adjusts the character set, if the current selection does not match the machine (with firmware >= v1.1):
+
+* When an Apple IIe is detected, but an Apple II font is selected, it switches to "Apple IIe US character set".
+* When an Apple II is detected, but an Apple IIe font is selected, it switches to "Apple II+ US character set".
+
+If you do not want the automatic font switching (i.e. you want to use an Apple II font on the IIe), then disable the auto-detection by setting a *fixed* machine type.
+
+If your A2DVI is installed in a specific/fixed machine, it's recommended to set the configuration to a fixed type.
 
 ## Rendering Options
 * **Monochrome Mode**: configures the display of monochrom video modes. Selects display as black & white, green or amber (the most popular 1980s CRT types).

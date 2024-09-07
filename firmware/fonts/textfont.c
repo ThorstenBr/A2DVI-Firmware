@@ -25,26 +25,24 @@ SOFTWARE.
 
 #include "textfont.h"
 
-#define DEFAULT_ALT_CHARACTER_ROM textfont_iie_us_enhanced
-
 const uint8_t* character_roms[32] =
 {
-    textfont_iie_us_enhanced,
-    textfont_iie_uk_enhanced,
-    textfont_iie_fr_ca_enhanced,
-    textfont_iie_de_enhanced,
-    textfont_iie_spanish_enhanced,
-    textfont_iie_it_enhanced,
-    textfont_iie_se_fi_enhanced,
-    textfont_iie_hebrew_enhanced,
-    textfont_clone_pravetz_cyrillic,
-    textfont_iie_us_reactive,
-    textfont_iie_us_unenhanced,
-    textfont_iiplus_us,
-    textfont_iiplus_videx_lowercase1,
-    textfont_iiplus_videx_lowercase2,
-    textfont_iiplus_pigfont,
-    textfont_iiplus_jp_katakana,
+    textfont_iie_us_enhanced,         //  0
+    textfont_iie_uk_enhanced,         //  1
+    textfont_iie_fr_ca_enhanced,      //  2
+    textfont_iie_de_enhanced,         //  3
+    textfont_iie_spanish_enhanced,    //  4
+    textfont_iie_it_enhanced,         //  5
+    textfont_iie_se_fi_enhanced,      //  6
+    textfont_iie_hebrew_enhanced,     //  7
+    textfont_clone_pravetz_cyrillic,  //  8
+    textfont_iie_us_reactive,         //  9
+    textfont_iie_us_unenhanced,       // 10
+    textfont_iiplus_us,               // 11
+    textfont_iiplus_videx_lowercase1, // 12
+    textfont_iiplus_videx_lowercase2, // 13
+    textfont_iiplus_pigfont,          // 14
+    textfont_iiplus_jp_katakana,      // 15
 
     CUSTOM_FONT_ROM(0),
     CUSTOM_FONT_ROM(1),

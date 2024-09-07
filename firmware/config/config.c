@@ -110,6 +110,44 @@ static struct fontdir_t *font_directory = (struct fontdir_t *)__font_dir_start;
     #error Platform with unsupported flash segmentation. Needs adaption.
 #endif
 
+/* Check if font matches the current machine type.
+ * Otherwise switch the font selection. */
+void __time_critical_func(check_machine_font)()
+{
+    // custom fonts: no check
+    if ((cfg_local_charset >= FONT_MIN_CUSTOM)||
+        (cfg_local_charset == FONT_PRAVETZ))
+    {
+        return;
+    }
+
+    if (internal_flags & IFLAGS_IIE_REGS)
+    {
+        // Apple IIe detected
+        if ((cfg_local_charset >= FONT_MIN_IIE)&&
+            (cfg_local_charset <= FONT_MAX_IIE))
+        {
+            // an Apple IIe font is already selected
+            return;
+        }
+        // switch to default Apple IIE font instead
+        cfg_local_charset = FONT_MIN_IIE;
+    }
+    else
+    {
+        // Apple II
+        if ((cfg_local_charset >= FONT_MIN_II)&&
+            (cfg_local_charset <= FONT_MAX_II))
+        {
+            // an Apple II font is already selected
+            return;
+        }
+        // switch to default Apple II font instead
+        cfg_local_charset = (current_machine == MACHINE_PRAVETZ) ? FONT_PRAVETZ : FONT_MIN_II;
+    }
+    reload_charsets |= 1;
+}
+
 void __time_critical_func(set_machine)(compat_t machine)
 {
     switch(machine)
@@ -135,6 +173,18 @@ void __time_critical_func(set_machine)(compat_t machine)
 
         default:
             break;
+    }
+    if ((current_machine == MACHINE_AUTO)&&
+        (machine != MACHINE_AUTO))
+    {
+        static bool done = false;
+        if (!done)
+        {
+            done = true;
+            current_machine = machine;
+            // machine auto detection: also adjust font to machine type
+            check_machine_font();
+        }
     }
     current_machine = machine;
 }
@@ -275,7 +325,6 @@ void config_load(void)
 #endif
 }
 
-
 void config_load_defaults(void)
 {
     SET_IFLAG(1, IFLAGS_SCANLINEEMU);
@@ -303,7 +352,6 @@ void config_load_defaults(void)
     videx_vterm_disable();
 #endif
 }
-
 
 void config_save(void)
 {
