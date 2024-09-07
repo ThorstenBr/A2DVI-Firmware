@@ -593,11 +593,6 @@ static inline bool menuCheckKeys(char key)
 
     switch(key)
     {
-        case 0: // reset command
-            CurrentMenu = 0;
-            MenuNeedsRedraw = true;
-            break;
-
         // MENU ELEMENT SELECTION KEYS
         case '0' ... '9':
             CurrentMenu = key-'0';
@@ -711,6 +706,14 @@ static inline bool menuCheckKeys(char key)
 
 void DELAYED_COPY_CODE(menuShow)(char key)
 {
+    if (key == 0)
+    {
+        // reset command
+        CurrentMenu = 0;
+        MenuNeedsRedraw = true;
+        IgnoreNextKeypress = false;
+    }
+
     if (IgnoreNextKeypress)
     {
         IgnoreNextKeypress = false;
