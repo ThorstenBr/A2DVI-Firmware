@@ -5,6 +5,8 @@ It directly produces a digital video stream from the Apple II's memory content.
 The signal is output via an HDMI connector, connecting the Apple II to modern displays with HDMI (or DVI) inputs.
 No more analog signal conversion required.
 
+![A2DVI PCB v2.0](images/A2DVI_PCB_v2.0.jpg)
+
 ![A2DVI PCB v1.2](images/A2DVI_PCB1.jpg)
 
 The project is a collaboration with Ralle Palaveev. His related hardware project is here:
