@@ -124,7 +124,8 @@ static void DELAYED_COPY_CODE(render_hires_line)(bool p2, uint line)
 
 void DELAYED_COPY_CODE(render_hires)()
 {
-    for(uint line=0; line < 192; line++) {
+    for(uint line=0; line < 192; line++)
+    {
         render_hires_line(PAGE2SEL, line);
     }
 }
@@ -132,7 +133,8 @@ void DELAYED_COPY_CODE(render_hires)()
 
 void DELAYED_COPY_CODE(render_mixed_hires)()
 {
-    for(uint line=0; line < 160; line++) {
+    for(uint line=0; line < 160; line++)
+    {
         render_hires_line(PAGE2SEL, line);
     }
 

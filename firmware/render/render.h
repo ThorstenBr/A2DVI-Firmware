@@ -26,7 +26,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "dvi.h"
 #include "dvi/tmds.h"
 
 extern bool mono_rendering;

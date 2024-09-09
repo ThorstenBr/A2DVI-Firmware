@@ -360,10 +360,12 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
 void DELAYED_COPY_CODE(render_dhgr)()
 {
     bool mono = mono_rendering;
-    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0)) {
+    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0))
+    {
         mono = true;
     }
-    for(uint line=0; line < 192; line++) {
+    for(uint line=0; line < 192; line++)
+    {
         render_dhgr_line(PAGE2SEL, line, mono);
     }
 }
@@ -371,10 +373,12 @@ void DELAYED_COPY_CODE(render_dhgr)()
 void DELAYED_COPY_CODE(render_mixed_dhgr)()
 {
     bool mono = mono_rendering;
-    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0)) {
+    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0))
+    {
         mono = true;
     }
-    for(uint line=0; line < 160; line++) {
+    for(uint line=0; line < 160; line++)
+    {
         render_dhgr_line(PAGE2SEL, line, mono);
     }
 

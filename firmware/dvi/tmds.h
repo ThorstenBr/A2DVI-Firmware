@@ -25,6 +25,7 @@ SOFTWARE.
 #pragma once
 
 #include "pico/stdlib.h"
+#include "dvi.h"
 
 extern struct dvi_inst dvi0;
 
@@ -67,8 +68,6 @@ extern struct dvi_inst dvi0;
 #define TMDS_SYMBOL_255_0   0x402ff // actually FE/00
 #define TMDS_SYMBOL_0_255   0xbfd00 // actually 00/FE
 #define TMDS_SYMBOL_255_255 0xbfe00 // actually FF/FE
-//#define TMDS_SYMBOL_255_0   0x7fe00 // actually 255/1
-//#define TMDS_SYMBOL_0_255   0x801ff // actually 1/255
 
 #define TMDS_SYMBOL_128_0   0x7f980
 #define TMDS_SYMBOL_0_128   0xdfd00
