@@ -35,7 +35,10 @@ SOFTWARE.
     #define debug_error(error_code) {}
 #endif
 
-bool get_bootsel_button(void);
-void debug_init(void);
-void debug_check_bootsel(void);
-void debug_sos(void);
+bool     get_bootsel_button (void);
+void     debug_init         (void);
+void     debug_check_bootsel(void);
+void     debug_sos          (void);
+
+uint32_t getTotalHeap       (void);
+uint32_t getFreeHeap        (void);

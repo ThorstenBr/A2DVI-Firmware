@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "pico/bootrom.h"
@@ -158,3 +159,17 @@ void __no_inline_not_in_flash_func(debug_check_bootsel)()
     }
 }
 #endif
+
+// total size of heap
+uint32_t getTotalHeap(void)
+{
+   extern char __StackLimit, __bss_end__;
+   return &__StackLimit  - &__bss_end__;
+}
+
+// available heap size
+uint32_t getFreeHeap(void)
+{
+   struct mallinfo m = mallinfo();
+   return getTotalHeap() - m.uordblks;
+}

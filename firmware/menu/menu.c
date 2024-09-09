@@ -30,6 +30,7 @@ SOFTWARE.
 #include "applebus/buffers.h"
 #include "config/config.h"
 #include "fonts/textfont.h"
+#include "debug/debug.h"
 #include "menu.h"
 
 // number of elements in the menu
@@ -387,6 +388,10 @@ void menuShowDebug()
         printXY(X1,11, "DEV ROM ACCESS:", PRINTMODE_NORMAL);
         int2str(devicerom_counter, s, 14);
         printXY(X2,11, s, PRINTMODE_NORMAL);
+
+        printXY(X1,13, "AVAILABLE MEMORY:", PRINTMODE_NORMAL);
+        int2str(getFreeHeap(), s, 14);
+        printXY(X2,13, s, PRINTMODE_NORMAL);
 
 #ifdef FEATURE_TEST
         printXY(X1,18, "BOOT TIME:", PRINTMODE_NORMAL);
