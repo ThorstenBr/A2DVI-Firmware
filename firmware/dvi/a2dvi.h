@@ -24,5 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-void a2dvi_loop(void);
-void a2dvi_check_hardware(void);
+void     a2dvi_loop           (void);
+void     a2dvi_check_hardware (void);
+uint32_t a2dvi_scanline_errors(void);

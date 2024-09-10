@@ -51,7 +51,7 @@ SOFTWARE.
 
 struct dvi_inst dvi0;
 
-static void a2dvi_init()
+static void a2dvi_init(void)
 {
     // wait a bit, until the raised core VCC has settled
     sleep_ms(2);
@@ -59,7 +59,7 @@ static void a2dvi_init()
     set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
 }
 
-void DELAYED_COPY_CODE(a2dvi_loop)()
+void DELAYED_COPY_CODE(a2dvi_loop)(void)
 {
     // free DMA channel and stop others from using it (would interfere with the DVI processing)
     dmacopy_disable_dma();
@@ -79,4 +79,9 @@ void DELAYED_COPY_CODE(a2dvi_loop)()
     render_loop();
 
     __builtin_unreachable();
+}
+
+uint32_t a2dvi_scanline_errors(void)
+{
+    return dvi0.scanline_errors;
 }

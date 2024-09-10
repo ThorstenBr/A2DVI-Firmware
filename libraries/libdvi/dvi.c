@@ -233,6 +233,7 @@ static void __dvi_func(dvi_dma_irq_handler)(struct dvi_inst *inst)
 	else {
 		// No valid scanline was ready
 		tmdsbuf = NULL;
+		++inst->scanline_errors;
 		if (inst->timing_state.v_ctr % DVI_VERTICAL_REPEAT == DVI_VERTICAL_REPEAT - 1)
 			++inst->late_scanline_ctr;
 	}

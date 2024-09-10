@@ -38,6 +38,7 @@ SOFTWARE.
 #include "applebus/abus_pin_config.h"
 #include "render/render.h"
 #include "config/config.h"
+#include "dvi/a2dvi.h"
 #include "duck.h"
 
 #ifdef FEATURE_TEST
@@ -84,8 +85,7 @@ SOFTWARE.
 
 //#define TEST_MENU
 
-#define TestDelaySeconds 5
-const uint32_t TestDelayMilliseconds = TestDelaySeconds*1000;
+const uint32_t TestDelayMilliseconds = 300;//1*1000;
 
 void clearBothPages()
 {
@@ -467,6 +467,13 @@ void test_config()
     simulateWrite(REG_CARD+0x4, 1); // load config
 }
 
+void test_debug_menu()
+{
+    showTitle(PRINTMODE_INVERSE);
+    menuShowDebug();
+    sleep(3000);
+}
+
 void test_menu()
 {
 #ifdef TEST_MENU
@@ -478,11 +485,8 @@ void test_menu()
         showMenu(8);
         sleep(TestDelayMilliseconds/3);
     }
-#endif
-
-    showTitle(PRINTMODE_INVERSE);
-    menuShowDebug();
     sleep(TestDelayMilliseconds);
+#endif
 }
 
 #ifdef TEST_TMDS
@@ -604,14 +608,19 @@ void test_loop()
     // initialize the Apple II bus interface
     abus_init();
 
+    // unlock register area
+    simulateWrite(REG_CARD+0xf, 11);
+    simulateWrite(REG_CARD+0xf, 22);
+
 #if 0
     test_config();
 #else
-    simulateWrite(REG_CARD+0x8, 5); // select german character set as main
-    simulateWrite(REG_CARD+0x9, 0); // select US enhanced as alternate
+    simulateWrite(REG_CARD+0x5, 5); // select german character set as main
+    simulateWrite(REG_CARD+0x6, 0); // select US enhanced as alternate
 #endif
 
     color_mode = COLOR_MODE_GREEN;
+    uint iteration = 0;
 
     while (1)
     {
@@ -619,9 +628,9 @@ void test_loop()
         internal_flags |= IFLAGS_IIE_REGS;
 
         // test text modes
-        test40columns_color();
         test40columns();
         test80columns();
+        test40columns_color();
 
         test_menu();
 
@@ -636,16 +645,27 @@ void test_loop()
         // test hires modes
         testHires();
 
+        // show debug menu. And lock up when scanline errors occurred.
+        do
+        {
+            test_debug_menu();
+        } while (a2dvi_scanline_errors());
+
         // toggle scanline emulation mode
-        if (internal_flags & IFLAGS_SCANLINEEMU)
-            simulateWrite(REG_CARD+0x0, 2);
-        else
-            simulateWrite(REG_CARD+0x0, 1);
+        simulateWrite(REG_CARD+0x0, (IS_IFLAG(IFLAGS_SCANLINEEMU)) ? 2 : 1);
 
         language_switch = !language_switch;
 
         // config setting is 1,2,3 for color_mode=0,1,2...
+        color_mode = (color_mode == 2) ? 0 : color_mode+1;
         simulateWrite(REG_CARD+0x1, (color_mode >= 2) ? 1 : (color_mode+2));
+
+        if (iteration & 2)
+        {
+            SET_IFLAG(IS_IFLAG(IFLAGS_INTERP_DHGR), (IFLAGS_INTERP_DGR|IFLAGS_INTERP_DHGR));
+        }
+
+        iteration++;
     }
 }
 

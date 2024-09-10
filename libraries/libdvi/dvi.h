@@ -44,7 +44,10 @@ struct dvi_inst {
 	uint32_t *tmds_buf_release;
 	// Remember how far behind the source is on TMDS scanlines, so we can output
 	// solid colour until they catch up (rather than dying spectacularly)
-	uint late_scanline_ctr;
+	uint32_t late_scanline_ctr;
+	// count production errors (scanlines were not ready in time)
+	uint32_t scanline_errors;
+	// enable/disable scan line emulation (alternating blank lines)
 	uint8_t scanline_emulation;
 
 	// Encoded scanlines:

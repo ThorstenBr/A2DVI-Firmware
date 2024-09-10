@@ -31,6 +31,7 @@ SOFTWARE.
 #include "config/config.h"
 #include "fonts/textfont.h"
 #include "debug/debug.h"
+#include "dvi/a2dvi.h"
 #include "menu.h"
 
 // number of elements in the menu
@@ -377,21 +378,25 @@ void menuShowDebug()
         int2str(frame_counter, s, 14);
         printXY(X2, 8, s, PRINTMODE_NORMAL);
 
-        printXY(X1, 9, "RESET COUNTER:", PRINTMODE_NORMAL);
-        int2str(reset_counter, s, 14);
+        printXY(X1, 9, "SCALINE ERRORS:", PRINTMODE_NORMAL);
+        int2str(a2dvi_scanline_errors(), s, 14);
         printXY(X2, 9, s, PRINTMODE_NORMAL);
 
-        printXY(X1,10, "DEV REG ACCESS:", PRINTMODE_NORMAL);
-        int2str(devicereg_counter, s, 14);
+        printXY(X1,10, "RESET COUNTER:", PRINTMODE_NORMAL);
+        int2str(reset_counter, s, 14);
         printXY(X2,10, s, PRINTMODE_NORMAL);
 
-        printXY(X1,11, "DEV ROM ACCESS:", PRINTMODE_NORMAL);
-        int2str(devicerom_counter, s, 14);
+        printXY(X1,11, "DEV REG ACCESS:", PRINTMODE_NORMAL);
+        int2str(devicereg_counter, s, 14);
         printXY(X2,11, s, PRINTMODE_NORMAL);
 
-        printXY(X1,13, "AVAILABLE MEMORY:", PRINTMODE_NORMAL);
+        printXY(X1,12, "DEV ROM ACCESS:", PRINTMODE_NORMAL);
+        int2str(devicerom_counter, s, 14);
+        printXY(X2,12, s, PRINTMODE_NORMAL);
+
+        printXY(X1,15, "AVAILABLE MEMORY:", PRINTMODE_NORMAL);
         int2str(getFreeHeap(), s, 14);
-        printXY(X2,13, s, PRINTMODE_NORMAL);
+        printXY(X2,15, s, PRINTMODE_NORMAL);
 
 #ifdef FEATURE_TEST
         printXY(X1,18, "BOOT TIME:", PRINTMODE_NORMAL);
