@@ -50,7 +50,7 @@ extern volatile uint8_t  reset_state;
 extern volatile uint8_t  cardslot;
 extern volatile uint16_t card_rom_address;
 
-#define MAX_ADDRESS (0xC000)
+#define MAX_ADDRESS (0x6000)
 
 extern uint8_t apple_memory[MAX_ADDRESS];
 extern uint8_t private_memory[MAX_ADDRESS];

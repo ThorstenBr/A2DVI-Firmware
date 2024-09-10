@@ -52,9 +52,12 @@ void dvi_init(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_col
 #else
 		tmdsbuf = malloc(3 * inst->timing->h_active_pixels / DVI_SYMBOLS_PER_WORD * sizeof(uint32_t));
 
-		// initialize all TMDS buffers with black pixels
-		for (int j=0;j<3 * inst->timing->h_active_pixels / 2;j++)
-			((uint32_t*)tmdsbuf)[j] = 0x7fd00;
+		if (tmdsbuf)
+		{
+			// initialize all TMDS buffers with black pixels
+			for (int j=0;j<3 * inst->timing->h_active_pixels / 2;j++)
+				((uint32_t*)tmdsbuf)[j] = 0x7fd00;
+		}
 #endif
 		if (!tmdsbuf)
 			panic("TMDS buffer allocation failed");

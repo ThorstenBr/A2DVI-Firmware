@@ -59,7 +59,9 @@ project(A2DVI C CXX ASM)
 # enable compiler warnings
 add_compile_options(-Wall -Wno-unused-function)
 
-add_compile_options(-DDVI_N_TMDS_BUFFERS=5)
+# At 640pixels each TMDS buffer requires 3840bytes
+add_compile_options(-DDVI_N_TMDS_BUFFERS=8)
+
 add_compile_options(-DFW_VERSION="${FW_VERSION}")
 
 if (1)

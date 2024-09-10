@@ -372,7 +372,7 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
     // Shadow parts of the Apple's memory by observing the bus write cycles
     if(AccessMode == WriteMem)
     {
-        if(address < 0xC000)
+        if(address < MAX_ADDRESS)
         {
             // Mirror Video Memory from MAIN & AUX banks
             if ((soft_switches & SOFTSW_80STORE)&&
