@@ -85,11 +85,11 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
         {
             while((dotc <= 14) && (i < 40))
             {
-                pattern1 |= dgr_dot_pattern[((i & 1) << 4) | (line_bufb[i] & 0xf)] << dotc;
-                pattern2 |= dgr_dot_pattern[((i & 1) << 4) | ((line_bufb[i] >> 4) & 0xf)] << dotc;
+                pattern1 |= dgr_dot_pattern[((i & 1) << 4) | (line_bufb[i]          & 0xf)    ] << dotc;
+                pattern2 |= dgr_dot_pattern[((i & 1) << 4) | ((line_bufb[i] >> 4) /*& 0xf*/)] << dotc;
                 dotc += 7;
-                pattern1 |= dgr_dot_pattern[((i & 1) << 4) | (line_bufa[i] & 0xf)] << dotc;
-                pattern2 |= dgr_dot_pattern[((i & 1) << 4) | ((line_bufa[i] >> 4) & 0xf)] << dotc;
+                pattern1 |= dgr_dot_pattern[((i & 1) << 4) | (line_bufa[i]          & 0xf)    ] << dotc;
+                pattern2 |= dgr_dot_pattern[((i & 1) << 4) | ((line_bufa[i] >> 4) /*& 0xf*/)] << dotc;
                 dotc += 7;
                 i++;
             }
@@ -117,34 +117,36 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
     {
         // based David's DGR renderer - with artifacts
         uint32_t color1 = 0, color2 = 0;
+        uint8_t dhgr_index;
         while(i < 40)
         {
             while((dotc <= 14) && (i < 40))
             {
-                color1 |= dgr_dot_pattern[((i & 1) << 4) | (line_bufb[i] & 0xf)] << dotc;
-                color2 |= dgr_dot_pattern[((i & 1) << 4) | ((line_bufb[i] >> 4) & 0xf)] << dotc;
+                uint8_t iofs = (i & 1) << 4;
+                color1 |= dgr_dot_pattern[iofs | ( line_bufb[i]         & 0xf)  ] << dotc;
+                color2 |= dgr_dot_pattern[iofs | ((line_bufb[i] >> 4) /*& 0xf*/)] << dotc;
                 dotc += 7;
-                color1 |= dgr_dot_pattern[((i & 1) << 4) | (line_bufa[i] & 0xf)] << dotc;
-                color2 |= dgr_dot_pattern[((i & 1) << 4) | ((line_bufa[i] >> 4) & 0xf)] << dotc;
+                color1 |= dgr_dot_pattern[iofs | ( line_bufa[i]         & 0xf)  ] << dotc;
+                color2 |= dgr_dot_pattern[iofs | ((line_bufa[i] >> 4) /*& 0xf*/)] << dotc;
                 dotc += 7;
                 i++;
             }
 
             // Consume pixels
-            while((dotc >= 8) || ((dotc > 0) && (i == 40)))
+            while((dotc >= 8) || ((i == 40) && (dotc > 0)))
             {
                 color1 &= 0xfffffffe;
                 color1 |= (color1 >> 4) & 1;
-                uint8_t dhgr_index = color1 & 0xf; // index for first pixel
+                dhgr_index = color1 & 0xf; // index for first pixel
 
                 color1 &= 0xfffffffc;
                 color1 |= (color1 >> 4) & 3;
                 dhgr_index |= (color1 & 0xf)<<4;   // index for second pixel
 
                 // add 2 pixels
-                *(tmdsbuf1_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf1_red++)   = tmds_dhgr_red  [dhgr_index];
                 *(tmdsbuf1_green++) = tmds_dhgr_green[dhgr_index];
-                *(tmdsbuf1_blue++)  = tmds_dhgr_blue[dhgr_index];
+                *(tmdsbuf1_blue++)  = tmds_dhgr_blue [dhgr_index];
 
                 color2 &= 0xfffffffe;
                 color2 |= (color2 >> 4) & 1;
@@ -154,9 +156,9 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
                 dhgr_index |= (color2 & 0xf)<<4;   // index for second pixel
 
                 // add 2 pixels
-                *(tmdsbuf2_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf2_red++)   = tmds_dhgr_red  [dhgr_index];
                 *(tmdsbuf2_green++) = tmds_dhgr_green[dhgr_index];
-                *(tmdsbuf2_blue++)  = tmds_dhgr_blue[dhgr_index];
+                *(tmdsbuf2_blue++)  = tmds_dhgr_blue [dhgr_index];
 
                 color1 &= 0xfffffff8;
                 color1 |= (color1 >> 4) & 7;
@@ -165,20 +167,19 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
                 dhgr_index |= (color1 & 0xf)<<4;   // index for second pixel
 
                 // add 2 pixels
-                *(tmdsbuf1_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf1_red++)   = tmds_dhgr_red  [dhgr_index];
                 *(tmdsbuf1_green++) = tmds_dhgr_green[dhgr_index];
-                *(tmdsbuf1_blue++)  = tmds_dhgr_blue[dhgr_index];
+                *(tmdsbuf1_blue++)  = tmds_dhgr_blue [dhgr_index];
 
                 color2 &= 0xfffffff8;
                 color2 |= (color2 >> 4) & 7;
-                dhgr_index = color2 & 0xf;         // index for first pixel
+                dhgr_index = color2 & 0xff;        // index for first+second pixel
                 color2 >>= 4;
-                dhgr_index |= (color2 & 0xf)<<4;   // index for second pixel
 
                 // add 2 pixels
-                *(tmdsbuf2_red++)   = tmds_dhgr_red[dhgr_index];
+                *(tmdsbuf2_red++)   = tmds_dhgr_red  [dhgr_index];
                 *(tmdsbuf2_green++) = tmds_dhgr_green[dhgr_index];
-                *(tmdsbuf2_blue++)  = tmds_dhgr_blue[dhgr_index];
+                *(tmdsbuf2_blue++)  = tmds_dhgr_blue [dhgr_index];
 
                 dotc -= 4;
             }
@@ -192,14 +193,14 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
             // First pixel data is from aux memory
             // Colors in even columns/aux mem are rotated to the right by 1 bit, which is how our DHGR palette is organized -
             // so we do NOT need to rotate the nibbles.
-            uint8_t color1_l1 = line_bufb[i] & 0xf;
-            uint8_t color1_l2 = line_bufb[i] >> 4;
+            uint8_t color1_l1 = line_bufb[i]          & 0xf;
+            uint8_t color1_l2 = (line_bufb[i] >> 4) /*& 0xf*/;
 
             // Next pixel data is from main memory
             // Colors in odd columns/main mem are in natural encoding/not rotated.
             // However, our DHGR palette expects rotated nibbles - so we have to use a mapping.
-            uint8_t color2_l1 = dlores_dhgr_map[  line_bufa[i]       & 0xf] ;
-            uint8_t color2_l2 = dlores_dhgr_map[ (line_bufa[i] >> 4) & 0xf];
+            uint8_t color2_l1 = dlores_dhgr_map[  line_bufa[i]         & 0xf] ;
+            uint8_t color2_l2 = dlores_dhgr_map[ (line_bufa[i] >> 4) /*& 0xf*/];
 
             // line 1: 14 pixels
             {
@@ -252,21 +253,22 @@ static void DELAYED_COPY_CODE(render_dgr_line)(bool p2, uint line)
         // send copied buffer
         dvi_send_scanline(tmdsbufRepeat);
     }
-
     // send original buffer
     dvi_send_scanline(tmdsbuf2);
 }
 
 void DELAYED_COPY_CODE(render_dgr)()
 {
-    for(uint line=0; line < 24; line++) {
+    for(uint line=0; line < 24; line++)
+    {
         render_dgr_line(PAGE2SEL, line);
     }
 }
 
 void DELAYED_COPY_CODE(render_mixed_dgr)()
 {
-    for(uint line=0; line < 20; line++) {
+    for(uint line=0; line < 20; line++)
+    {
         render_dgr_line(PAGE2SEL, line);
     }
 

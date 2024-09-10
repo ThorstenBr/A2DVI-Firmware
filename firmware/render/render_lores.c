@@ -90,10 +90,10 @@ static void DELAYED_COPY_CODE(render_lores_line)(bool p2, uint line)
         uint8_t color_offset = color_mode*12;
         for(uint i = 0; i < 40; i+=2)
         {
-            uint32_t pattern1  = lores_dot_pattern[line_buf[i] & 0xf];
+            uint32_t pattern1 = lores_dot_pattern[line_buf[i] & 0xf];
             pattern1 |= lores_dot_pattern[line_buf[i+1] & 0xf] << 14;
 
-            uint32_t pattern2  = lores_dot_pattern[(line_buf[i] >> 4) & 0xf];
+            uint32_t pattern2 = lores_dot_pattern[(line_buf[i] >> 4) /*& 0xf*/];
             pattern2 |= lores_dot_pattern[(line_buf[i+1] >> 4) & 0xf] << 14;
 
             for(uint j = 0; j < 14; j++)
@@ -116,8 +116,8 @@ static void DELAYED_COPY_CODE(render_lores_line)(bool p2, uint line)
     {
         for(uint i = 0; i < 40; i++)
         {
-            uint32_t color1 = line_buf[i] & 0xf;
-            uint32_t color2 = (line_buf[i] >> 4) & 0xf;
+            uint32_t color1 = line_buf[i]          & 0xf;
+            uint32_t color2 = (line_buf[i] >> 4) /*& 0xf*/;
 
             // Each lores pixel is 7 hires pixels, or 14 VGA pixels wide
             uint32_t* pTmds = &tmds_lorescolor[color1*3];
