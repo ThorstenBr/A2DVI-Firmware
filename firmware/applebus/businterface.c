@@ -33,8 +33,8 @@ SOFTWARE.
 #include "config/device_regs.h"
 #include "fonts/textfont.h"
 
-uint8_t romx_unlocked;
-uint8_t romx_textbank;
+static uint8_t romx_unlocked;
+static uint8_t romx_textbank;
 
 typedef enum
 {
@@ -78,7 +78,6 @@ static inline void __time_critical_func(machine_auto_detection)(uint32_t address
     }
 }
 
-#if ROMX
 // Control sequences used by ROMX and ROMXe
 static inline void __time_critical_func(check_romx_read)(uint32_t address)
 {
@@ -155,7 +154,6 @@ static inline void __time_critical_func(check_romx_read)(uint32_t address)
             break;
     }
 }
-#endif // ROMX
 
 static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessMode, uint32_t address, uint8_t data)
 {
@@ -416,14 +414,12 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
             return;
         }
     }
-#if ROMX
     else
     if(AccessMode == ReadMem)
     {
         // Control sequences used by ROMX and ROMXe
         check_romx_read(address);
     }
-#endif
 
     // nothing to do addresses outside register area
     if ((address & 0xF800) != 0xc000)
@@ -486,6 +482,7 @@ void __time_critical_func(businterface)(uint32_t value)
                 soft_switches   = SOFTSW_TEXT_MODE;
                 internal_flags &= ~(IFLAGS_MENU_ENABLE);
                 internal_flags |= IFLAGS_V7_MODE3;
+                romx_unlocked = 0;
                 // clear dev register lock
                 dev_config_lock = 0;
                 reset_counter++;

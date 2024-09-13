@@ -164,6 +164,13 @@ The line below the Apple II screen shows 6502 activity:
 The displayed program counter and stack pointer isn't exact science. Of course, the 6502 runs to far quickly to see all addresses. And the card doesn't know the register contents of the 6502, however, it sees every bus cycle and every memory access. So it sees access to the stack area (0x100-0x1ff) and the addresses of instruction fetches.
 This can be helpful when debugging a program. It's also just cool (though maybe a bit nerdy :) ) to be able to see what the 6502 is currently doing.
 
+## ROMX Support
+The A2DVI firmware supports the font selection protocol of ROMX/ROMXe devices.
+
+* ROMX supports selecting between 16 different fonts.
+* A2DVI maps the 16 fonts selected by ROMX to A2DVI's 16 custom font slots. So you can upload and change those 16 fonts as you wish.
+* When ROMX selectes an empty custom font slot (1-16), then one of the built-in fonts (1-16) is used instead.
+
 # Photos
 Here are some photos showing A2DVI in action - using the DVI/HDMI connection.
 
@@ -210,6 +217,7 @@ Firmware updates of an A2DVI card are easy and safe:
 * **Debug monitor** (Apple II video softswitches, 6502 CPU state).
 * **PICO2 (RP2350) support**.
 * **Analog rendering effects** for Double-HIRES/Double-LORES (optional).
+* **ROMX font selection**.
 
 # License
 The A2DVI firmware is released under the [MIT License](https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):

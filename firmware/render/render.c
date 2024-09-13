@@ -47,65 +47,53 @@ void DELAYED_COPY_CODE(render_loop)()
 
     for(;;)
     {
-#if 0
-        if(romx_changed || (machinefont != current_machine))
+        render_debug(true);
+
+        switch(soft_switches & SOFTSW_MODE_MASK)
         {
-            switch_font();
-            romx_changed = 0;
-            machinefont = current_machine;
-        }
-#endif
-
-        {
-            render_debug(true);
-
-            switch(soft_switches & SOFTSW_MODE_MASK)
-            {
-                case 0:
-                    if(soft_switches & SOFTSW_DGR)
-                    {
-                        render_dgr();
-                    }
-                    else
-                    {
-                        render_lores();
-                    }
-                    break;
-                case SOFTSW_MIX_MODE:
-                    if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
-                    {
-                        render_mixed_dgr();
-                    }
-                    else
-                    {
-                        render_mixed_lores();
-                    }
-                    break;
-                case SOFTSW_HIRES_MODE:
-                    if(soft_switches & SOFTSW_DGR)
-                    {
-                        render_dhgr();
-                    }
-                    else
-                    {
-                        render_hires();
-                    }
-                    break;
-                case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE:
-                    if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
-                    {
-                        render_mixed_dhgr();
-                    }
-                    else
-                    {
-                        render_mixed_hires();
-                    }
-                    break;
-                default:
-                    render_text();
-                    break;
-            }
-
+            case 0:
+                if(soft_switches & SOFTSW_DGR)
+                {
+                    render_dgr();
+                }
+                else
+                {
+                    render_lores();
+                }
+                break;
+            case SOFTSW_MIX_MODE:
+                if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
+                {
+                    render_mixed_dgr();
+                }
+                else
+                {
+                    render_mixed_lores();
+                }
+                break;
+            case SOFTSW_HIRES_MODE:
+                if(soft_switches & SOFTSW_DGR)
+                {
+                    render_dhgr();
+                }
+                else
+                {
+                    render_hires();
+                }
+                break;
+            case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE:
+                if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
+                {
+                    render_mixed_dhgr();
+                }
+                else
+                {
+                    render_mixed_hires();
+                }
+                break;
+            default:
+                render_text();
+                break;
         }
 
         render_debug(false);
