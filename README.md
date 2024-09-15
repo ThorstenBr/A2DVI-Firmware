@@ -190,48 +190,26 @@ Firmware updates of an A2DVI card are easy and safe:
 
 ![A2DVI Firmware Update](images/A2DVI_FirmwareUpdate.jpg)
 
-# Project Status
+# Project Status: Completed Features
 
-## Completed Features
-
-* **40 column mode**
-
-* **80 column mode**
-
-* **LORES graphics**
-
-* **Double-LORES graphics**
-
-* **HIRES graphics**
-
-* **Double-HIRES graphics**
-
-* **graphics/text mix modes**
-
+* **40/80 column text modes** for Apple IIe
+* **40 column text mode** for Apple II
+* **LORES graphics mode**
+* **Double-LORES graphics mode**
+* **HIRES graphics mode**
+* **Double-HIRES graphics mode**
+* **Graphics/text mix modes**
 * **Video-7 40 column color mode**
-
 * **Scanline emulation**
-
-* **Monochrome mode** and **monochrome color** configurable (b/w, green, amber).
-
-* **Character sets** configurable.
-
+* **Monochrome mode**, configurable **monochrome color** (b/w, green, amber).
+* **Character sets** configurable (16 builtin, 16 custom fonts).
 * **Language/rocker switch** support for Euro-machines.
-
 * **Flash** (permanent) vs temporary configuration.
-
 * **Card registers** for configuration.
-
 * **Configuration menu**.
-
-* **Custom fonts**.
-
-* **Debug display**.
-
+* **Debug monitor** (Apple II video softswitches, 6502 CPU state).
 * **PICO2 (RP2350) support**.
-
-## TODOs
-
+* **Analog rendering effects** for Double-HIRES/Double-LORES (optional).
 
 # License
 The A2DVI firmware is released under the [MIT License](https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):
