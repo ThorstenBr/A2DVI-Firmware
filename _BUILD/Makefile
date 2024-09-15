@@ -69,7 +69,7 @@ pico2: PICO2/RELEASE PICO2/TEST
 # pack release files
 pack:
 	@echo "Packing $(ZIP)"
-	cp README.txt RELEASE/.
+	cp UpdateInstructions.txt RELEASE/README.txt
 	cp ../configutil/A2DVICONFIG_PRODOS.po RELEASE/.
 	cp ../configutil/A2DVICONFIG_DOS33.dsk RELEASE/.
 	cd RELEASE && zip $(ZIP) README.txt A2DVI_$(VERSION)*.uf2 A2DVICONFIG_*
