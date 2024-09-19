@@ -130,6 +130,28 @@ Connect the single pin on the A2DVI card to the language switch signal "ALTCHR",
 
 ![Language Rocker Switch](images/ALTCHR_Rocker_Switch.jpg)
 
+## Video7 Support
+Video7 provided additional color text and video modes for the Apple IIe.
+Some (all?) of these modes were also available with other video cards, like the "Apple Extended 80 column Text/AppleColor Card".
+
+A2DVI supports these extended video modes - even if your Apple IIe only has a standard 80 column card (and no extended video card).
+
+The extra video modes:
+
+* 40 column **color** text
+* 280x192 with 16 colors
+* 160x192 with 16 colors
+* 140x192 with 16 colors mixed with high resolution (560pixel/line) monochrome pixel option (enhanced DHGR)
+
+The following photo shows the difference of the default vs enhanced DHGR video mode (as supported by DazzleDraw).
+This video mode provides a mix of 140x192 pixels in 16 colors (just like default DHGR),
+but uses an unused 8th data bit to switich to a 560pixel/line monochrome resolution for a block of 7 bits:
+
+![Video7](images/A2DVI_Video7_DHGR.jpg)
+
+Another example showing the Video7 16color with hires monochrome pixel mix mode:
+![Video7](images/A2DVI_Video7_DHGR2.jpg)
+
 ## Debug Monitor
 The configuration menu offers a debugging feature. Enabling the "**DEBUG MONITOR**" shows extra lines above and below the normal Apple II screen (in red):
 
@@ -207,6 +229,7 @@ Firmware updates of an A2DVI card are easy and safe:
 * **Double-HIRES graphics mode**
 * **Graphics/text mix modes**
 * **Video-7 40 column color mode**
+* **Advanced Video7 graphics modes**
 * **Scanline emulation**
 * **Monochrome mode**, configurable **monochrome color** (b/w, green, amber).
 * **Character sets** configurable (16 builtin, 16 custom fonts).

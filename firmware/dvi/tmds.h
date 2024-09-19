@@ -31,27 +31,7 @@ extern struct dvi_inst dvi0;
 
 #define DVI_X_RESOLUTION       640
 #define DVI_WORDS_PER_CHANNEL (DVI_X_RESOLUTION/2)
-#define DVI_APPLE2_XOFS       ((DVI_X_RESOLUTION/2-560/2)/2)
-
-#define dvi_get_scanline(tmdsbuf)  \
-    uint32_t* tmdsbuf;\
-    queue_remove_blocking_u32(&dvi0.q_tmds_free, &tmdsbuf);
-
-#define dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue) \
-        uint32_t *tmdsbuf_blue  = tmdsbuf+DVI_APPLE2_XOFS; \
-        uint32_t* tmdsbuf_green = tmdsbuf_blue  + DVI_WORDS_PER_CHANNEL; \
-        uint32_t* tmdsbuf_red   = tmdsbuf_green + DVI_WORDS_PER_CHANNEL;
-
-#define dvi_copy_scanline(destbuf, srcbuf) \
-    for (uint32_t i=0;i<DVI_WORDS_PER_CHANNEL-DVI_APPLE2_XOFS;i++) \
-    { \
-        destbuf[i                        ] = srcbuf[i                        ]; \
-        destbuf[i+  DVI_WORDS_PER_CHANNEL] = srcbuf[i+  DVI_WORDS_PER_CHANNEL]; \
-        destbuf[i+2*DVI_WORDS_PER_CHANNEL] = srcbuf[i+2*DVI_WORDS_PER_CHANNEL]; \
-    }
-
-#define dvi_send_scanline(tmdsbuf) \
-    queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmdsbuf);
+#define DVI_APPLE2_XOFS_560   ((DVI_X_RESOLUTION/2-560/2)/2)
 
 // DVI TMDS encoding data (Transition-Minimized Differential Signaling)
 // each TMDS symbol needs to cover two pixels (2x10bit) and the pair
@@ -72,6 +52,40 @@ extern struct dvi_inst dvi0;
 #define TMDS_SYMBOL_128_0   0x7f980
 #define TMDS_SYMBOL_0_128   0xdfd00
 #define TMDS_SYMBOL_128_128 0x5fd80
+
+#define dvi_get_scanline(tmdsbuf)  \
+    uint32_t* tmdsbuf;\
+    queue_remove_blocking_u32(&dvi0.q_tmds_free, &tmdsbuf);
+
+// get scanline rgb pointers for 640pixel/line rendering
+#define dvi_scanline_rgb640(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue) \
+        uint32_t *tmdsbuf_blue  = tmdsbuf; \
+        uint32_t* tmdsbuf_green = tmdsbuf_blue  + DVI_WORDS_PER_CHANNEL; \
+        uint32_t* tmdsbuf_red   = tmdsbuf_green + DVI_WORDS_PER_CHANNEL;
+
+// get scanline rgb pointers for 560pixel/line rendering: this automatically fills the left/right border (40 pixels each)
+#define dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue) \
+        dvi_scanline_rgb640(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue); \
+        for (uint32_t i=0;i<DVI_APPLE2_XOFS_560;i++) \
+        {\
+            *(tmdsbuf_red+(600/2))   = TMDS_SYMBOL_0_0; \
+            *(tmdsbuf_green+(600/2)) = TMDS_SYMBOL_0_0; \
+            *(tmdsbuf_blue+(600/2))  = TMDS_SYMBOL_0_0; \
+            *(tmdsbuf_red++)   = TMDS_SYMBOL_0_0; \
+            *(tmdsbuf_green++) = TMDS_SYMBOL_0_0; \
+            *(tmdsbuf_blue++)  = TMDS_SYMBOL_0_0; \
+        }
+
+#define dvi_copy_scanline(destbuf, srcbuf) \
+    for (uint32_t i=0;i<DVI_WORDS_PER_CHANNEL;i++) \
+    { \
+        destbuf[i                        ] = srcbuf[i                        ]; \
+        destbuf[i+  DVI_WORDS_PER_CHANNEL] = srcbuf[i+  DVI_WORDS_PER_CHANNEL]; \
+        destbuf[i+2*DVI_WORDS_PER_CHANNEL] = srcbuf[i+2*DVI_WORDS_PER_CHANNEL]; \
+    }
+
+#define dvi_send_scanline(tmdsbuf) \
+    queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmdsbuf);
 
 // TMDS data for a duplicated monochrome pixel (a "bit balanced" double pixel).
 extern uint32_t tmds_mono_double_pixel[4*4];

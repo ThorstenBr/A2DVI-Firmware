@@ -40,6 +40,26 @@ uint8_t DELAYED_COPY_DATA(tmds_dhgr_lores_mapping)[16] =
 
 #define PAGE2SEL ((soft_switches & (SOFTSW_80STORE | SOFTSW_PAGE_2)) == SOFTSW_PAGE_2)
 
+// add pixels to TMDS line
+#define ADD_TMDS_LORES_PIXELS(tmds_red, tmds_green, tmds_blue, color_index, count) \
+{\
+    uint32_t* pTmds = &tmds_lorescolor[color_index*3];\
+    for (uint i=0;i<count;i++)\
+    {\
+        *(tmds_red++)   = *pTmds;\
+        *(tmds_green++) = *(pTmds+1);\
+        *(tmds_blue++)  = *(pTmds+2);\
+    }\
+}
+
+// add two double pixels
+#define ADD_TMDS_4PIXELS_RGB(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, r, g, b) \
+    *(tmdsbuf_red++)   = r; \
+    *(tmdsbuf_red++)   = r; \
+    *(tmdsbuf_green++) = g; \
+    *(tmdsbuf_green++) = g; \
+    *(tmdsbuf_blue++)  = b; \
+    *(tmdsbuf_blue++)  = b;
 
 static inline uint dhgr_line_to_mem_offset(uint line)
 {
@@ -50,7 +70,6 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
 {
      // Construct scanline
     dvi_get_scanline(tmdsbuf);
-    dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
     const uint8_t *line_mema = (const uint8_t *)((p2 ? hgr_p2 : hgr_p1) + dhgr_line_to_mem_offset(line));
     const uint8_t *line_memb = (const uint8_t *)((p2 ? hgr_p4 : hgr_p3) + dhgr_line_to_mem_offset(line));
@@ -62,6 +81,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
 
     if(mono)
     {
+        dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
         uint8_t color_offset = color_mode*12;
         while(i < 40)
         {
@@ -88,53 +108,64 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             }
         }
     }
-#if 0
     else
     if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL)) == (SOFTSW_80STORE)))
     {
-        int j;
+        dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
         // Video 7 F/B HiRes
         while(i < 40)
         {
             dots = (line_mema[i] & 0x7f);
-            color1 = lores_palette[(line_memb[i] >> 4) & 0xF];
-            color2 = lores_palette[(line_memb[i] >> 0) & 0xF];
+
+            uint8_t color;
+            uint8_t color1 = (line_memb[i] >> 4) /*& 0xF*/;
+            uint8_t color2 = (line_memb[i] >> 0)   & 0xF;
             i++;
 
             dots |= (line_mema[i] & 0x7f) << 7;
-            color3 = lores_palette[(line_memb[i] >> 4) & 0xF];
-            color4 = lores_palette[(line_memb[i] >> 0) & 0xF];
+            uint8_t color3 = (line_memb[i] >> 4) /*& 0xF*/;
+            uint8_t color4 = (line_memb[i] >> 0)   & 0xF;
             i++;
 
-            for(j = 0; j < 3; j++)
+            for(int j = 0; j < 3; j++)
             {
-                pixeldata = ((dots & 1) ? (color1) : (color2)) | THEN_EXTEND_1;
-                dots >>= 1;
-                pixeldata |= (((dots & 1) ? (color1) : (color2)) | THEN_EXTEND_1) << 16;
-                dots >>= 1;
-                sl->data[sl_pos++] = pixeldata;
+                color = (dots & 1) ? color1 : color2;
+                ADD_TMDS_LORES_PIXELS(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, color, 1);
+
+                color = (dots & 2) ? color1 : color2;
+                ADD_TMDS_LORES_PIXELS(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, color, 1);
+
+                dots >>= 2;
             }
 
-            pixeldata = ((dots & 1) ? (color1) : (color2)) | THEN_EXTEND_1;
-            dots >>= 1;
-            pixeldata |= (((dots & 1) ? (color3) : (color4)) | THEN_EXTEND_1) << 16;
-            dots >>= 1;
-            sl->data[sl_pos++] = pixeldata;
+            color = (dots & 1) ? color1 : color2;
+            ADD_TMDS_LORES_PIXELS(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, color, 1);
 
-            for(j = 0; j < 3; j++)
+            color = (dots & 2) ? color3 : color4;
+            ADD_TMDS_LORES_PIXELS(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, color, 1);
+
+            dots >>= 2;
+
+            for(int j = 0; j < 3; j++)
             {
-                pixeldata = ((dots & 1) ? (color3) : (color4)) | THEN_EXTEND_1;
-                dots >>= 1;
-                pixeldata |= (((dots & 1) ? (color3) : (color4)) | THEN_EXTEND_1) << 16;
-                dots >>= 1;
-                sl->data[sl_pos++] = pixeldata;
+                color = (dots & 1) ? color3 : color4;
+                ADD_TMDS_LORES_PIXELS(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, color, 1);
+
+                color = (dots & 2) ? color3 : color4;
+                ADD_TMDS_LORES_PIXELS(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, color, 1);
+
+                dots >>= 2;
             }
         }
     }
     else
-    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE2))
+    if((internal_flags & (IFLAGS_VIDEO7|IFLAGS_V7_MODE3)) == (IFLAGS_VIDEO7 | IFLAGS_V7_MODE2))
     {
+        uint8_t color;
+
+        dvi_scanline_rgb640(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+
         // 160x192 Video-7
         while(i < 40)
         {
@@ -151,11 +182,13 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             // Consume pixels
             while(dotc >= 8)
             {
-                pixeldata = (lores_palette[dots & 0xf] | THEN_EXTEND_3);
+                color = dots & 0xf;
+                ADD_TMDS_LORES_PIXELS(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, color, 2);
+
                 dots >>= 4;
-                pixeldata |= (lores_palette[dots & 0xf] | THEN_EXTEND_3) << 16;
+                color = dots & 0xf;
+                ADD_TMDS_LORES_PIXELS(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, color, 2);
                 dots >>= 4;
-                sl->data[sl_pos++] = pixeldata;
                 dotc -= 8;
             }
         }
@@ -163,11 +196,15 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
     else
     if((internal_flags & (IFLAGS_VIDEO7 | IFLAGS_V7_MODE3)) == (IFLAGS_VIDEO7 | IFLAGS_V7_MODE1))
     {
+        dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+
         // Video-7 Mixed B&W/RGB
+        uint32_t pixelmode = 0;
         while(i < 40)
         {
             // Load in as many subpixels as possible
-            while((dotc <= 18) && (i < 40)) {
+            while((dotc <= 18) && (i < 40))
+            {
                 dots |= (line_memb[i] & 0x7f) << dotc;
                 pixelmode |= ((line_memb[i] & 0x80) ? 0x7f : 0x00) << dotc;
                 dotc += 7;
@@ -178,35 +215,43 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
             }
 
             // Consume pixels
-            while(dotc >= 4) {
-                if(pixelmode) {
-                    pixeldata = (dhgr_palette[dots & 0xf] | THEN_EXTEND_1);
-                    pixeldata |= pixeldata << 16;
+            while(dotc >= 4)
+            {
+                if (pixelmode & 0xf)
+                {
+                    // map HGR dot values to 16 color (RGB LORES) palette
+                    uint32_t* pTmds = &tmds_lorescolor[tmds_dhgr_lores_mapping[dots&0xf]];
+                    uint32_t r = pTmds[0];
+                    uint32_t g = pTmds[1];
+                    uint32_t b = pTmds[2];
+
+                    // add 4 pixels (two double pixels)
+                    ADD_TMDS_4PIXELS_RGB(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, r, g, b);
                     dots >>= 4;
-                    pixelmode >>= 4;
-                    sl->data[sl_pos++] = pixeldata;
-                    dotc -= 4;
-                } else {
-                    pixeldata = ((dots & 1) ? (text_fore) : (text_back));
-                    dots >>= 1;
-                    pixelmode >>= 1;
-                    pixeldata |= (((dots & 1) ? (text_fore) : (text_back))) << 16;
-                    dots >>= 1;
-                    pixelmode >>= 1;
-                    sl->data[sl_pos++] = pixeldata;
-                    dotc -= 2;
-                    pixeldata = ((dots & 1) ? (text_fore) : (text_back));
-                    dots >>= 1;
-                    pixelmode >>= 1;
-                    pixeldata |= (((dots & 1) ? (text_fore) : (text_back))) << 16;
-                    dots >>= 1;
-                    pixelmode >>= 1;
-                    sl->data[sl_pos++] = pixeldata;
-                    dotc -= 2;
                 }
+                else
+                {
+                    // add two double b&w monochrome pixels
+                    uint8_t bits = dots & 3;
+                    // first double pixel
+                    *(tmdsbuf_red++)   = tmds_mono_pixel_pair[bits+0];
+                    *(tmdsbuf_green++) = tmds_mono_pixel_pair[bits+4];
+                    *(tmdsbuf_blue++)  = tmds_mono_pixel_pair[bits+8];
+                    dots >>= 2;
+
+                    bits = dots & 3;
+                    // second double pixel
+                    *(tmdsbuf_red++)   = tmds_mono_pixel_pair[bits+0];
+                    *(tmdsbuf_green++) = tmds_mono_pixel_pair[bits+4];
+                    *(tmdsbuf_blue++)  = tmds_mono_pixel_pair[bits+8];
+                    dots >>= 2;
+                }
+                pixelmode >>= 4;
+                dotc -= 4;
             }
         }
     }
+#if 0
     else
     if((internal_flags & (IFLAGS_INTERP | IFLAGS_GRILL)) == (IFLAGS_INTERP | IFLAGS_GRILL))
     {
@@ -251,6 +296,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
     else
     if(internal_flags & IFLAGS_INTERP_DHGR)
     {
+        dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
         // Preload black into the sliding window
         dots = 0;
         dotc = 4;
@@ -298,6 +344,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
     }
     else
     {
+        dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
         while(i < 40)
         {
             // Load in as many subpixels as possible
@@ -320,14 +367,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 uint32_t b = pTmds[2];
 
                 // add 4 pixels (two double pixels)
-                *(tmdsbuf_red++)   = r;
-                *(tmdsbuf_red++)   = r;
-
-                *(tmdsbuf_green++) = g;
-                *(tmdsbuf_green++) = g;
-
-                *(tmdsbuf_blue++)  = b;
-                *(tmdsbuf_blue++)  = b;
+                ADD_TMDS_4PIXELS_RGB(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, r, g, b);
                 dots >>= 4;
 
                 // map HGR dot values to 16 color (LORES) palette
@@ -339,14 +379,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
                 b = pTmds[2];
 
                 // add 4 pixels (two double pixels)
-                *(tmdsbuf_red++)   = r;
-                *(tmdsbuf_red++)   = r;
-
-                *(tmdsbuf_green++) = g;
-                *(tmdsbuf_green++) = g;
-
-                *(tmdsbuf_blue++)  = b;
-                *(tmdsbuf_blue++)  = b;
+                ADD_TMDS_4PIXELS_RGB(tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue, r, g, b);
 
                 dotc -= 8;
             }

@@ -42,7 +42,7 @@ static void DELAYED_COPY_CODE(render_hires_line)(bool p2, uint line)
     const uint8_t *line_mem = (const uint8_t *)((p2 ? hgr_p2 : hgr_p1) + hires_line_to_mem_offset(line));
 
     dvi_get_scanline(tmdsbuf);
-    dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+    dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
     if(mono_rendering)
     {

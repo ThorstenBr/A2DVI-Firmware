@@ -78,10 +78,10 @@ static void DELAYED_COPY_CODE(render_lores_line)(bool p2, uint line)
 {
     // Construct two scanlines for the two different colored cells at the same time
     dvi_get_scanline(tmdsbuf1);
-    dvi_scanline_rgb(tmdsbuf1, tmdsbuf1_red, tmdsbuf1_green, tmdsbuf1_blue);
+    dvi_scanline_rgb560(tmdsbuf1, tmdsbuf1_red, tmdsbuf1_green, tmdsbuf1_blue);
 
     dvi_get_scanline(tmdsbuf2);
-    dvi_scanline_rgb(tmdsbuf2, tmdsbuf2_red, tmdsbuf2_green, tmdsbuf2_blue);
+    dvi_scanline_rgb560(tmdsbuf2, tmdsbuf2_red, tmdsbuf2_green, tmdsbuf2_blue);
 
     const uint8_t *line_buf = (const uint8_t *)((p2 ? text_p2 : text_p1) + ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
 

@@ -52,7 +52,7 @@ void DELAYED_COPY_CODE(render_debug)(bool top)
         for (uint row=0;row<16;row++)
         {
             dvi_get_scanline(tmdsbuf);
-            dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+            dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
             for (uint32_t x=0;x<280;x++)
             {
                 *(tmdsbuf_red++)   = TMDS_SYMBOL_0_0;

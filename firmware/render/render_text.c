@@ -87,7 +87,7 @@ void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int lin
     for(uint glyph_line=0; glyph_line < 8; glyph_line++)
     {
         dvi_get_scanline(tmdsbuf);
-        dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+        dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
         for(uint col=0; col < 40; )
         {
@@ -127,7 +127,7 @@ void DELAYED_COPY_CODE(render_color_text40_line)(unsigned int line)
     for(uint glyph_line=0; glyph_line < 8; glyph_line++)
     {
         dvi_get_scanline(tmdsbuf);
-        dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+        dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
         for(uint col=0; col < 40; col++)
         {
@@ -166,7 +166,7 @@ void DELAYED_COPY_CODE(render_text80_line)(const uint8_t *page_a, const uint8_t 
     for(uint glyph_line=0; glyph_line < 8; glyph_line++)
     {
         dvi_get_scanline(tmdsbuf);
-        dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+        dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
         for(uint col=0; col < 40;)
         {
