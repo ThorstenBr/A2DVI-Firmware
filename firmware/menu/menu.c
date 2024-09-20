@@ -175,6 +175,17 @@ const char* DELAYED_COPY_DATA(MenuOnOff)[2] =
     "ENABLED"
 };
 
+const char* DELAYED_COPY_DATA(MenuButtonModes)[6] =
+{
+//   12345678901234567890
+    "DISABLED",
+    "TOGGLE CHARACTER SET",
+    "TOGGLE MONO/COLOR",
+    "CYCLE DISPLAY MODE",
+    "CHARSET+TOGGLE M/C",
+    "CHARSET+CYCLE MODES"
+};
+
 const char* DELAYED_COPY_DATA(MenuRendering)[4] =
 {
 //   12345678901234567890
@@ -457,14 +468,23 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             reload_charsets = 3;
             break;
         case 3:
-            language_switch_enabled = !language_switch_enabled;
-            if (!language_switch_enabled)
+            if (increase)
+            {
+                if (input_switch_mode < ModeSwitchLangCycle)
+                    input_switch_mode++;
+            }
+            else
+            {
+                if (input_switch_mode > ModeSwitchDisabled)
+                    input_switch_mode--;
+            }
+            if (!LANGUAGE_SWITCH_ENABLED())
             {
                 language_switch = false;
             }
             break;
         case 4:
-            if (!language_switch_enabled)
+            if (!LANGUAGE_SWITCH_ENABLED())
                 break;
             // only show US character set for alternate (alternate was always US/default ASCII)
             if (increase)
@@ -606,7 +626,7 @@ static inline bool menuCheckKeys(char key)
         // MENU ELEMENT SELECTION KEYS
         case '0' ... '9':
             CurrentMenu = key-'0';
-            if ((!language_switch_enabled)&&(CurrentMenu == 4))
+            if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 4))
                 CurrentMenu = 3;
             break;
         case 'D':
@@ -643,7 +663,7 @@ static inline bool menuCheckKeys(char key)
             if (CurrentMenu > 0)
             {
                 CurrentMenu--;
-                if ((!language_switch_enabled)&&(CurrentMenu == 4))
+                if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 4))
                     CurrentMenu--;
             }
             else
@@ -655,7 +675,7 @@ static inline bool menuCheckKeys(char key)
             if (CurrentMenu < (MENU_ENTRY_COUNT-1))
             {
                 CurrentMenu++;
-                if ((!language_switch_enabled)&&(CurrentMenu == 4))
+                if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 4))
                     CurrentMenu++;
             }
             else
@@ -723,6 +743,11 @@ void DELAYED_COPY_CODE(menuShow)(char key)
         MenuNeedsRedraw = true;
         IgnoreNextKeypress = false;
     }
+    else
+    if (key == 1)
+    {
+        MenuNeedsRedraw = true;
+    }
 
     if (IgnoreNextKeypress)
     {
@@ -747,9 +772,11 @@ void DELAYED_COPY_CODE(menuShow)(char key)
     menuOption(4,0, "0 MACHINE TYPE:",       (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
     menuOption(5,1, "1 CHARACTER SET:",      (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
     menuOption(6,2, "2 ENHANCED FONT:",      MenuOnOff[enhanced_font_enabled & 1]);
-
-    menuOption(7,3, "3 LANGUAGE SWITCH:",    MenuOnOff[language_switch_enabled]);
-    if (language_switch_enabled)
+    //               0123456789012345678
+    menuOption(7,3, "3 ALTCHR SWITCH:",      MenuButtonModes[input_switch_mode]);
+    if ((input_switch_mode == ModeSwitchLanguage)||
+        (input_switch_mode == ModeSwitchLangMonochrome)||
+        (input_switch_mode == ModeSwitchLangCycle))
     {
         menuOption(8,4, "4 US CHARACTER SET:", (cfg_alt_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_alt_charset] : "?");
     }

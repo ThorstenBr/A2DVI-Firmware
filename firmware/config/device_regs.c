@@ -174,11 +174,6 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
             // load a standard alternate character ROM
             cfg_alt_charset = data;
             reload_charsets = 2;
-            language_switch_enabled = true;
-        }
-        else
-        {
-            language_switch_enabled = false;
         }
         break;
 

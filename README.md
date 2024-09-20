@@ -117,8 +117,32 @@ The configuration utility automatically detects the correct format of the upload
 
 ![A2DVI Custom Fonts](images/A2DVI_CustomFonts.jpg)
 
+## Configurable Custom Switch/Push-Button
+Advanced control options for the "*language rocker switch*" of your Euro-Apple IIe are configurable.
+For machines without this switch, you can install a custom push button or rocker switch and connect it to the "ALTCHR" input of A2DVI.
+
+The switch normally toggles the machine's character set (local language vs US character set).
+You can enable advanced behavior, so quickly rocking the switch back and changes the display mode.
+So you no longer need to enter the configuration menu in order to change between color, monochrome or other display modes.
+
+The switching behavior is configurable via the menu. Available options:
+
+* **DISABLED**: the input switch does nothing.
+* **TOGGLE CHARACTER SET**: switch only controls the character set (normal behavior of the Euro-Apple IIe).
+* **TOGGLE MONO/COLOR**: switch selects monochrome or color display mode.
+* **CYCLE DISPLAY MODE**: switch cycles through various display modes (color, black&white, green, amber - with/without scanlines). The cycled options depend on the capabilities of the currently active video mode.
+* **CHARSET+TOGGLE M/C**: switch controls the character set. Quickly rocking the switch back and forth toggles color vs monochrome display.
+* **CHARSET+CYCLE MODES**: switch controls the character set. Quickly rocking the switch back and forth cycles through available display modes (see above).
+
+Use the ALTCHR language switch (Euro-Machines) or connect a custom switch/push-button to quickly cycle the available display modes:
+
+![A2DVI Cycle Video Modes](images/A2DVI_Cycle_DisplayModes.jpg)
+
 ## Dual Language Support for Euro-Machines
-The A2DVI-Firmware has dual language support. If you have a "Euro-Apple IIe" with the language switch on the bottom side of your Apple II keyboard, then select "**LANGUAGE SWITCH: ENABLED**" in the configuration utility and select, both, the primary and secondary character set (primary is any font/character set, secondary is any US character set).
+The A2DVI-Firmware has dual language support.
+If you have a "Euro-Apple IIe" with the language switch on the bottom side of your Apple II keyboard,
+then select "**ALTCHR SWITCH: TOGGLE CHARACTER SET**" (or one of the advanced modes) in the configuration utility and select, both,
+the primary and secondary character set (primary is any font/character set, secondary is any US character set).
 
 If you don't know what the language switch on the Euro Apple IIs was for, see this video:
 [https://www.youtube.com/watch?v=cvEjy_uI0gY](https://www.youtube.com/watch?v=cvEjy_uI0gY)
@@ -241,6 +265,7 @@ Firmware updates of an A2DVI card are easy and safe:
 * **PICO2 (RP2350) support**.
 * **Analog rendering effects** for Double-HIRES/Double-LORES (optional).
 * **ROMX font selection**.
+* **Display modes switchable through ALTCHR language switch or custom switch/push-button**
 
 # License
 The A2DVI firmware is released under the [MIT License](https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):

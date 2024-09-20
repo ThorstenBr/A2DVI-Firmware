@@ -199,7 +199,8 @@ void DELAYED_COPY_CODE(render_mixed_text)()
             render_color_text40_line(line);
         }
     }
-    else
+
+    // monochrome rendering
     {
         const bool page2 = PAGE2SEL;
         const uint8_t *pageA = (const uint8_t *)(page2 ? text_p2 : text_p1);
@@ -238,6 +239,11 @@ void DELAYED_COPY_CODE(render_text)()
         }
     }
     else
+    {
+        color_support = false;
+    }
+
+    // monochrome rendering
     {
         if(soft_switches & SOFTSW_80COL)
         {

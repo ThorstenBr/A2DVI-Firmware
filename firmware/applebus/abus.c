@@ -73,20 +73,7 @@ void __time_critical_func(abus_loop)()
 
         uint32_t value = abus_pio_blocking_read();
 
-        if (language_switch_enabled)
-        {
-#ifdef FEATURE_DEBUG_INTERPOLATION
-            #warning WARNING: DEBUG feature is enabled! ***************
-            bool l = language_switch;
-#endif
-            language_switch = LANGUAGE_SWITCH(value);
-#ifdef FEATURE_DEBUG_INTERPOLATION
-            if (l != language_switch)
-            {
-                SET_IFLAG(language_switch, IFLAGS_INTERP);
-            }
-#endif
-        }
+        input_switch_state = LANGUAGE_SWITCH(value);
 
         bus_counter++;
 

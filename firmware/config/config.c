@@ -37,7 +37,6 @@ SOFTWARE.
 volatile compat_t detected_machine = MACHINE_AUTO;
 volatile compat_t cfg_machine = MACHINE_AUTO;
 volatile compat_t current_machine = MACHINE_AUTO;
-volatile bool language_switch_enabled = false; // true: language switch enabled/not ignored, false: language switch disabled/ignored
 volatile bool language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
 volatile bool enhanced_font_enabled;
 uint8_t cfg_local_charset = 0;
@@ -46,6 +45,8 @@ uint8_t reload_charsets = 0;
 uint32_t invalid_fonts = 0xffffffff;
 volatile uint8_t color_mode = 1;
 rendering_fx_t rendering_fx = FX_ENABLED;
+ToggleSwitchMode_t input_switch_mode = ModeSwitchCycleVideo;
+bool               input_switch_state;
 
 // A block of flash is reserved for storing configuration persistently across power cycles
 // and firmware updates.
@@ -73,7 +74,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  local_charset; // selection for local language video ROM
     uint8_t  alt_charset;   // selection for alternate video ROM (usually fixed to US charset)
 
-    uint8_t  language_switch_enabled;
+    uint8_t  input_switch_mode;
     uint8_t  enhanced_font_enabled;
     uint8_t  video7_enabled;
     uint8_t  debug_lines_enabled;
@@ -296,7 +297,7 @@ void config_load(void)
     }
     config_setflags();
 
-    language_switch_enabled = (cfg->language_switch_enabled != 0);
+    input_switch_mode = cfg->input_switch_mode;
     enhanced_font_enabled   = (cfg->enhanced_font_enabled != 0);
 
     color_mode = (cfg->color_mode <= 2) ? cfg->color_mode : 0;
@@ -339,7 +340,7 @@ void config_load_defaults(void)
     cfg_machine             = MACHINE_AUTO;
     set_machine(detected_machine);
 
-    language_switch_enabled = false;
+    input_switch_mode       = ModeSwitchLangCycle;
     enhanced_font_enabled   = true;
 
     cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
@@ -376,7 +377,7 @@ void config_save(void)
     new_config->machine_type            = cfg_machine;
     new_config->local_charset           = cfg_local_charset;
     new_config->alt_charset             = cfg_alt_charset;
-    new_config->language_switch_enabled = language_switch_enabled;
+    new_config->input_switch_mode       = input_switch_mode;
     new_config->enhanced_font_enabled   = enhanced_font_enabled;
 
 #ifdef APPLE_MODEL_IIPLUS

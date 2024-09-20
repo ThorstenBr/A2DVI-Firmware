@@ -56,13 +56,31 @@ extern volatile compat_t current_machine;
 
 extern    rendering_fx_t rendering_fx;
 
+typedef enum
+{
+    ModeSwitchDisabled   = 0,
+    ModeSwitchLanguage   = 1,
+    ModeSwitchMonochrome = 2,
+    ModeSwitchCycleVideo = 3,
+    ModeSwitchLangMonochrome = 4,
+    ModeSwitchLangCycle = 5
+} ToggleSwitchMode_t;
+
+extern ToggleSwitchMode_t input_switch_mode;
+extern bool               input_switch_state;
+
+// check if the language toggle switch function is currently enabled
+#define LANGUAGE_SWITCH_ENABLED() \
+ ((input_switch_mode == ModeSwitchLanguage)|| \
+ (input_switch_mode == ModeSwitchLangMonochrome)|| \
+ (input_switch_mode == ModeSwitchLangCycle))
+
 extern uint32_t invalid_fonts;
 extern uint8_t  cfg_local_charset;
 extern uint8_t  cfg_alt_charset;
 extern uint8_t  reload_charsets;
 
 
-extern volatile bool language_switch_enabled;
 extern volatile bool language_switch;
 extern volatile bool enhanced_font_enabled;
 
