@@ -138,6 +138,10 @@ Use the ALTCHR language switch (Euro-Machines) or connect a custom switch/push-b
 
 ![A2DVI Cycle Video Modes](images/A2DVI_Cycle_DisplayModes.jpg)
 
+The new display configuration is briefly shown below the screen area when using the rocker switch/push button to cycle the mode:
+
+![A2DVI Mode Display](images/A2DVI_ModeDisplay.jpg)
+
 ## Dual Language Support for Euro-Machines
 The A2DVI-Firmware has dual language support.
 If you have a "Euro-Apple IIe" with the language switch on the bottom side of your Apple II keyboard,

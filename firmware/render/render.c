@@ -43,6 +43,53 @@ void DELAYED_COPY_CODE(render_init)()
     }
 }
 
+// show current display mode as subtitle below the screen area
+void DELAYED_COPY_CODE(show_display_mode)()
+{
+    uint8_t* line1 = &status_line[80];
+    uint8_t* line2 = &status_line[120];
+
+    // clear status line
+    for (uint i=0;i<sizeof(status_line)/4/2;i++)
+    {
+        ((uint32_t*)line1)[i] = 0xA0A0A0A0;
+    }
+
+    /*0123456789012345678901234567890123456789*/
+    /*
+                        COLOR
+          SCANLINES  MONOCHROME  BLACK & WHITE
+    */
+
+    if (IS_IFLAG(IFLAGS_SCANLINEEMU))
+    {
+        copy_str(&line2[4], "SCANLINES");
+    }
+
+    if (color_support)
+    {
+        if (IS_IFLAG(IFLAGS_FORCED_MONO))
+        {
+            copy_str(&line2[15], "MONOCHROME");
+        }
+        else
+        {
+            copy_str(&line2[18], "COLOR");
+        }
+    }
+
+    // set flag when monochrome rendering is requested
+    mono_rendering = (soft_switches & SOFTSW_MONOCHROME)||(internal_flags & IFLAGS_FORCED_MONO);
+
+    if (mono_rendering || (color_support == false))
+    {
+        copy_str(&line2[27], MenuColorMode[color_mode]);
+    }
+
+    // show the subtitle for 120 screen cycles (2 seconds)
+    show_subtitle_cycles = 120;
+}
+
 void DELAYED_COPY_CODE(cycle_display_modes)()
 {
     if (color_support)
@@ -73,6 +120,8 @@ void DELAYED_COPY_CODE(cycle_display_modes)()
             SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
         }
     }
+
+    show_display_mode();
 }
 
 // check if the button was toggled quickly (to trigger extra functions)
@@ -126,6 +175,7 @@ void DELAYED_COPY_CODE(update_toggle_switch)()
             // Simple switch behavior for US-charset machines:
             // Switch directly controls color vs monochrome mode.
             SET_IFLAG(input_switch_state, IFLAGS_FORCED_MONO);
+            show_display_mode();
             break;
 
         case ModeSwitchCycleVideo:
@@ -148,6 +198,7 @@ void DELAYED_COPY_CODE(update_toggle_switch)()
             {
                 // toggle monochrome mode
                 SET_IFLAG(!IS_IFLAG(IFLAGS_FORCED_MONO), IFLAGS_FORCED_MONO);
+                show_display_mode();
             }
             break;
 

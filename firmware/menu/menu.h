@@ -36,6 +36,8 @@ typedef enum {
     PRINTMODE_RAW     = 3
 } TPrintMode;
 
+extern const char* MenuColorMode[COLOR_MODE_AMBER+1];
+
 void printXY(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode);
 void centerY(uint32_t y, const char* pMsg, TPrintMode PrintMode);
 void clearTextScreen(void);

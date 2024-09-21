@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "dvi/tmds.h"
 
+extern uint32_t show_subtitle_cycles;
 extern bool mono_rendering;
 
 extern bool color_support;  // flag indicating whether current display mode supports color
@@ -53,6 +54,7 @@ extern void render_dgr();
 extern void render_mixed_dgr();
 
 extern void render_debug(bool top);
+extern void copy_str(uint8_t* dest, const char* pMsg);
 
 #ifdef FEATURE_TEST
 extern void render_tmds_test();
