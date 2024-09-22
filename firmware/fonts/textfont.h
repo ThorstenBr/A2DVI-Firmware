@@ -47,6 +47,7 @@ extern uint8_t __font_roms_start[];
 #define CUSTOM_FONT_ROM(i) (&__font_roms_start[(i)*CHARACTER_ROM_SIZE])
 
 extern const uint8_t* character_roms[MAX_FONT_COUNT];
+extern const uint8_t* character_roms_videx[11];
 
 extern const uint8_t textfont_iie_us_enhanced[256 * 8];
 extern const uint8_t textfont_iie_us_unenhanced[256 * 8];
@@ -68,7 +69,15 @@ extern const uint8_t textfont_iiplus_jp_katakana[256 * 8];
 extern const uint8_t textfont_clone_pravetz_cyrillic[256 * 8];
 
 /////////////////////////////////////////////////
-#if 0
-extern const uint8_t videx_normal[128 * 16];
+
+extern const uint8_t videx_apl[128 * 16];
+extern const uint8_t videx_french[128 * 16];
 extern const uint8_t videx_inverse[128 * 16];
-#endif
+extern const uint8_t videx_normal[128 * 16];
+extern const uint8_t videx_super_sub[128 * 16];
+extern const uint8_t videx_uppercase[128 * 16];
+extern const uint8_t videx_epson[128 * 16];
+extern const uint8_t videx_german[128 * 16];
+extern const uint8_t videx_katakana[128 * 16];
+extern const uint8_t videx_spanish[128 * 16];
+extern const uint8_t videx_symbol[128 * 16];

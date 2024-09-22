@@ -164,17 +164,23 @@ void DELAYED_COPY_CODE(update_debug_monitor)(void)
     }
 }
 
-void DELAYED_COPY_CODE(render_debug)(bool top)
+void DELAYED_COPY_CODE(render_debug)(bool IsVidexMode, bool top)
 {
     if (!IS_IFLAG(IFLAGS_DEBUG_LINES))
     {
         if ((top)||(show_subtitle_cycles==0))
         {
-            for (uint row=0;row<16;row++)
+            // videx needs 216 lines/screen instead of 192 as usual, we can only render one status line above/below the screen area)
+            uint row_count = 16;
+            if (IsVidexMode)
+            {
+                row_count = (top) ? 0 : 8;
+            }
+            for (uint row=0;row<row_count;row++)
             {
                 dvi_get_scanline(tmdsbuf);
-                dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
-                for (uint32_t x=0;x<280;x++)
+                dvi_scanline_rgb640(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+                for (uint32_t x=0;x<320;x++)
                 {
                     *(tmdsbuf_red++)   = TMDS_SYMBOL_0_0;
                     *(tmdsbuf_green++) = TMDS_SYMBOL_0_0;
@@ -196,15 +202,19 @@ void DELAYED_COPY_CODE(render_debug)(bool top)
         // render two debug monitor lines above the screen area
         uint8_t* line1 = status_line;
         uint8_t* line2 = &status_line[40];
-        render_text40_line(line1, 0, 4);
-        render_text40_line(line2, 0, 4);
+        if (!IsVidexMode)
+        {
+            render_text40_line(line1, 0, 4);
+            render_text40_line(line2, 0, 4);
+        }
     }
     else
     {
         // render two debug monitor lines below the screen area
         uint8_t* line1 = &status_line[80];
         uint8_t* line2 = &status_line[120];
-        render_text40_line(line1, 0, 4);
+        if (!IsVidexMode)
+            render_text40_line(line1, 0, 4);
         render_text40_line(line2, 0, 4);
 
         if (show_subtitle_cycles)

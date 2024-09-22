@@ -64,12 +64,6 @@ add_compile_options(-DDVI_N_TMDS_BUFFERS=8)
 
 add_compile_options(-DFW_VERSION="${FW_VERSION}")
 
-if (1)
-add_compile_options(-DAPPLE_MODEL_IIE=1)
-set(FONTS fonts/iie_us_enhanced.c fonts/iie_us_unenhanced.c fonts/iie_us_reactive.c fonts/iie_uk_enhanced.c fonts/iie_fr_ca_enhanced.c fonts/iie_de_enhanced.c fonts/iie_spanish_enhanced.c fonts/iie_it_enhanced.c fonts/iie_hebrew_enhanced.c fonts/iie_se_fi_enhanced.c fonts/clone_pravetz_cyrillic.c
- fonts/iiplus_us.c fonts/iiplus_videx_lowercase1.c fonts/iiplus_videx_lowercase2.c fonts/iiplus_pigfont.c fonts/iiplus_jp_katakana.c)
-endif()
-
 pico_sdk_init()
 
 include(../libraries/libdvi/CMakeLists.txt)
@@ -98,13 +92,42 @@ add_executable(${BINARY_NAME}
     config/config.c
     config/device_regs.c
 
+    videx/videx_vterm.c
+
     menu/menu.c
 
     debug/debug.c
     util/dmacopy.c
 
     fonts/textfont.c
-    ${FONTS}
+    fonts/iie_us_enhanced.c
+    fonts/iie_us_unenhanced.c
+    fonts/iie_us_reactive.c
+    fonts/iie_uk_enhanced.c
+    fonts/iie_fr_ca_enhanced.c
+    fonts/iie_de_enhanced.c
+    fonts/iie_spanish_enhanced.c
+    fonts/iie_it_enhanced.c
+    fonts/iie_hebrew_enhanced.c
+    fonts/iie_se_fi_enhanced.c
+    fonts/clone_pravetz_cyrillic.c
+    fonts/iiplus_us.c
+    fonts/iiplus_videx_lowercase1.c
+    fonts/iiplus_videx_lowercase2.c
+    fonts/iiplus_pigfont.c
+    fonts/iiplus_jp_katakana.c
+
+    fonts/videx/videx_normal.c
+    fonts/videx/videx_inverse.c
+    fonts/videx/videx_apl.c
+    fonts/videx/videx_french.c
+    fonts/videx/videx_super_sub.c
+    fonts/videx/videx_uppercase.c
+    fonts/videx/videx_epson.c
+    fonts/videx/videx_german.c
+    fonts/videx/videx_katakana.c
+    fonts/videx/videx_spanish.c
+    fonts/videx/videx_symbol.c
 
     ${TEST_SOURCES}
 )

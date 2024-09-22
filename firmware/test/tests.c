@@ -61,6 +61,9 @@ SOFTWARE.
 #define REG_SW_HIRES_OFF   0xc056
 #define REG_SW_HIRES       0xc057
 
+#define REG_SW_VIDEX_OFF   0xc058
+#define REG_SW_VIDEX_ON    0xc059
+
 #define REG_SW_DGR         0xc05e
 #define REG_SW_DGR_OFF     0xc05f
 
@@ -73,6 +76,7 @@ SOFTWARE.
 #define TEST_40_COLUMNS
 #define TEST_40_COLUMNS_COLOR
 #define TEST_80_COLUMNS
+#define TEST_VIDEX
 #define TEST_LORES
 #define TEST_HIRES
 #define TEST_DOUBLE_LORES
@@ -84,6 +88,8 @@ SOFTWARE.
 #endif
 
 //#define TEST_MENU
+
+const uint32_t SimulatedSlotNr = 1;
 
 const uint32_t TestDelayMilliseconds = 300;//1*1000;
 
@@ -99,9 +105,19 @@ void clearBothPages()
 static void simulateWrite(uint16_t address, uint8_t data)
 {
     uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_DEVSEL - CONFIG_PIN_APPLEBUS_DATA_BASE));
-    if ((address & 0xCFF0) == (0xC080+0x30)) // Slot 3 register area
+    if ((address & 0xCFF0) == (0xC080+0x10*SimulatedSlotNr)) // Slot register area
         card_select = 0;
     businterface((address << 11) | data | card_select);
+}
+
+// simulate a read access with given address
+static void simulateRead(uint16_t address)
+{
+    uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_DEVSEL - CONFIG_PIN_APPLEBUS_DATA_BASE));
+    uint32_t read_mode   = (1u << (CONFIG_PIN_APPLEBUS_RW - CONFIG_PIN_APPLEBUS_DATA_BASE));
+    if ((address & 0xCFF0) == (0xC080+0x10*SimulatedSlotNr)) // Slot register area
+        card_select = 0;
+    businterface((address << 11) | 0x0 | card_select | read_mode);
 }
 
 void sleep(int Milliseconds)
@@ -453,6 +469,36 @@ void testHires()
 #endif
 }
 
+void test_videx()
+{
+#ifdef TEST_VIDEX
+    uint32_t saved_flags = internal_flags;
+
+    internal_flags &= ~ IFLAGS_IIE_REGS;
+    internal_flags |=  IFLAGS_VIDEX;
+
+    simulateRead(REG_SW_VIDEX_ON);
+
+    for (uint bank=0;bank<=3;bank++)
+    {
+        // select bank
+        simulateRead(0xc0B0+(bank << 2));
+
+        // select device ROM area
+        simulateWrite(0xc300, 0);
+        for (uint32_t b=0;b<0x200;b++)
+        {
+            simulateWrite(0xcc00+b, '0'+bank);//b&0xff);
+        }
+    }
+
+    sleep(TestDelayMilliseconds);
+    simulateRead(REG_SW_VIDEX_OFF);
+
+    internal_flags = saved_flags;
+#endif
+}
+
 void test_config()
 {
     simulateWrite(REG_CARD+0x4, 0); // load defaults
@@ -631,6 +677,7 @@ void test_loop()
         test40columns();
         test80columns();
         test40columns_color();
+        test_videx();
 
         test_menu();
 

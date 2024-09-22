@@ -24,8 +24,9 @@ SOFTWARE.
 */
 
 #include "textfont.h"
+#include "config/config.h"
 
-const uint8_t* character_roms[32] =
+const uint8_t* DELAYED_COPY_DATA(character_roms)[32] =
 {
     textfont_iie_us_enhanced,         //  0
     textfont_iie_uk_enhanced,         //  1
@@ -60,4 +61,19 @@ const uint8_t* character_roms[32] =
     CUSTOM_FONT_ROM(13),
     CUSTOM_FONT_ROM(14),
     CUSTOM_FONT_ROM(15)
+};
+
+const uint8_t* DELAYED_COPY_DATA(character_roms_videx)[11] =
+{
+    videx_normal,
+    videx_inverse,
+    videx_uppercase,
+    videx_german,
+    videx_french,
+    videx_spanish,
+    videx_katakana,
+    videx_apl,
+    videx_super_sub,
+    videx_epson,
+    videx_symbol
 };

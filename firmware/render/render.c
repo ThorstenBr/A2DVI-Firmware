@@ -27,6 +27,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include "applebus/buffers.h"
 #include "config/config.h"
+#include "videx/videx_vterm.h"
 
 #include "render.h"
 #include "menu/menu.h"
@@ -233,62 +234,70 @@ void DELAYED_COPY_CODE(render_loop)()
 {
     for(;;)
     {
-        render_debug(true);
+        // copy soft switches - since we need consistent settings throughout a rendering cycle
+        uint32_t current_softsw = soft_switches;
+        bool IsVidex = ((current_softsw & (SOFTSW_TEXT_MODE|SOFTSW_VIDEX_80COL)) == (SOFTSW_TEXT_MODE|SOFTSW_VIDEX_80COL));
+        render_debug(IsVidex, true);
 
         // set flag when monochrome rendering is requested
-        mono_rendering = (soft_switches & SOFTSW_MONOCHROME)||(internal_flags & IFLAGS_FORCED_MONO);
+        mono_rendering = (current_softsw & SOFTSW_MONOCHROME)||(internal_flags & IFLAGS_FORCED_MONO);
 
         // prepare state indicating whether the current display mode supports colors
-        color_support = (soft_switches & SOFTSW_MONOCHROME) ? false : true;
+        color_support = (current_softsw & SOFTSW_MONOCHROME) ? false : true;
 
-        switch(soft_switches & SOFTSW_MODE_MASK)
+        if (IsVidex)
+            render_videx_text();
+        else
         {
-            case 0:
-                if(soft_switches & SOFTSW_DGR)
-                {
-                    render_dgr();
-                }
-                else
-                {
-                    render_lores();
-                }
-                break;
-            case SOFTSW_MIX_MODE:
-                if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
-                {
-                    render_mixed_dgr();
-                }
-                else
-                {
-                    render_mixed_lores();
-                }
-                break;
-            case SOFTSW_HIRES_MODE:
-                if(soft_switches & SOFTSW_DGR)
-                {
-                    render_dhgr();
-                }
-                else
-                {
-                    render_hires();
-                }
-                break;
-            case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE:
-                if((soft_switches & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
-                {
-                    render_mixed_dhgr();
-                }
-                else
-                {
-                    render_mixed_hires();
-                }
-                break;
-            default:
-                render_text();
-                break;
+            switch(current_softsw & SOFTSW_MODE_MASK)
+            {
+                case 0:
+                    if(current_softsw & SOFTSW_DGR)
+                    {
+                        render_dgr();
+                    }
+                    else
+                    {
+                        render_lores();
+                    }
+                    break;
+                case SOFTSW_MIX_MODE: //2
+                    if((current_softsw & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
+                    {
+                        render_mixed_dgr();
+                    }
+                    else
+                    {
+                        render_mixed_lores();
+                    }
+                    break;
+                case SOFTSW_HIRES_MODE: //4
+                    if(current_softsw & SOFTSW_DGR)
+                    {
+                        render_dhgr();
+                    }
+                    else
+                    {
+                        render_hires();
+                    }
+                    break;
+                case SOFTSW_HIRES_MODE|SOFTSW_MIX_MODE: //6
+                    if((current_softsw & (SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80COL | SOFTSW_DGR))
+                    {
+                        render_mixed_dhgr();
+                    }
+                    else
+                    {
+                        render_mixed_hires();
+                    }
+                    break;
+                default:
+                    render_text();
+                    break;
+            }
         }
 
-        render_debug(false);
+        render_debug(IsVidex, false);
 
         update_text_flasher();
 

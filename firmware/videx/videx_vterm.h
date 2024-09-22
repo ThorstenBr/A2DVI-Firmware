@@ -2,7 +2,6 @@
 MIT License
 
 Copyright (c) 2021 Mark Aikens
-Copyright (c) 2023 David Kuder
 Copyright (c) 2024 Thorsten Brehm
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,37 +25,12 @@ SOFTWARE.
 
 #pragma once
 
-#include "dvi/tmds.h"
+#include <stdint.h>
+#include <stdbool.h>
 
-extern uint32_t show_subtitle_cycles;
-extern bool mono_rendering;
+extern volatile bool videx_vterm_mem_selected;
 
-extern bool color_support;  // flag indicating whether current display mode supports color
+extern void videx_reg_access    (bool is_write, uint_fast16_t address, uint_fast8_t data);
+extern void videx_c8rom_access  (bool is_write, uint_fast16_t address, uint_fast8_t data);
 
-extern void render_init();
-extern void render_loop();
-
-extern void update_text_flasher();
-extern void render_text();
-extern void render_mixed_text();
-extern void render_text40_line(const uint8_t *page, unsigned int line, uint8_t color_mode);
-extern void render_color_text40_line(unsigned int line);
-
-extern void render_lores();
-extern void render_mixed_lores();
-
-extern void render_hires();
-extern void render_mixed_hires();
-
-extern void render_dhgr();
-extern void render_mixed_dhgr();
-
-extern void render_dgr();
-extern void render_mixed_dgr();
-
-extern void render_debug(bool IsVidexMode, bool top);
-extern void copy_str(uint8_t* dest, const char* pMsg);
-
-#ifdef FEATURE_TEST
-extern void render_tmds_test();
-#endif
+extern void render_videx_text   (void);

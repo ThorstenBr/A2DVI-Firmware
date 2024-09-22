@@ -125,7 +125,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
                     config_font_update();
                     menuShowSaved();
                     // need to reload both charsets (updated font may be actively selected)
-                    reload_charsets = 3;
+                    reload_charsets |= 3;
                 }
             }
         }
@@ -163,7 +163,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         {
             // load a standard alternate character ROM
             cfg_local_charset = data;
-            reload_charsets = 1;
+            reload_charsets  |= 1;
         }
         break;
 
@@ -172,8 +172,8 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         if (data < MAX_FONT_COUNT)
         {
             // load a standard alternate character ROM
-            cfg_alt_charset = data;
-            reload_charsets = 2;
+            cfg_alt_charset  = data;
+            reload_charsets |= 2;
         }
         break;
 
@@ -236,7 +236,7 @@ void execute_device_command(uint_fast8_t cmd)
         case 0x10 ... (0x10+MAX_FONT_COUNT):
             // load a standard alternate character ROM
             cfg_local_charset = cmd - 0x10;
-            reload_charsets = 1;
+            reload_charsets  |= 1;
             break;
         default:
             break;

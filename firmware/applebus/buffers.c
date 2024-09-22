@@ -68,3 +68,7 @@ volatile uint8_t *hgr_p4  = private_memory + 0x4000;
 uint8_t __attribute__((section (".appledata."))) character_rom[2* CHARACTER_ROM_SIZE];
 
 uint8_t __attribute__((section (".appledata."))) custom_font_buffer[2* CHARACTER_ROM_SIZE];
+
+// videx uses 9lines/character, but still a 2KB video ROM
+uint8_t __attribute__((section (".appledata."))) character_rom_videx_normal[CHARACTER_ROM_SIZE];
+uint8_t __attribute__((section (".appledata."))) character_rom_videx_inverse[CHARACTER_ROM_SIZE];

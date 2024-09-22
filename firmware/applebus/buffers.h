@@ -100,8 +100,10 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_ALTCHAR        0x00004000ul
 #define SOFTSW_DGR            0x00008000ul
 
+#ifdef APPLEIIGS
 #define SOFTSW_NEWVID_MASK    0xE0ul
 #define SOFTSW_NEWVID_SHIFT   11
+#endif
 
 #define SOFTSW_MONOCHROME     0x00010000ul
 //#define SOFTSW_LINEARIZE      0x00020000ul
@@ -109,17 +111,19 @@ extern volatile uint32_t internal_flags;
 
 #define SOFTSW_IOUDIS         0x00080000ul
 
-// V2 Analog specific softswitches
+// emulation-specific softswitches
+#define SOFTSW_VIDEX_80COL    0x00100000ul
+
+// internal config switches
 #define IFLAGS_DEBUG_LINES    0x00100000ul
 #define IFLAGS_MENU_ENABLE    0x00200000ul
 #define IFLAGS_FORCED_MONO    0x00400000ul
 #define IFLAGS_SCANLINEEMU    0x00800000ul
 #define IFLAGS_INTERP_DGR     0x01000000ul
 #define IFLAGS_INTERP_DHGR    0x02000000ul
-//#define IFLAGS_GRILL          0x02000000ul
 #define IFLAGS_VIDEO7         0x04000000ul
 //#define IFLAGS_OLDCOLOR       0x08000000ul
-//#define IFLAGS_TERMINAL       0x10000000ul
+#define IFLAGS_VIDEX          0x10000000ul
 #define IFLAGS_TEST           0x20000000ul
 #define IFLAGS_IIE_REGS       0x40000000ul
 #define IFLAGS_IIGS_REGS      0x80000000ul
@@ -135,6 +139,9 @@ extern volatile uint32_t internal_flags;
 // charater ROM for US + local character set
 extern uint8_t character_rom[2*CHARACTER_ROM_SIZE];
 extern uint8_t custom_font_buffer[2*CHARACTER_ROM_SIZE];
+
+extern uint8_t character_rom_videx_normal[CHARACTER_ROM_SIZE];  // videx uses 9lines/character, but still a 2KB video ROM
+extern uint8_t character_rom_videx_inverse[CHARACTER_ROM_SIZE]; // videx uses 9lines/character, but still a 2KB video ROM
 
 #define IS_IFLAG(FLAGS)             ((internal_flags & FLAGS)==FLAGS)
 #define SET_IFLAG(condition, FLAGS) { if (condition) internal_flags |= FLAGS;else internal_flags &= ~FLAGS; }

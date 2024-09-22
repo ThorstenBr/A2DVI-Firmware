@@ -449,7 +449,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 if (cfg_local_charset+1 < MAX_FONT_COUNT)
                 {
                     cfg_local_charset++;
-                    reload_charsets = 1;
+                    reload_charsets |= 1;
                 }
             }
             else
@@ -457,13 +457,13 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 if (cfg_local_charset > 0)
                 {
                     cfg_local_charset--;
-                    reload_charsets = 1;
+                    reload_charsets |= 1;
                 }
             }
             break;
         case 2:
             enhanced_font_enabled = !enhanced_font_enabled;
-            reload_charsets = 3;
+            reload_charsets |= 3;
             break;
         case 3:
             if (increase)
@@ -490,13 +490,13 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 if (cfg_alt_charset == 0)
                 {
                     cfg_alt_charset = 9;
-                    reload_charsets = 2;
+                    reload_charsets |= 2;
                 }
                 else
                 if ((cfg_alt_charset >= 9)&&(cfg_alt_charset<11))
                 {
                     cfg_alt_charset++;
-                    reload_charsets = 2;
+                    reload_charsets |= 2;
                 }
                 else
                 if (cfg_alt_charset == 11)
@@ -528,13 +528,13 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 if ((cfg_alt_charset >= 10)&&(cfg_alt_charset <= 11))
                 {
                     cfg_alt_charset--;
-                    reload_charsets = 2;
+                    reload_charsets |= 2;
                 }
                 else
                 if (cfg_alt_charset == 9)
                 {
                     cfg_alt_charset = 0;
-                    reload_charsets = 2;
+                    reload_charsets |= 2;
                 }
             }
             break;

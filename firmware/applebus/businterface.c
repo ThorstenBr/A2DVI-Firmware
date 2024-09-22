@@ -32,6 +32,7 @@ SOFTWARE.
 #include "config/config.h"
 #include "config/device_regs.h"
 #include "fonts/textfont.h"
+#include "videx/videx_vterm.h"
 
 static uint8_t romx_unlocked;
 static uint8_t romx_textbank;
@@ -112,7 +113,7 @@ static inline void __time_critical_func(check_romx_read)(uint32_t address)
                 if(address == 0xF851)
                 {
                     cfg_local_charset = romx_textbank;
-                    reload_charsets   = 1;
+                    reload_charsets  |= 1;
                     romx_unlocked     = 0;
                 }
             }
@@ -145,7 +146,7 @@ static inline void __time_critical_func(check_romx_read)(uint32_t address)
                 if((address >> 4) == 0xCFE)
                 {
                     cfg_local_charset = romx_textbank;
-                    reload_charsets   = 1;
+                    reload_charsets  |= 1;
                     romx_unlocked     = 0;
                 }
             }
@@ -225,7 +226,7 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
             soft_switches &= ~SOFTSW_SLOT3ROM;
         }
         break;
-    case 0x0b: // SLOTC3ROMOFF
+    case 0x0b: // SLOTC3ROMON
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (AccessMode == WriteMem))
         {
             soft_switches |= SOFTSW_SLOT3ROM;
@@ -321,6 +322,18 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
         break;
     case 0x57: // HIRESON
         soft_switches |= SOFTSW_HIRES_MODE;
+        break;
+    case 0x58:
+        if ((internal_flags & (IFLAGS_VIDEX|IFLAGS_IIE_REGS)) == IFLAGS_VIDEX)
+        {
+            soft_switches &= ~SOFTSW_VIDEX_80COL;
+        }
+        break;
+    case 0x59:
+        if ((internal_flags & (IFLAGS_VIDEX|IFLAGS_IIE_REGS)) == IFLAGS_VIDEX)
+        {
+            soft_switches |= SOFTSW_VIDEX_80COL;
+        }
         break;
     case 0x5e: // DGRON
         if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
@@ -423,7 +436,7 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
     }
 
     // nothing to do addresses outside register area
-    if ((address & 0xF800) != 0xc000)
+    if ((address & 0xF000) != 0xc000)
         return;
 
     // Shadow the soft-switches by observing all read & write bus cycles
@@ -444,11 +457,29 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
             card_rom_address = 0xC000 | (cardslot << 8);
         }
         devicereg_counter++;
-    }
 
-    if (AccessMode == WriteDev)
+        if (AccessMode == WriteDev)
+        {
+            device_write(address & 0xF, data);
+        }
+    }
+    else
+    if (((internal_flags & (IFLAGS_IIE_REGS|IFLAGS_VIDEX)) == IFLAGS_VIDEX)&&
+        ((AccessMode == WriteMem)||(AccessMode == ReadMem)))
     {
-        device_write(address & 0xF, data);
+        if ((address & 0xFFF0) == 0xC0B0) // slot #3 register area ($C0B0-$C0BF)
+            videx_reg_access(AccessMode==WriteMem, address, data);
+        else
+        if ((address & 0xFF00) == 0xC300)
+        {
+            videx_vterm_mem_selected = true;
+        }
+        else
+        if ((address & 0xF800) == 0xC800)
+        {
+            if (videx_vterm_mem_selected)
+                videx_c8rom_access(AccessMode==WriteMem, address, data);
+        }
     }
 }
 
