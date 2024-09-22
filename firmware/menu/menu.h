@@ -24,6 +24,8 @@ SOFTWARE.
 
 #pragma once
 
+#include "config/config.h"
+
 #ifdef FEATURE_TEST
 extern bool PrintMode80Column; // for 40/80 column printing (only in test mode)
 extern bool PrintModePage2;    // for page1/2 printing (only in test mode)

@@ -67,6 +67,9 @@ void DELAYED_COPY_CODE(a2dvi_loop)(void)
     // CPU clock configuration required for DVI
     a2dvi_init();
 
+    // load character sets etc
+    render_init();
+
     // configure DVI
     dvi0.timing = &DVI_TIMING;
     dvi0.ser_cfg = DVI_SERIAL_CONFIG;

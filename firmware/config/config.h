@@ -75,10 +75,10 @@ extern bool               input_switch_state;
  (input_switch_mode == ModeSwitchLangMonochrome)|| \
  (input_switch_mode == ModeSwitchLangCycle))
 
-extern uint32_t invalid_fonts;
-extern uint8_t  cfg_local_charset;
-extern uint8_t  cfg_alt_charset;
-extern uint8_t  reload_charsets;
+extern          uint32_t invalid_fonts;
+extern          uint8_t  cfg_local_charset;
+extern          uint8_t  cfg_alt_charset;
+extern volatile uint8_t  reload_charsets;
 
 
 extern volatile bool language_switch;

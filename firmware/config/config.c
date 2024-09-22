@@ -34,17 +34,18 @@ SOFTWARE.
 #include "util/dmacopy.h"
 #include "fonts/textfont.h"
 
-volatile compat_t detected_machine = MACHINE_AUTO;
-volatile compat_t cfg_machine = MACHINE_AUTO;
-volatile compat_t current_machine = MACHINE_AUTO;
-volatile bool language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
-volatile bool enhanced_font_enabled;
-uint8_t cfg_local_charset = 0;
-uint8_t cfg_alt_charset = 0;
-uint8_t reload_charsets = 0;
-uint32_t invalid_fonts = 0xffffffff;
-volatile uint8_t color_mode = 1;
-rendering_fx_t rendering_fx = FX_ENABLED;
+volatile compat_t  detected_machine = MACHINE_AUTO;
+volatile compat_t  cfg_machine = MACHINE_AUTO;
+volatile compat_t  current_machine = MACHINE_AUTO;
+volatile bool      language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
+volatile bool      enhanced_font_enabled;
+volatile uint8_t   reload_charsets = 4;
+
+uint8_t            cfg_local_charset = 0;
+uint8_t            cfg_alt_charset = 0;
+uint32_t           invalid_fonts = 0xffffffff;
+volatile uint8_t   color_mode = 1;
+rendering_fx_t     rendering_fx = FX_ENABLED;
 ToggleSwitchMode_t input_switch_mode = ModeSwitchCycleVideo;
 bool               input_switch_state;
 

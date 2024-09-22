@@ -41,6 +41,7 @@ void DELAYED_COPY_CODE(render_init)()
     {
         ((uint32_t*)status_line)[i] = 0xA0A0A0A0;
     }
+    config_load_charsets();
 }
 
 // show current display mode as subtitle below the screen area
@@ -230,8 +231,6 @@ void DELAYED_COPY_CODE(update_toggle_switch)()
 
 void DELAYED_COPY_CODE(render_loop)()
 {
-    render_init();
-
     for(;;)
     {
         render_debug(true);

@@ -33,6 +33,7 @@ extern bool mono_rendering;
 
 extern bool color_support;  // flag indicating whether current display mode supports color
 
+extern void render_init();
 extern void render_loop();
 
 extern void update_text_flasher();
