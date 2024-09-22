@@ -394,6 +394,7 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
                     return;
                 }
                 else
+                if((internal_flags & IFLAGS_MENU_ENABLE)==0)
                 {
                     apple_memory[address] = data;
                     if (address < 0x800)
