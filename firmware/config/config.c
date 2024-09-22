@@ -41,8 +41,9 @@ volatile bool      language_switch = false; // false: main/local char set, true:
 volatile bool      enhanced_font_enabled;
 volatile uint8_t   reload_charsets = 4;
 
+uint8_t            cfg_videx_selection = 0; //0:DISABLED
 uint8_t            cfg_local_charset = 0;
-uint8_t            cfg_alt_charset = 0;
+uint8_t            cfg_alt_charset   = 0;
 uint32_t           invalid_fonts = 0xffffffff;
 volatile uint8_t   color_mode = 1;
 rendering_fx_t     rendering_fx = FX_ENABLED;
@@ -82,7 +83,7 @@ struct __attribute__((__packed__)) config_t
 
     uint8_t  test_mode_enabled;
     rendering_fx_t rendering_fx;
-    uint8_t  videx_enabled;
+    uint8_t  videx_selection;
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
@@ -263,11 +264,11 @@ void DELAYED_COPY_CODE(config_load_charsets)(void)
         }
     }
 
-    if (reload_charsets & 4)
+    if ((reload_charsets & 4)&&(cfg_videx_selection>0))
     {
         // videx character sets
-        memcpy32(character_rom_videx_normal,  character_roms_videx[0], CHARACTER_ROM_SIZE);
-        memcpy32(character_rom_videx_inverse, character_roms_videx[1], CHARACTER_ROM_SIZE);
+        memcpy32(character_rom_videx_normal,  character_roms_videx[cfg_videx_selection-1], CHARACTER_ROM_SIZE);
+        memcpy32(character_rom_videx_inverse, videx_inverse,                               CHARACTER_ROM_SIZE);
     }
 
     reload_charsets = 0;
@@ -300,7 +301,11 @@ void config_load(void)
     SET_IFLAG(cfg->video7_enabled,       IFLAGS_VIDEO7);
     SET_IFLAG(cfg->debug_lines_enabled,  IFLAGS_DEBUG_LINES);
     SET_IFLAG(cfg->test_mode_enabled,    IFLAGS_TEST);
-    SET_IFLAG((IS_STORED_IN_CONFIG(cfg, videx_enabled) && cfg->videx_enabled), IFLAGS_VIDEX);
+    if (IS_STORED_IN_CONFIG(cfg, videx_selection))
+    {
+        cfg_videx_selection = cfg->videx_selection;
+        SET_IFLAG(cfg_videx_selection>0, IFLAGS_VIDEX);
+    }
     if(IS_STORED_IN_CONFIG(cfg, rendering_fx))
     {
         rendering_fx = cfg->rendering_fx;
@@ -330,9 +335,8 @@ void config_load_defaults(void)
     SET_IFLAG(1, IFLAGS_SCANLINEEMU);
     SET_IFLAG(0, IFLAGS_DEBUG_LINES);
     SET_IFLAG(0, IFLAGS_FORCED_MONO);
-    SET_IFLAG(0, IFLAGS_VIDEO7);
+    SET_IFLAG(1, IFLAGS_VIDEO7);
     SET_IFLAG(0, IFLAGS_TEST);
-    SET_IFLAG(0, IFLAGS_VIDEX);
     rendering_fx = FX_ENABLED;
     config_setflags();
 
@@ -345,6 +349,8 @@ void config_load_defaults(void)
 
     cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
     cfg_alt_charset         = DEFAULT_ALT_CHARSET;
+    cfg_videx_selection     = 0;
+    SET_IFLAG((cfg_videx_selection>0), IFLAGS_VIDEX);
 
     // reload both character sets
     reload_charsets |= 3;
@@ -368,7 +374,7 @@ void DELAYED_COPY_CODE(config_save)(void)
     new_config->video7_enabled          = IS_IFLAG(IFLAGS_VIDEO7);
     new_config->debug_lines_enabled     = IS_IFLAG(IFLAGS_DEBUG_LINES);
     new_config->test_mode_enabled       = IS_IFLAG(IFLAGS_TEST);
-    new_config->videx_enabled           = IS_IFLAG(IFLAGS_VIDEX);
+    new_config->videx_selection         = cfg_videx_selection;
     new_config->rendering_fx            = rendering_fx;
     new_config->color_mode              = color_mode;
     new_config->machine_type            = cfg_machine;

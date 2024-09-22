@@ -488,7 +488,7 @@ void test_videx()
         simulateWrite(0xc300, 0);
         for (uint32_t b=0;b<0x200;b++)
         {
-            simulateWrite(0xcc00+b, '0'+bank);//b&0xff);
+            simulateWrite(0xcc00+b, b&0xff);
         }
     }
 

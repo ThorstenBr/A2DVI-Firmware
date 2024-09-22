@@ -63,10 +63,9 @@ const uint8_t* DELAYED_COPY_DATA(character_roms)[32] =
     CUSTOM_FONT_ROM(15)
 };
 
-const uint8_t* DELAYED_COPY_DATA(character_roms_videx)[11] =
+const uint8_t* DELAYED_COPY_DATA(character_roms_videx)[VIDEX_FONT_COUNT] =
 {
     videx_normal,
-    videx_inverse,
     videx_uppercase,
     videx_german,
     videx_french,

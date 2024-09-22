@@ -78,6 +78,7 @@ extern bool               input_switch_state;
 extern          uint32_t invalid_fonts;
 extern          uint8_t  cfg_local_charset;
 extern          uint8_t  cfg_alt_charset;
+extern          uint8_t  cfg_videx_selection;
 extern volatile uint8_t  reload_charsets;
 
 

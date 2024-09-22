@@ -180,6 +180,20 @@ but uses an unused 8th data bit to switich to a 560pixel/line monochrome resolut
 Another example showing the Video7 16color with hires monochrome pixel mix mode:
 ![Video7](images/A2DVI_Video7_DHGR2.jpg)
 
+## Videx Support
+Stock Apple IIs did not support 80 column display.
+A popular extension were "Videx" video cards, which provided 80 column support - and support for various character sets.
+
+A2DVI is able to display the Videx 80 column video mode on an Apple II.
+Enable the Videx support by selecting the Videx character set in the menu (US, German, French, Spanish, ...).
+
+The Videx support of A2DVI is currently "passive" only:
+
+* You need to have an original Videx card plugged into slot 3 of your Apple II (the original card provides a ROM, registers and additional RAM to your Apple II).
+* Plug your A2DVI card in any other slot.
+
+![A2DVI Videx](images/A2DVI_Videx.jpg)
+
 ## Debug Monitor
 The configuration menu offers a debugging feature. Enabling the "**DEBUG MONITOR**" shows extra lines above and below the normal Apple II screen (in red):
 
@@ -251,6 +265,7 @@ Firmware updates of an A2DVI card are easy and safe:
 
 * **40/80 column text modes** for Apple IIe
 * **40 column text mode** for Apple II
+* **VIDEX 80 column text** for Apple II
 * **LORES graphics mode**
 * **Double-LORES graphics mode**
 * **HIRES graphics mode**

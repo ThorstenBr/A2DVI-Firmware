@@ -47,7 +47,8 @@ extern uint8_t __font_roms_start[];
 #define CUSTOM_FONT_ROM(i) (&__font_roms_start[(i)*CHARACTER_ROM_SIZE])
 
 extern const uint8_t* character_roms[MAX_FONT_COUNT];
-extern const uint8_t* character_roms_videx[11];
+#define VIDEX_FONT_COUNT 10
+extern const uint8_t* character_roms_videx[VIDEX_FONT_COUNT];
 
 extern const uint8_t textfont_iie_us_enhanced[256 * 8];
 extern const uint8_t textfont_iie_us_unenhanced[256 * 8];

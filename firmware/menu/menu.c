@@ -35,7 +35,7 @@ SOFTWARE.
 #include "menu.h"
 
 // number of elements in the menu
-#define MENU_ENTRY_COUNT (17)
+#define MENU_ENTRY_COUNT (18)
 
 // number of non-config elements in the two column menu area
 #define MENU_ENTRIES_NONCFG (6)
@@ -243,6 +243,21 @@ const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_FONT_COUNT] =
     "CUSTOM FONT 14",
     "CUSTOM FONT 15",
     "CUSTOM FONT 16"
+};
+
+const char* DELAYED_COPY_DATA(MenuVidex)[VIDEX_FONT_COUNT+1] =
+{
+    "DISABLED",  //0
+    "US",        //1
+    "UPPERCASE", //2
+    "GERMAN",    //3
+    "FRENCH",    //4
+    "SPANISH",   //5
+    "KATAKANA",  //6
+    "APL",       //7
+    "SUPER SUB", //8
+    "EPSON",     //9
+    "SYMBOL"     //10
 };
 
 static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const char* pValue)
@@ -577,6 +592,26 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             }
             break;
         case 10:
+            if (increase)
+            {
+                if (cfg_videx_selection < VIDEX_FONT_COUNT)
+                {
+                    cfg_videx_selection++;
+                    reload_charsets |= 4;
+                }
+            }
+            else
+            {
+                if (cfg_videx_selection > 0)
+                {
+                    cfg_videx_selection--;
+                    if (cfg_videx_selection > 0)
+                        reload_charsets |= 4;
+                }
+            }
+            SET_IFLAG((cfg_videx_selection>0), IFLAGS_VIDEX);
+            break;
+        case 11:
             SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
             SET_IFLAG(0, IFLAGS_TEST);
             break;
@@ -651,8 +686,11 @@ static inline bool menuCheckKeys(char key)
             if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 4))
                 CurrentMenu = 3;
             break;
-        case 'D':
+        case 'X':
             CurrentMenu = 10;
+            break;
+        case 'D':
+            CurrentMenu = 11;
             break;
         case 'R':
             CurrentMenu = MENU_OFS_NONCFG+0;
@@ -809,15 +847,16 @@ void DELAYED_COPY_CODE(menuShow)(char key)
 
     menuOption(13,8,  "8 ANALOG RENDER FX:", MenuRendering[rendering_fx]);
     menuOption(14,9,  "9 VIDEO7 MODES:",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
-    menuOption(15,10, "D DEBUG MONITOR:",    MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);
+    menuOption(15,10, "X VIDEX CHARSET:",    MenuVidex[cfg_videx_selection]);
+    menuOption(16,11, "D DEBUG MONITOR:",    MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);
 
-    menuOption(17,11, "R RESTORE DEFAULTS",  0);
-    menuOption(18,12, "L LOAD FROM FLASH",   0);
-    menuOption(19,13, "S SAVE TO FLASH",     0);
+    menuOption(18,12, "R RESTORE DEFAULTS",  0);
+    menuOption(19,13, "L LOAD FROM FLASH",   0);
+    menuOption(20,14, "S SAVE TO FLASH",     0);
 
-    menuOption(17,14, "A ABOUT",             0);
-    menuOption(18,15, "B DEBUG",             0);
-    menuOption(19,16, "T TEST",              0);
+    menuOption(18,15, "A ABOUT",             0);
+    menuOption(19,16, "B DEBUG",             0);
+    menuOption(20,17, "T TEST",              0);
 
     // show some special characters, for immediate feedback when selecting character sets
     printXY(40-11, 21, "[{\\~#$`^|}]", PRINTMODE_NORMAL);
