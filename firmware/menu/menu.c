@@ -498,9 +498,33 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                     cfg_alt_charset++;
                     reload_charsets = 2;
                 }
+                else
+                if (cfg_alt_charset == 11)
+                {
+                    cfg_alt_charset = MAX_FONT_COUNT-CUSTOM_FONT_COUNT;
+                    reload_charsets |= 2;
+                }
+                else
+                if ((cfg_alt_charset >= MAX_FONT_COUNT-CUSTOM_FONT_COUNT)&&(cfg_alt_charset < MAX_FONT_COUNT-1))
+                {
+                    cfg_alt_charset++;
+                    reload_charsets |= 2;
+                }
             }
             else
             {
+                if (cfg_alt_charset > MAX_FONT_COUNT-CUSTOM_FONT_COUNT)
+                {
+                    cfg_alt_charset--;
+                    reload_charsets |= 2;
+                }
+                else
+                if (cfg_alt_charset == MAX_FONT_COUNT-CUSTOM_FONT_COUNT)
+                {
+                    cfg_alt_charset = 11;
+                    reload_charsets |= 2;
+                }
+                else
                 if ((cfg_alt_charset >= 10)&&(cfg_alt_charset <= 11))
                 {
                     cfg_alt_charset--;
