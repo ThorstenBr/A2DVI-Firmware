@@ -39,9 +39,7 @@ volatile uint16_t last_address_stack;
 volatile uint16_t last_address_pc;
 volatile uint16_t last_address_zp;
 
-#ifdef FEATURE_TEST
          uint32_t boot_time;
-#endif
 
 volatile uint32_t soft_switches = SOFTSW_TEXT_MODE;
 volatile uint32_t internal_flags = IFLAGS_V7_MODE3 | IFLAGS_INTERP_DGR | IFLAGS_INTERP_DHGR;

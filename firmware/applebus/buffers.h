@@ -41,9 +41,7 @@ extern volatile uint16_t last_address_stack;
 extern volatile uint16_t last_address_pc;
 extern volatile uint16_t last_address_zp;
 
-#ifdef FEATURE_TEST
 extern          uint32_t boot_time;
-#endif
 
 extern volatile uint8_t  reset_state;
 

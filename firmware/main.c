@@ -71,14 +71,11 @@ int main()
     // start testsuite, simulating some 6502 activity and
     // cycle through the test cases
     multicore_launch_core1(test_loop);
-
-    PROFILER_STOP(boot_time);
-    // convert to us
-    boot_time /= 125;
 #else
     // process the Apple II bus interface on core 1
     multicore_launch_core1(abus_loop);
 #endif
+    boot_time = to_us_since_boot(get_absolute_time());
 
     // Finish copying remaining data and code from flash to RAM
     memcpy32(__ram_delayed_copy_start__, __ram_delayed_copy_source__, ((uint32_t)__ram_delayed_copy_end__) - (uint32_t) __ram_delayed_copy_start__);

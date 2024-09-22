@@ -409,11 +409,9 @@ void DELAYED_COPY_CODE(menuShowDebug)()
         int2str(getFreeHeap(), s, 14);
         printXY(X2,15, s, PRINTMODE_NORMAL);
 
-#ifdef FEATURE_TEST
-        printXY(X1,18, "BOOT TIME:", PRINTMODE_NORMAL);
+        printXY(X1,18, "BOOT TIME (US):", PRINTMODE_NORMAL);
         int2str(boot_time, s, 14);
         printXY(X2, 18, s, PRINTMODE_NORMAL);
-#endif
     }
 }
 
