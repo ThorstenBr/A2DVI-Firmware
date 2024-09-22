@@ -194,9 +194,13 @@ void DELAYED_COPY_CODE(render_mixed_text)()
 {
     if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80STORE | SOFTSW_DGR)))
     {
-        for(uint line=20; line < 24; line++)
+        if (!mono_rendering)
         {
-            render_color_text40_line(line);
+            for(uint line=20; line < 24; line++)
+            {
+                render_color_text40_line(line);
+            }
+            return;
         }
     }
 
@@ -233,9 +237,13 @@ void DELAYED_COPY_CODE(render_text)()
 
     if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80STORE | SOFTSW_DGR)))
     {
-        for(uint line=0; line < 24; line++)
+        if (!mono_rendering)
         {
-            render_color_text40_line(line);
+            for(uint line=0; line < 24; line++)
+            {
+                render_color_text40_line(line);
+            }
+            return;
         }
     }
     else
