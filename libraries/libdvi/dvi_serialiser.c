@@ -20,7 +20,7 @@ static void dvi_configure_pad(uint gpio, bool invert) {
 	gpio_set_outover(gpio, invert ? GPIO_OVERRIDE_INVERT : GPIO_OVERRIDE_NORMAL);
 }
 
-void dvi_serialiser_init(struct dvi_serialiser_cfg *cfg) {
+void __dvi_func(dvi_serialiser_init)(struct dvi_serialiser_cfg *cfg) {
 #if DVI_SERIAL_DEBUG
 	uint offset = pio_add_program(cfg->pio, &dvi_serialiser_debug_program);
 #else
@@ -58,7 +58,7 @@ void dvi_serialiser_init(struct dvi_serialiser_cfg *cfg) {
 	}
 }
 
-void dvi_serialiser_enable(struct dvi_serialiser_cfg *cfg, bool enable) {
+void __dvi_func(dvi_serialiser_enable)(struct dvi_serialiser_cfg *cfg, bool enable) {
 	uint mask = 0;
 	for (int i = 0; i < N_TMDS_LANES; ++i)
 		mask |= 1u << (cfg->sm_tmds[i] + PIO_CTRL_SM_ENABLE_LSB);

@@ -7,10 +7,12 @@
 #include "dvi_serialiser.h"
 #include "tmds_encode.h"
 
+#if 0
 // Time-critical functions pulled into RAM but each in a unique section to
 // allow garbage collection
 #define __dvi_func(f) __not_in_flash_func(f)
 #define __dvi_func_x(f) __scratch_x(__STRING(f)) f
+#endif
 
 // We require exclusive use of a DMA IRQ line. (you wouldn't want to share
 // anyway). It's possible in theory to hook both IRQs and have two DVI outs.
@@ -20,7 +22,7 @@ static void dvi_dma1_irq();
 
 #define A2DVI_SCANLINES (2*192 + 4*16)
 
-void dvi_init(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_colour_queue)
+void DELAYED_COPY_CODE(dvi_init)(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_colour_queue)
 {
 	dvi_timing_state_init(&inst->timing_state);
 	dvi_serialiser_init(&inst->ser_cfg);
@@ -67,7 +69,7 @@ void dvi_init(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_col
 
 // The IRQs will run on whichever core calls this function (this is why it's
 // called separately from dvi_init)
-void dvi_register_irqs_this_core(struct dvi_inst *inst, uint irq_num)
+void DELAYED_COPY_CODE(dvi_register_irqs_this_core)(struct dvi_inst *inst, uint irq_num)
 {
 	uint32_t mask_sync_channel = 1u << inst->dma_cfg[TMDS_SYNC_LANE].chan_data;
 	uint32_t mask_all_channels = 0;
@@ -112,7 +114,7 @@ static inline void __attribute__((always_inline)) _dvi_load_dma_op(const struct 
 // trigger them. Control channels will subsequently be triggered only by DMA
 // CHAIN_TO on data channel completion. IRQ handler *must* be prepared before
 // calling this. (Hooked to DMA IRQ0)
-void dvi_start(struct dvi_inst *inst) {
+void DELAYED_COPY_CODE(dvi_start)(struct dvi_inst *inst) {
 	_dvi_load_dma_op(inst->dma_cfg, &inst->dma_list_vblank_nosync);
 	dma_start_channel_mask(
 		(1u << inst->dma_cfg[0].chan_ctrl) |

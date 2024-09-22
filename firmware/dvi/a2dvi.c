@@ -81,7 +81,7 @@ void DELAYED_COPY_CODE(a2dvi_loop)(void)
     __builtin_unreachable();
 }
 
-uint32_t a2dvi_scanline_errors(void)
+uint32_t DELAYED_COPY_CODE(a2dvi_scanline_errors)(void)
 {
     return dvi0.scanline_errors;
 }

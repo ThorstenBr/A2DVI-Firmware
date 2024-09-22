@@ -8,7 +8,7 @@
 // - Helper functions for generating DMA lists based on these timings
 
 // Pull into RAM but apply unique section suffix to allow linker GC
-#define __dvi_func(x) __not_in_flash_func(x)
+//#define __dvi_func(x) __not_in_flash_func(x)
 #define __dvi_const(x) __not_in_flash_func(x)
 
 // VGA -- we do this mode properly, with a pretty comfortable clk_sys (252 MHz)
@@ -257,7 +257,7 @@ static uint32_t __attribute__((aligned(8))) __dvi_const(empty_scanline_tmds)[6] 
 #endif
 #endif
 
-void dvi_timing_state_init(struct dvi_timing_state *t)
+void __dvi_func(dvi_timing_state_init)(struct dvi_timing_state *t)
 {
 	t->v_ctr = 0;
 	t->v_state = DVI_STATE_FRONT_PORCH;
@@ -275,7 +275,7 @@ void __dvi_func(dvi_timing_state_advance)(const struct dvi_timing *t, struct dvi
 		}
 }
 
-void dvi_scanline_dma_list_init(struct dvi_scanline_dma_list *dma_list)
+void __dvi_func(dvi_scanline_dma_list_init)(struct dvi_scanline_dma_list *dma_list)
 {
 	*dma_list = (struct dvi_scanline_dma_list){};
 }
@@ -304,7 +304,7 @@ static void _set_data_cb(dma_cb_t *cb, const struct dvi_lane_dma_cfg *dma_cfg,
 	channel_config_set_irq_quiet(&cb->c, !irq_on_finish);
 }
 
-void dvi_setup_scanline_for_vblank(const struct dvi_timing *t, const struct dvi_lane_dma_cfg dma_cfg[],
+void __dvi_func(dvi_setup_scanline_for_vblank)(const struct dvi_timing *t, const struct dvi_lane_dma_cfg dma_cfg[],
 		bool vsync_asserted, struct dvi_scanline_dma_list *l)
 {
 	bool vsync = t->v_sync_polarity == vsync_asserted;
@@ -328,7 +328,7 @@ void dvi_setup_scanline_for_vblank(const struct dvi_timing *t, const struct dvi_
 	}
 }
 
-void dvi_setup_scanline_for_active(const struct dvi_timing *t, const struct dvi_lane_dma_cfg dma_cfg[],
+void __dvi_func(dvi_setup_scanline_for_active)(const struct dvi_timing *t, const struct dvi_lane_dma_cfg dma_cfg[],
 		uint32_t *tmdsbuf, struct dvi_scanline_dma_list *l)
 {
 	const uint32_t *sym_hsync_off = get_ctrl_sym(!t->v_sync_polarity, !t->h_sync_polarity);

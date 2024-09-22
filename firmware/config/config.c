@@ -190,7 +190,7 @@ void __time_critical_func(set_machine)(compat_t machine)
     current_machine = machine;
 }
 
-bool config_flash_write(void* flash_address, uint8_t* data, uint32_t size)
+bool DELAYED_COPY_CODE(config_flash_write)(void* flash_address, uint8_t* data, uint32_t size)
 {
     if (size > FLASH_SECTOR_SIZE)
         return false;
@@ -203,7 +203,7 @@ bool config_flash_write(void* flash_address, uint8_t* data, uint32_t size)
     return true;
 }
 
-void config_font_update(void)
+void DELAYED_COPY_CODE(config_font_update)(void)
 {
     // We could use the "directory" to store the name of each custom font.
     // But for now we save the effort - and just remember which font was
@@ -235,7 +235,7 @@ static uint8_t check_valid_font(uint32_t font_nr)
     return custom_font;
 }
 
-void config_load_charsets(void)
+void DELAYED_COPY_CODE(config_load_charsets)(void)
 {
     if (reload_charsets & 1)
     {
@@ -312,7 +312,6 @@ void config_load(void)
 
     // load both character sets
     reload_charsets = 3;
-    config_load_charsets();
 
 #ifdef APPLE_MODEL_IIPLUS
     if(IS_STORED_IN_CONFIG(cfg, videx_vterm_enabled) && cfg->videx_vterm_enabled)
@@ -354,7 +353,7 @@ void config_load_defaults(void)
 #endif
 }
 
-void config_save(void)
+void DELAYED_COPY_CODE(config_save)(void)
 {
     // the write buffer size must be a multiple of FLASH_PAGE_SIZE so round up
     const int new_config_size = (sizeof(struct config_t) + FLASH_PAGE_SIZE - 1) & -FLASH_PAGE_SIZE;

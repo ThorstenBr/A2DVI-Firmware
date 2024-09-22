@@ -356,7 +356,7 @@ void int2str(uint32_t value, char* pStrBuf, uint32_t digits)
     pStrBuf[digits]=0;
 }
 
-void menuShowDebug()
+void DELAYED_COPY_CODE(menuShowDebug)()
 {
     menuShowFrame();
 
