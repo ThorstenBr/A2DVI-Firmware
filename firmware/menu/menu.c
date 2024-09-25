@@ -773,7 +773,7 @@ static inline bool menuCheckKeys(char key)
         case 27: // ESCAPE
             // clear menu mode when exiting
             SET_IFLAG(0, IFLAGS_MENU_ENABLE);
-            MenuNeedsRedraw = true;
+            // abort the menu: do not redraw
             return true;
         case '!': // special debug feature
             if (IS_IFLAG(IFLAGS_DEBUG_LINES))
@@ -809,7 +809,8 @@ void DELAYED_COPY_CODE(menuShow)(char key)
         MenuNeedsRedraw = true;
     }
 
-    if (IgnoreNextKeypress)
+    // never ignore the ESC key: the host utility always exits on ESC
+    if ((IgnoreNextKeypress)&&(key != 27))
     {
         IgnoreNextKeypress = false;
     }
