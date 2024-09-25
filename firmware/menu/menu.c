@@ -598,7 +598,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             SET_IFLAG(!IS_IFLAG(IFLAGS_VIDEO7), IFLAGS_VIDEO7);
             if (IS_IFLAG(IFLAGS_VIDEO7))
             {
-                internal_flags |= IFLAGS_V7_MODE3;
+                soft_switches |= SOFTSW_V7_MODE3;
             }
             break;
         case 10:

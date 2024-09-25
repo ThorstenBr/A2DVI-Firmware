@@ -45,8 +45,8 @@ volatile uint16_t last_address_zp;
          uint32_t dbg_counter2;
 #endif
 
-volatile uint32_t soft_switches = SOFTSW_TEXT_MODE;
-volatile uint32_t internal_flags = IFLAGS_V7_MODE3 | IFLAGS_INTERP_DGR | IFLAGS_INTERP_DHGR;
+volatile uint32_t soft_switches  = SOFTSW_TEXT_MODE  | SOFTSW_V7_MODE3;
+volatile uint32_t internal_flags = IFLAGS_INTERP_DGR | IFLAGS_INTERP_DHGR;
 
 volatile uint8_t  cardslot;
 // Set SlotROM area to invalid address, so decoder does not trigger before the actual cardslot is determined.

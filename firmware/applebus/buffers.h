@@ -96,6 +96,9 @@ extern volatile uint32_t internal_flags;
 
 // Apple IIe/c/gs softswitches
 #define SOFTSW_CXROM          0x00000010ul
+//                            0x00000020ul
+//                            0x00000040ul
+//                            0x00000080ul
 #define SOFTSW_80STORE        0x00000100ul
 #define SOFTSW_AUX_READ       0x00000200ul
 #define SOFTSW_AUX_WRITE      0x00000400ul
@@ -104,20 +107,23 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_80COL          0x00002000ul
 #define SOFTSW_ALTCHAR        0x00004000ul
 #define SOFTSW_DGR            0x00008000ul
+#define SOFTSW_MONOCHROME     0x00010000ul
+//#define SOFTSW_LINEARIZE    0x00020000ul
+//#define SOFTSW_SHR          0x00040000ul
+#define SOFTSW_IOUDIS         0x00080000ul
+// Video7-specific soft switches
+#define SOFTSW_V7_MODE0       0x00000000ul
+#define SOFTSW_V7_MODE1       0x00100000ul
+#define SOFTSW_V7_MODE2       0x00200000ul
+#define SOFTSW_V7_MODE3       0x00300000ul
+// emulation-specific soft switches
+#define SOFTSW_VIDEX_80COL    0x00400000ul
 
 #ifdef APPLEIIGS
 #define SOFTSW_NEWVID_MASK    0xE0ul
 #define SOFTSW_NEWVID_SHIFT   11
 #endif
 
-#define SOFTSW_MONOCHROME     0x00010000ul
-//#define SOFTSW_LINEARIZE      0x00020000ul
-//#define SOFTSW_SHR            0x00040000ul
-
-#define SOFTSW_IOUDIS         0x00080000ul
-
-// emulation-specific softswitches
-#define SOFTSW_VIDEX_80COL    0x00100000ul
 
 // internal config switches
 #define IFLAGS_DEBUG_LINES    0x00100000ul
@@ -132,11 +138,6 @@ extern volatile uint32_t internal_flags;
 #define IFLAGS_TEST           0x20000000ul
 #define IFLAGS_IIE_REGS       0x40000000ul
 #define IFLAGS_IIGS_REGS      0x80000000ul
-
-#define IFLAGS_V7_MODE0       0x00000000ul
-#define IFLAGS_V7_MODE1       0x00000001ul
-#define IFLAGS_V7_MODE2       0x00000002ul
-#define IFLAGS_V7_MODE3       0x00000003ul
 
 // size of a single character set
 #define CHARACTER_ROM_SIZE    2048

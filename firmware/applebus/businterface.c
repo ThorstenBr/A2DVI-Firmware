@@ -345,7 +345,9 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
         // Video 7 shift register
         if(soft_switches & SOFTSW_DGR)
         {
-            internal_flags = (internal_flags & 0xfffffffc) | ((internal_flags & 0x1) << 1) | ((soft_switches & SOFTSW_80COL) ? 1 : 0);
+            soft_switches = ( soft_switches & (~SOFTSW_V7_MODE3)) |
+                            ((soft_switches &   SOFTSW_V7_MODE1)<<1) |
+                            ((soft_switches & SOFTSW_80COL) ? SOFTSW_V7_MODE1 : 0);
         }
 
         if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
@@ -511,9 +513,8 @@ void __time_critical_func(businterface)(uint32_t value)
         case 2:
             if (address == 0xFA62) // Apple II reset vector address
             {
-                soft_switches   = SOFTSW_TEXT_MODE;
-                internal_flags &= ~(IFLAGS_MENU_ENABLE);
-                internal_flags |= IFLAGS_V7_MODE3;
+                soft_switches   = SOFTSW_TEXT_MODE | SOFTSW_V7_MODE3;
+                internal_flags &= ~IFLAGS_MENU_ENABLE;
                 romx_unlocked = 0;
                 // clear dev register lock
                 dev_config_lock = 0;

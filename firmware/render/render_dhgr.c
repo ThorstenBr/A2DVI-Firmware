@@ -109,7 +109,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
         }
     }
     else
-    if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL)) == (SOFTSW_80STORE)))
+    if(IS_IFLAG(IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL)) == SOFTSW_80STORE))
     {
         dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
@@ -160,7 +160,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
         }
     }
     else
-    if((internal_flags & (IFLAGS_VIDEO7|IFLAGS_V7_MODE3)) == (IFLAGS_VIDEO7 | IFLAGS_V7_MODE2))
+    if(IS_IFLAG(IFLAGS_VIDEO7) && ((soft_switches & SOFTSW_V7_MODE3) == SOFTSW_V7_MODE2))
     {
         uint8_t color;
 
@@ -194,7 +194,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
         }
     }
     else
-    if((internal_flags & (IFLAGS_VIDEO7 | IFLAGS_V7_MODE3)) == (IFLAGS_VIDEO7 | IFLAGS_V7_MODE1))
+    if(IS_IFLAG(IFLAGS_VIDEO7) && ((soft_switches & SOFTSW_V7_MODE3) == SOFTSW_V7_MODE1))
     {
         dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
@@ -294,7 +294,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
     }
 #endif
     else
-    if(internal_flags & IFLAGS_INTERP_DHGR)
+    if(IS_IFLAG(IFLAGS_INTERP_DHGR))
     {
         dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
         // Preload black into the sliding window
@@ -393,7 +393,7 @@ static void DELAYED_COPY_CODE(render_dhgr_line)(bool p2, uint line, bool mono)
 void DELAYED_COPY_CODE(render_dhgr)()
 {
     bool mono = mono_rendering;
-    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0))
+    if(IS_IFLAG(IFLAGS_VIDEO7) && ((soft_switches & SOFTSW_V7_MODE3) == SOFTSW_V7_MODE0))
     {
         mono = true;
     }
@@ -406,7 +406,7 @@ void DELAYED_COPY_CODE(render_dhgr)()
 void DELAYED_COPY_CODE(render_mixed_dhgr)()
 {
     bool mono = mono_rendering;
-    if((internal_flags & IFLAGS_VIDEO7) && ((internal_flags & IFLAGS_V7_MODE3) == IFLAGS_V7_MODE0))
+    if(IS_IFLAG(IFLAGS_VIDEO7) && ((soft_switches & SOFTSW_V7_MODE3) == SOFTSW_V7_MODE0))
     {
         mono = true;
     }
