@@ -48,7 +48,6 @@ uint32_t           invalid_fonts = 0xffffffff;
 volatile uint8_t   color_mode = 1;
 rendering_fx_t     rendering_fx = FX_ENABLED;
 ToggleSwitchMode_t input_switch_mode = ModeSwitchCycleVideo;
-bool               input_switch_state;
 
 // A block of flash is reserved for storing configuration persistently across power cycles
 // and firmware updates.

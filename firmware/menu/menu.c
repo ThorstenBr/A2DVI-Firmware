@@ -416,8 +416,8 @@ void DELAYED_COPY_CODE(menuShowDebug)()
         int2str(devicereg_counter, s, 14);
         printXY(X2,11, s, PRINTMODE_NORMAL);
 
-        printXY(X1,12, "DEV ROM ACCESS:", PRINTMODE_NORMAL);
-        int2str(devicerom_counter, s, 14);
+        printXY(X1,12, "DEV MEM ACCESS:", PRINTMODE_NORMAL);
+        int2str(devicemem_counter, s, 14);
         printXY(X2,12, s, PRINTMODE_NORMAL);
 
         printXY(X1,15, "AVAILABLE MEMORY:", PRINTMODE_NORMAL);

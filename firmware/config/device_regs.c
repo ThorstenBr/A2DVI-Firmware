@@ -154,7 +154,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
 
     // device command
     case 0x4:
-        execute_device_command(data);
+        device_command(data);
         break;
 
     // set local/main character set
@@ -209,7 +209,6 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
     }
 }
 
-
 // Handle a write to the "command" register to perform some one-shot action based on the
 // command value.
 //
@@ -217,7 +216,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
 // some bus activity may be missed. Other projects like the V2-Analog delegate this execution
 // to the other (VGA) core to avoid this. Maybe do this if the missed bus cycles become a noticable
 // issue; I only expect it would happen when some config is being saved, which is not done often.
-void execute_device_command(uint_fast8_t cmd)
+void device_command(uint_fast8_t cmd)
 {
     switch(cmd)
     {

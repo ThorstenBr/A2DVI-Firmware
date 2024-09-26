@@ -104,7 +104,7 @@ void clearBothPages()
 // simulate a write access with given address/data
 static void simulateWrite(uint16_t address, uint8_t data)
 {
-    uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_DEVSEL - CONFIG_PIN_APPLEBUS_DATA_BASE));
+    uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_SELECT - CONFIG_PIN_APPLEBUS_DATA_BASE));
     if ((address & 0xCFF0) == (0xC080+0x10*SimulatedSlotNr)) // Slot register area
         card_select = 0;
     businterface((address << 11) | data | card_select);
@@ -113,7 +113,7 @@ static void simulateWrite(uint16_t address, uint8_t data)
 // simulate a read access with given address
 static void simulateRead(uint16_t address)
 {
-    uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_DEVSEL - CONFIG_PIN_APPLEBUS_DATA_BASE));
+    uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_SELECT - CONFIG_PIN_APPLEBUS_DATA_BASE));
     uint32_t read_mode   = (1u << (CONFIG_PIN_APPLEBUS_RW - CONFIG_PIN_APPLEBUS_DATA_BASE));
     if ((address & 0xCFF0) == (0xC080+0x10*SimulatedSlotNr)) // Slot register area
         card_select = 0;

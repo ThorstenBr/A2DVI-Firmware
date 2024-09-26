@@ -63,28 +63,29 @@ void abus_pio_setup(void)
 {
     PIO pio = CONFIG_ABUS_PIO;
     const uint sm = ABUS_MAIN_SM;
+    const uint32_t control_bit_count = 3;
 
     uint program_offset = pio_add_program(pio, &abus_program);
     pio_sm_claim(pio, sm);
 
-    pio_sm_config c = abus_program_get_default_config(program_offset);
+    pio_sm_config pio_cfg = abus_program_get_default_config(program_offset);
 
     // set the bus R/W pin as the jump pin
-    sm_config_set_jmp_pin(&c, CONFIG_PIN_APPLEBUS_RW);
+    sm_config_set_jmp_pin(&pio_cfg, CONFIG_PIN_APPLEBUS_RW);
 
     // map the IN pin group to the data signals
-    sm_config_set_in_pins(&c, CONFIG_PIN_APPLEBUS_DATA_BASE);
+    sm_config_set_in_pins(&pio_cfg, CONFIG_PIN_APPLEBUS_DATA_BASE);
 
     // map the SET pin group to the bus transceiver enable signals
-    sm_config_set_set_pins(&c, CONFIG_PIN_APPLEBUS_CONTROL_BASE, 3);
+    sm_config_set_set_pins(&pio_cfg, CONFIG_PIN_APPLEBUS_CONTROL_BASE, control_bit_count);
 
     // configure left shift into ISR & autopush every 27 bits
-    sm_config_set_in_shift(&c, false, true, 27);
+    sm_config_set_in_shift(&pio_cfg, false, true, 27);
 
-    pio_sm_init(pio, sm, program_offset, &c);
+    pio_sm_init(pio, sm, program_offset, &pio_cfg);
 
     // configure the GPIOs
-    // Ensure all transceivers will start disabled
+    // Ensure all transceivers will start disabled. Set data direction to input (low).
     pio_sm_set_pins_with_mask(
         pio, sm, (uint32_t)0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE, (uint32_t)0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE);
     pio_sm_set_pindirs_with_mask(pio, sm, (0x7 << CONFIG_PIN_APPLEBUS_CONTROL_BASE),
@@ -97,12 +98,12 @@ void abus_pio_setup(void)
     pio_gpio_init(pio, CONFIG_PIN_APPLEBUS_PHI0);
     gpio_set_pulls(CONFIG_PIN_APPLEBUS_PHI0, false, false);
 
-    for(int pin = CONFIG_PIN_APPLEBUS_CONTROL_BASE; pin < CONFIG_PIN_APPLEBUS_CONTROL_BASE + 3; pin++)
+    for(int pin = CONFIG_PIN_APPLEBUS_CONTROL_BASE; pin < CONFIG_PIN_APPLEBUS_CONTROL_BASE + control_bit_count; pin++)
     {
         pio_gpio_init(pio, pin);
     }
 
-    // initialize GPIO on all 8 data pins + DEVSEL + RW + LANGUAGE_SW = 11
+    // initialize GPIO on all 8 data pins + SELECT + RW + LANGUAGE_SW = 11
     for(int pin = CONFIG_PIN_APPLEBUS_DATA_BASE; pin < CONFIG_PIN_APPLEBUS_DATA_BASE + 11; pin++)
     {
         pio_gpio_init(pio, pin);

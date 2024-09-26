@@ -30,7 +30,9 @@ SOFTWARE.
 
 extern volatile bool videx_vterm_mem_selected;
 
-extern void videx_reg_access    (bool is_write, uint_fast16_t address, uint_fast8_t data);
-extern void videx_c8rom_access  (bool is_write, uint_fast16_t address, uint_fast8_t data);
+extern void videx_reg_read  (uint_fast16_t address);
+extern void videx_reg_write (uint_fast16_t address, uint_fast8_t data);
+extern void videx_c8xx_read (uint_fast16_t address);
+extern void videx_c8xx_write(uint_fast16_t address, uint_fast8_t data);
 
 extern void render_videx_text   (void);

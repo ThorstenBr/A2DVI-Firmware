@@ -67,16 +67,17 @@ static volatile uint8_t videx_crtc_regs[18] =
     0x00, 0x00
 };
 
-// Shadow accesses to card registers in $C0n0 - $C0nF range
-//
-// Only called from the abus core
-void videx_reg_access(bool is_write, uint_fast16_t address, uint_fast8_t data)
+void videx_reg_read(uint_fast16_t address)
 {
     // select the video memory bank
     videx_banknum = (address & 0x000c) >> 2;
+}
 
-    if(!is_write)
-        return;
+// Shadow accesses to card registers in $C0n0 - $C0nF range
+void videx_reg_write(uint_fast16_t address, uint_fast8_t data)
+{
+    // select the video memory bank
+    videx_banknum = (address & 0x000c) >> 2;
 
     if(address & 0x0001)
     {
@@ -93,10 +94,17 @@ void videx_reg_access(bool is_write, uint_fast16_t address, uint_fast8_t data)
     }
 }
 
+void videx_c8xx_read(uint_fast16_t address)
+{
+    if(address >= 0xce00)
+    {
+        // accesses to $CE00-$CFFF deactivates the card's memory
+        videx_vterm_mem_selected = false;
+    }
+}
+
 // Shadow bus accesses to the $C800-$CFFF memory space
-//
-// Only called from the abus core
-void videx_c8rom_access(bool is_write, uint_fast16_t address, uint_fast8_t data)
+void videx_c8xx_write(uint_fast16_t address, uint_fast8_t data)
 {
     if(address < 0xcc00)
         return;  // ignore ROM reads
@@ -104,11 +112,8 @@ void videx_c8rom_access(bool is_write, uint_fast16_t address, uint_fast8_t data)
     if(address < 0xce00)
     {
         // this is the window into the card's video RAM
-        if(is_write)
-        {
-            uint16_t vaddr = ((uint16_t)videx_banknum << 9) | (address & 0x01ff);
-            videx_vram[vaddr] = data;
-        }
+        uint16_t vaddr = ((uint16_t)videx_banknum << 9) | (address & 0x01ff);
+        videx_vram[vaddr] = data;
     }
     else
     {

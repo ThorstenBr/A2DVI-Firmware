@@ -34,16 +34,9 @@ SOFTWARE.
 #include "fonts/textfont.h"
 #include "videx/videx_vterm.h"
 
-static uint8_t romx_unlocked;
-static uint8_t romx_textbank;
-
-typedef enum
-{
-    WriteMem = 0,
-    ReadMem  = 1,
-    WriteDev = 2,
-    ReadDev  = 3,
-} TAccessMode;
+static uint8_t       romx_unlocked;
+static uint8_t       romx_textbank;
+static uint_fast16_t last_read_address;
 
 static inline void __time_critical_func(machine_auto_detection)(uint32_t address)
 {
@@ -372,16 +365,6 @@ static inline void __time_critical_func(apple2_softswitches)(TAccessMode AccessM
 
 static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32_t address, uint8_t data)
 {
-    if (address < 0x100)
-        last_address_zp = address;
-    else
-    if (address < 0x200)
-        last_address_stack = address;
-    else
-    if (address == last_address+1)
-        last_address_pc = address;
-    last_address = address;
-
     // Shadow parts of the Apple's memory by observing the bus write cycles
     if(AccessMode == WriteMem)
     {
@@ -422,13 +405,6 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
                 return;
             }
         }
-        else
-        if ((address & 0xFF00) == card_rom_address)
-        {
-            // access to card's ROM area
-            devicerom_counter++;
-            return;
-        }
     }
     else
     if(AccessMode == ReadMem)
@@ -451,26 +427,25 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
     if ((AccessMode == WriteDev)||
         (AccessMode == ReadDev))
     {
-        // remember the slot number
-        cardslot = (address >> 4) & 0x7;
-        if (cardslot)
-        {
-            // remember address range of card's ROM area ($Cs00, s=1..7)
-            card_rom_address = 0xC000 | (cardslot << 8);
-        }
-        devicereg_counter++;
-
         if (AccessMode == WriteDev)
         {
             device_write(address & 0xF, data);
         }
+        // remember the slot number
+        cardslot = (address >> 4) & 0x7;
+        devicereg_counter++;
     }
     else
     if (((internal_flags & (IFLAGS_IIE_REGS|IFLAGS_VIDEX)) == IFLAGS_VIDEX)&&
         ((AccessMode == WriteMem)||(AccessMode == ReadMem)))
     {
         if ((address & 0xFFF0) == 0xC0B0) // slot #3 register area ($C0B0-$C0BF)
-            videx_reg_access(AccessMode==WriteMem, address, data);
+        {
+            if (AccessMode==WriteMem)
+                videx_reg_write(address, data);
+            else
+                videx_reg_read(address);
+        }
         else
         if ((address & 0xFF00) == 0xC300)
         {
@@ -480,24 +455,42 @@ static void __time_critical_func(apple2emulation)(TAccessMode AccessMode, uint32
         if ((address & 0xF800) == 0xC800)
         {
             if (videx_vterm_mem_selected)
-                videx_c8rom_access(AccessMode==WriteMem, address, data);
+            {
+                if (AccessMode==WriteMem)
+                    videx_c8xx_write(address, data);
+                else
+                    videx_c8xx_read(address);
+            }
         }
     }
 }
 
 void __time_critical_func(businterface)(uint32_t value)
 {
-    uint32_t access_mode = ACCESS_WRITE(value) ? 0 : 1;
-    if (CARD_DEVSEL(value))
-        access_mode |= 2;
-    uint32_t address = ADDRESS_BUS(value);
+    uint8_t  access_mode = ACCESS_MODE(value);
+    uint32_t address     = ADDRESS_BUS(value);
+    uint8_t  data        = DATA_BUS(value);
 
-    apple2emulation(access_mode, address, value & 0xff);
+    apple2emulation(access_mode, address, data);
+
+    // keep track of 6502 activity (debug monitor)
+    if (address < 0x100)
+        last_address_zp = address;
+    else
+    if (address < 0x200)
+        last_address_stack = address;
+    else
+    if (address == last_read_address+1)
+        last_address_pc = address;
+    last_read_address = address;
 
     // Apple II reset detection: monitor addresses
     if(access_mode != ReadMem)
+    {
         reset_state = 0;
-    else
+        return;
+    }
+
     switch(reset_state)
     {
         case 0:

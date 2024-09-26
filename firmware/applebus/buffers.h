@@ -33,10 +33,9 @@ extern volatile uint32_t bus_counter;
 extern volatile uint32_t bus_overflow_counter;
 extern volatile uint32_t frame_counter;
 extern volatile uint32_t devicereg_counter;
-extern volatile uint32_t devicerom_counter;
+extern volatile uint32_t devicemem_counter;
 extern volatile uint32_t vblank_counter;
 
-extern volatile uint16_t last_address;
 extern volatile uint16_t last_address_stack;
 extern volatile uint16_t last_address_pc;
 extern volatile uint16_t last_address_zp;
@@ -51,7 +50,6 @@ extern          uint32_t dbg_counter2;
 extern volatile uint8_t  reset_state;
 
 extern volatile uint8_t  cardslot;
-extern volatile uint16_t card_rom_address;
 
 #define MAX_ADDRESS (0x6000)
 

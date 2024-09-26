@@ -59,21 +59,12 @@ void __time_critical_func(abus_loop)()
     // initialize the Apple II bus interface
     abus_init();
 
-    uint32_t count = 100;
     while(1)
     {
-        if (--count == 0)
-        {
-            gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
-            count = 100*1000;
-        }
-
         if (abus_pio_is_full())
             bus_overflow_counter++;
 
         uint32_t value = abus_pio_blocking_read();
-
-        input_switch_state = LANGUAGE_SWITCH(value);
 
         bus_counter++;
 

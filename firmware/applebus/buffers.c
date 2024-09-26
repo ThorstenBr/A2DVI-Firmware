@@ -31,10 +31,9 @@ volatile uint32_t bus_counter;
 volatile uint32_t bus_overflow_counter;
 volatile uint32_t frame_counter;
 volatile uint32_t devicereg_counter;
-volatile uint32_t devicerom_counter;
+volatile uint32_t devicemem_counter;
 volatile uint32_t vblank_counter;
 
-volatile uint16_t last_address;
 volatile uint16_t last_address_stack;
 volatile uint16_t last_address_pc;
 volatile uint16_t last_address_zp;
@@ -49,8 +48,6 @@ volatile uint32_t soft_switches  = SOFTSW_TEXT_MODE  | SOFTSW_V7_MODE3;
 volatile uint32_t internal_flags = IFLAGS_INTERP_DGR | IFLAGS_INTERP_DHGR;
 
 volatile uint8_t  cardslot;
-// Set SlotROM area to invalid address, so decoder does not trigger before the actual cardslot is determined.
-volatile uint16_t card_rom_address = 0x00ff;
 
 volatile uint8_t reset_state = 0;
 

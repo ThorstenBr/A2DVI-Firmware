@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include <stdlib.h>
 #include "applebus/buffers.h"
+#include "applebus/abus_pin_config.h"
 #include "config/config.h"
 #include "videx/videx_vterm.h"
 
@@ -153,11 +154,13 @@ bool DELAYED_COPY_CODE(quick_button_toggle())
 const uint debounce_threshold = 7; // in 1/60th of a second
 
 // check button state and trigger configured actions
-void DELAYED_COPY_CODE(update_toggle_switch)()
+static void update_toggle_switch()
 {
     static uint debounce_counter;
     static bool debounce_state;
     static bool debounce_last;
+
+    bool input_switch_state = gpio_get(CONFIG_PIN_LANGUAGE_SW);
 
     if ((input_switch_state != debounce_state)||
         (input_switch_mode == ModeSwitchDisabled))
@@ -245,6 +248,16 @@ void DELAYED_COPY_CODE(update_toggle_switch)()
     }
 }
 
+static void update_led()
+{
+    static uint32_t last_bus_counter;
+    if (bus_counter != last_bus_counter) // 6502 is also alive
+    {
+        gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
+        last_bus_counter = bus_counter;
+    }
+}
+
 void DELAYED_COPY_CODE(render_loop)()
 {
     for(;;)
@@ -321,5 +334,11 @@ void DELAYED_COPY_CODE(render_loop)()
         dvi0.scanline_emulation = (internal_flags & IFLAGS_SCANLINEEMU) != 0;
 
         frame_counter++;
+
+        // toggle LED
+        if ((frame_counter&7) == 0)
+        {
+            update_led();
+        }
     }
 }

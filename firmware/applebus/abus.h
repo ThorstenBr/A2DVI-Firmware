@@ -27,12 +27,22 @@ SOFTWARE.
 
 #include "abus_pin_config.h"
 
-void abus_init();
-void abus_loop();
-void abus_clear_fifo();
+typedef enum
+{
+    WriteDev = 0,
+    WriteMem = 1,
+    ReadDev  = 2,
+    ReadMem  = 3
+} TAccessMode;
 
+void abus_init      (void);
+void abus_loop      (void);
+void abus_clear_fifo(void);
+
+#define ACCESS_MODE(value)     ((value >>       (CONFIG_PIN_APPLEBUS_SELECT-CONFIG_PIN_APPLEBUS_DATA_BASE)) & 0x3)
 #define ACCESS_WRITE(value)    ((value & (1u << (CONFIG_PIN_APPLEBUS_RW     - CONFIG_PIN_APPLEBUS_DATA_BASE))) == 0)
 #define ACCESS_READ(value)     ((value & (1u << (CONFIG_PIN_APPLEBUS_RW     - CONFIG_PIN_APPLEBUS_DATA_BASE))) != 0)
-#define CARD_DEVSEL(value)     ((value & (1u << (CONFIG_PIN_APPLEBUS_DEVSEL - CONFIG_PIN_APPLEBUS_DATA_BASE))) == 0)
-#define LANGUAGE_SWITCH(value) ((value & (1u << (CONFIG_PIN_LANGUAGE_SW     - CONFIG_PIN_APPLEBUS_DATA_BASE))) != 0)
+#define CARD_SELECT(value)     ((value & (1u << (CONFIG_PIN_APPLEBUS_SELECT - CONFIG_PIN_APPLEBUS_DATA_BASE))) == 0)
+//#define LANGUAGE_SWITCH(value) ((value & (1u << (CONFIG_PIN_LANGUAGE_SW     - CONFIG_PIN_APPLEBUS_DATA_BASE))) != 0)
 #define ADDRESS_BUS(value)     ((value >> 11) & 0xffff)
+#define DATA_BUS(value)        (value & 0xff)

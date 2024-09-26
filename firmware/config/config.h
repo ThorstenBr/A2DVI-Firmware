@@ -67,7 +67,6 @@ typedef enum
 } ToggleSwitchMode_t;
 
 extern ToggleSwitchMode_t input_switch_mode;
-extern bool               input_switch_state;
 
 // check if the language toggle switch function is currently enabled
 #define LANGUAGE_SWITCH_ENABLED() \
@@ -80,7 +79,6 @@ extern          uint8_t  cfg_local_charset;
 extern          uint8_t  cfg_alt_charset;
 extern          uint8_t  cfg_videx_selection;
 extern volatile uint8_t  reload_charsets;
-
 
 extern volatile bool language_switch;
 extern volatile bool enhanced_font_enabled;

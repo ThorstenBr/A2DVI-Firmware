@@ -23,33 +23,38 @@
 
 .define public PHI0_GPIO 26
 
+; SET bits for transceiver control:
+;                    0bxxx
+;                      x..  - select AddrHi, active low
+;                      .x.  - select AddrLo, active low
+;                      ..x  - select Data, active low
+.define CTRL_ADDRHI  0b011
+.define CTRL_ADDRLO  0b101
+.define CTRL_DATAIN  0b110
+.define CTRL_NONE    0b111
+
 ; Apple II bus interface
 ; Ref: Understanding the Apple II, pages 4-7, 7-8
 
 .program abus
 ; Prerequisites:
-;  * Bus clock used is PHI0, wired to GPIO 26
+;  * Bus clock used is PHI0
 ;  * JMP pin is mapped to the R/W signal
-;  * IN pins are mapped to Data[7:0], ~DEVSEL, R/W and LANGS
+;  * IN pins are mapped to Data[7:0], ~SELECT, R/W
 ;  * SET pins are mapped to the transceiver enable signals
 ;  * input shift left & autopush @ 27 bits
 ;  * run at about 250MHz (4ns/instruction)
 ;
-; SET bits for tranceiver control:
-;  0bxxx
-;    x    - select AddrHi, active low
-;     x   - select AddrLo, active low
-;      x  - select Data, active low
 .wrap_target
 next_bus_cycle:
-    set PINS, 0b011                     ; enable AddrHi tranceiver
+    set PINS, CTRL_ADDRHI               ; enable AddrHi transceiver
     wait 1 GPIO, PHI0_GPIO              ; wait for PHI0 to rise. Data propagation through the transceiver should
                                         ; be complete by the time this happens.
 
     ; the current time is P0+42ns (P0 + 18ns (buffer + clock input delays) + 2 clocks (input synchronizers) + 1 instruction)
 
     in PINS, 8                          ; read AddrHi[7:0]
-    set PINS, 0b101  [10]               ; enable AddrLo tranceiver and delay for transceiver propagation delay
+    set PINS, CTRL_ADDRLO    [10]       ; enable AddrLo transceiver and delay for transceiver propagation delay
     in PINS, 8                          ; read AddrLo[7:0]
 
     jmp PIN, read_cycle                 ; jump based on the state of the R/W pin
@@ -57,14 +62,14 @@ next_bus_cycle:
 write_cycle:
     ; the current time is P0+114ns (P0 + 18ns (buffer + clock input delays) + 2 clocks (input synchronizers) + 10 instructions)
 
-    set PINS, 0b110  [30]               ; enable Data tranceiver & wait until both ~DEVSEL and the written data are valid (P0+200ns)
-    in PINS, 11                         ; read Data[7:0], ~DEVSEL, R/W, LANGSW and then autopush
-    wait 0 GPIO, PHI0_GPIO  [7]         ; wait for PHI0 to fall
+    set PINS, CTRL_DATAIN    [30]       ; enable Data transceiver & wait until both ~SELECT and the written data are valid (P0+200ns)
+    in PINS, 11                         ; read Data[7:0], ~SELECT, R/W, LANGSW and then autopush
+    wait 0 GPIO, PHI0_GPIO   [7]        ; wait for PHI0 to fall
     jmp next_bus_cycle
 
 read_cycle:
     ; the current time is P0+114ns (P0 + 18ns (buffer + clock input delays) + 2 clocks (input synchronizers) + 10 instructions)
 
-    in PINS, 11                         ; read dontcare[7:0], ~DEVSEL, R/W, LANGSW and then autopush
+    in PINS, 11                         ; read dontcare[7:0], ~SELECT, R/W, LANGSW and then autopush
     wait 0 GPIO, PHI0_GPIO   [7]        ; wait for PHI0 to fall
 .wrap
