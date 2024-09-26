@@ -64,6 +64,9 @@ add_compile_options(-DDVI_N_TMDS_BUFFERS=8)
 
 add_compile_options(-DFW_VERSION="${FW_VERSION}")
 
+# just for debugging
+#add_compile_options(-DFEATURE_DEBUG_COUNTER)
+
 pico_sdk_init()
 
 include(../libraries/libdvi/CMakeLists.txt)

@@ -424,9 +424,19 @@ void DELAYED_COPY_CODE(menuShowDebug)()
         int2str(getFreeHeap(), s, 14);
         printXY(X2,15, s, PRINTMODE_NORMAL);
 
-        printXY(X1,18, "BOOT TIME (US):", PRINTMODE_NORMAL);
+        printXY(X1,16, "BOOT TIME (US):", PRINTMODE_NORMAL);
         int2str(boot_time, s, 14);
+        printXY(X2, 16, s, PRINTMODE_NORMAL);
+
+#if 0
+        printXY(X1,17, "IFLAGS:", PRINTMODE_NORMAL);
+        int2str(internal_flags, s, 8);
+        printXY(X2, 17, s, PRINTMODE_NORMAL);
+
+        printXY(X1,18, "SWFLAGS:", PRINTMODE_NORMAL);
+        int2str(soft_switches, s, 8);
         printXY(X2, 18, s, PRINTMODE_NORMAL);
+#endif
     }
 }
 

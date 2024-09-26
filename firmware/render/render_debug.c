@@ -161,6 +161,12 @@ void DELAYED_COPY_CODE(update_debug_monitor)(void)
             copy_str(&line2[33], "OV:");
             int2hex(&line2[36], bus_overflow_counter, 4);
         }
+
+#ifdef FEATURE_DEBUG_COUNTER
+#warning DEBUG FEATURE IS ENABLED! ************************************
+        int2hex(&line2[20], dbg_counter1, 8);
+        int2hex(&line2[29], dbg_counter2, 8);
+#endif
     }
 }
 

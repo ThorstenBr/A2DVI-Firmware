@@ -40,6 +40,10 @@ volatile uint16_t last_address_pc;
 volatile uint16_t last_address_zp;
 
          uint32_t boot_time;
+#ifdef FEATURE_DEBUG_COUNTER
+         uint32_t dbg_counter1;
+         uint32_t dbg_counter2;
+#endif
 
 volatile uint32_t soft_switches = SOFTSW_TEXT_MODE;
 volatile uint32_t internal_flags = IFLAGS_V7_MODE3 | IFLAGS_INTERP_DGR | IFLAGS_INTERP_DHGR;

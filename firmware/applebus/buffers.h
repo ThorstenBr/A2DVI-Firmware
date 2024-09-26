@@ -43,6 +43,11 @@ extern volatile uint16_t last_address_zp;
 
 extern          uint32_t boot_time;
 
+#ifdef FEATURE_DEBUG_COUNTER
+extern          uint32_t dbg_counter1;
+extern          uint32_t dbg_counter2;
+#endif
+
 extern volatile uint8_t  reset_state;
 
 extern volatile uint8_t  cardslot;
