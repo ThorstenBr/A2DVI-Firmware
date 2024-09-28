@@ -57,6 +57,8 @@ Here's a brief look at the architecture:
 The firmware supports various configuration properties.
 There are configuration utility disks for [ProDOS](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_PRODOS.po) and [DOS3.3](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_DOS33.dsk).
 
+You can also manually type and save the configuration program. It takes just 15 lines of BASIC. See [here](configutil/README.md) for more.
+
 ![Config Utility](images/A2DVI_Config.jpg)
 
 ## Machine Type
