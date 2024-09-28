@@ -353,7 +353,7 @@ void DELAYED_COPY_CODE(menuShowTest)()
         if (line > 23)
             break;
         uint32_t ScreenOffset = (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
-        volatile uint8_t* pScreen =  (x & 1) ? text_p3 : text_p1;
+        volatile uint8_t* pScreen =  (x & 1) ? text_p1 : text_p3;
 
         pScreen[ScreenOffset+x/2] = i;
     }
