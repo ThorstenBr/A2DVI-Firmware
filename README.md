@@ -144,6 +144,8 @@ The new display configuration is briefly shown below the screen area when using 
 
 ![A2DVI Mode Display](images/A2DVI_ModeDisplay.jpg)
 
+See [here](doc/Installation.md) for more details about the installation of a custom external switch / connecting to the language rocker switch.
+
 ## Dual Language Support for Euro-Machines
 The A2DVI-Firmware has dual language support.
 If you have a "Euro-Apple IIe" with the language switch on the bottom side of your Apple II keyboard,
