@@ -63,12 +63,27 @@ void DELAYED_COPY_CODE(show_display_mode)()
           SCANLINES  MONOCHROME  BLACK & WHITE
     */
 
-    if (IS_IFLAG(IFLAGS_SCANLINEEMU))
+    if ((input_switch_mode==ModeSwitchCycleVideo)||
+        (input_switch_mode==ModeSwitchLangCycle))
     {
-        copy_str(&line2[4], "SCANLINES");
+        // show these properties only when a "cycling video modes" is set
+        if (IS_IFLAG(IFLAGS_SCANLINEEMU))
+        {
+            copy_str(&line2[4], "SCANLINES");
+        }
+
+        // set flag when monochrome rendering is requested
+        mono_rendering = (soft_switches & SOFTSW_MONOCHROME)||(internal_flags & IFLAGS_FORCED_MONO);
+
+        if (mono_rendering || (color_support == false))
+        {
+            copy_str(&line2[27], MenuColorMode[color_mode]);
+        }
     }
 
-    if (color_support)
+    if ((color_support)||
+        (input_switch_mode==ModeSwitchMonochrome)||
+        (input_switch_mode==ModeSwitchLangMonochrome))
     {
         if (IS_IFLAG(IFLAGS_FORCED_MONO))
         {
@@ -78,14 +93,6 @@ void DELAYED_COPY_CODE(show_display_mode)()
         {
             copy_str(&line2[18], "COLOR");
         }
-    }
-
-    // set flag when monochrome rendering is requested
-    mono_rendering = (soft_switches & SOFTSW_MONOCHROME)||(internal_flags & IFLAGS_FORCED_MONO);
-
-    if (mono_rendering || (color_support == false))
-    {
-        copy_str(&line2[27], MenuColorMode[color_mode]);
     }
 
     // show the subtitle for 120 screen cycles (2 seconds)
@@ -143,11 +150,14 @@ bool DELAYED_COPY_CODE(quick_button_toggle())
     return quick;
 }
 
+const uint debounce_threshold = 7; // in 1/60th of a second
+
 // check button state and trigger configured actions
 void DELAYED_COPY_CODE(update_toggle_switch)()
 {
     static uint debounce_counter;
     static bool debounce_state;
+    static bool debounce_last;
 
     if ((input_switch_state != debounce_state)||
         (input_switch_mode == ModeSwitchDisabled))
@@ -156,12 +166,13 @@ void DELAYED_COPY_CODE(update_toggle_switch)()
         debounce_state = input_switch_state;
         return;
     }
+
     debounce_counter++;
-    if (debounce_counter < 5)
+    if (debounce_counter < debounce_threshold)
         return;
-    if (debounce_counter > 5)
+    if (debounce_counter > debounce_threshold)
     {
-        debounce_counter = 6; // avoid overflows
+        debounce_counter = debounce_threshold+1; // avoid overflows
         return;
     }
 
@@ -184,7 +195,8 @@ void DELAYED_COPY_CODE(update_toggle_switch)()
             // More complex behavior for US-charset machines:
             // Switch cycles through various display modes.
             // (Using a push-button is a good choice for this mode).
-            if (input_switch_state)
+            if ((input_switch_state)&&
+                (input_switch_state != debounce_last))
             {
                 cycle_display_modes();
             }
@@ -196,7 +208,8 @@ void DELAYED_COPY_CODE(update_toggle_switch)()
             // Toggling the switch quickly (in less than 1 second) toggles
             // between color and monochrome mode.
             language_switch = input_switch_state;
-            if (quick_button_toggle())
+            if ((input_switch_state != debounce_last)&&
+                (quick_button_toggle()))
             {
                 // toggle monochrome mode
                 SET_IFLAG(!IS_IFLAG(IFLAGS_FORCED_MONO), IFLAGS_FORCED_MONO);
@@ -211,20 +224,22 @@ void DELAYED_COPY_CODE(update_toggle_switch)()
             // Toggling the switch quickly (in less than 1 second) cycles
             // through various display modes.
             language_switch = input_switch_state;
-            if (quick_button_toggle())
+            if ((input_switch_state != debounce_last)&&
+                (quick_button_toggle()))
             {
                 cycle_display_modes();
             }
             break;
         }
 
-        case ModeSwitchDisabled: // fall-through
         default:
             break;
     }
 
+    debounce_last = input_switch_state;
+
     // when cycling through the video modes, we need to update the menu when it's on display
-    if ((input_switch_mode != ModeSwitchLanguage) && (IS_IFLAG(IFLAGS_MENU_ENABLE)))
+    if ((IS_IFLAG(IFLAGS_MENU_ENABLE) && (input_switch_mode != ModeSwitchLanguage)))
     {
         menuShow(1);
     }
