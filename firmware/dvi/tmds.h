@@ -88,7 +88,7 @@ extern struct dvi_inst dvi0;
     queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmdsbuf);
 
 // TMDS data for a duplicated monochrome pixel (a "bit balanced" double pixel).
-extern uint32_t tmds_mono_double_pixel[4*4];
+extern uint32_t tmds_mono_double_pixel[3*5];
 
 // TMDS data for two separate monochrome pixels (a "bit balanced" pixel pair).
 extern uint32_t tmds_mono_pixel_pair[4*3*3];
