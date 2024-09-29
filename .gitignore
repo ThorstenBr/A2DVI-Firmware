@@ -1,5 +1,7 @@
 *.gch
 *.pyc
+*.lst
+*.bin
 _BUILD/PICO
 _BUILD/PICO2
 _BUILD/RELEASE

@@ -33,12 +33,13 @@ typedef enum
 {
     MACHINE_II      = 0,
     MACHINE_IIE     = 1,
-    MACHINE_IIGS    = 2,             // currently not supported
+    MACHINE_IIE_ENH = 2,
     MACHINE_AGAT7   = 3,
     MACHINE_AGAT9   = 4,
     MACHINE_BASIS   = 5,
     MACHINE_PRAVETZ = 6,
     MACHINE_MAX_CFG = MACHINE_PRAVETZ, // valid maximum option for config, otherwise "AUTO" is assumed
+//  MACHINE_IIGS    = 7,             // currently not supported
     MACHINE_INVALID = 0xfe,
     MACHINE_AUTO    = 0xff
 } compat_t;
@@ -81,7 +82,6 @@ extern          uint8_t  cfg_videx_selection;
 extern volatile uint8_t  reload_charsets;
 
 extern volatile bool language_switch;
-extern volatile bool enhanced_font_enabled;
 
 typedef enum {
     COLOR_MODE_BW    = 0,

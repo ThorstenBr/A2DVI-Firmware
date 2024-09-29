@@ -43,8 +43,8 @@ static inline void __time_critical_func(machine_auto_detection)(uint32_t address
     if(current_machine == MACHINE_AUTO)
     {
         if((apple_memory[0x0403] == 0xD8) && (apple_memory[0x404] == 0xE5)) {        // "Xe" = ROMXe
-            detected_machine = MACHINE_IIE;
-            set_machine(MACHINE_IIE);
+            detected_machine = MACHINE_IIE_ENH;
+            set_machine(MACHINE_IIE_ENH);
         } else if((apple_memory[0x0412] == 0xC5) && (apple_memory[0x0413] == 0xD8)) {// "EX" = ROMX
             detected_machine = MACHINE_II;
             set_machine(MACHINE_II);
@@ -54,8 +54,8 @@ static inline void __time_critical_func(machine_auto_detection)(uint32_t address
             set_machine(MACHINE_IIGS);
 #endif
         } else if((apple_memory[0x416] == 0xAF) && (apple_memory[0x0417] == 0xE5)) { // "/e" = Apple //e Enhanced
-            detected_machine = MACHINE_IIE;
-            set_machine(MACHINE_IIE);
+            detected_machine = MACHINE_IIE_ENH;
+            set_machine(MACHINE_IIE_ENH);
         } else if((apple_memory[0x413] == 0xE5) && (apple_memory[0x0415] == 0xDD)) { // "e ]" = Apple //e Unenhanced
             detected_machine = MACHINE_IIE;
             set_machine(MACHINE_IIE);

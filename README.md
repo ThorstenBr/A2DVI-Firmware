@@ -14,7 +14,7 @@ The project is a collaboration with Ralle Palaveev. His related hardware project
 * [A2DVI Hardware](https://github.com/rallepalaveev/A2DVI)
 
 The hardware is based on the PICO controller board.
-Both, original **PICO (RP2040)** and newer **PICO2 (RP2350)** mouldes are supported.
+Both, original **PICO (RP2040)** and newer **PICO2 (RP2350)** modules are supported.
 Separate firmware is provided for the two PICO variants.
 
 ![PICO_vs_PICO2](images/PICO_PICO2.jpg)
@@ -67,14 +67,15 @@ The A2DVI firmware tries to auto-detect your machine type - and adjusts various 
 This also automatically adjusts the character set, if the current selection does not match the machine (with firmware >= v1.1):
 
 * When an Apple IIe is detected, but an Apple II font is selected, it switches to "Apple IIe US character set".
+* When an "Apple //e enhanced" is detected, then the "enhanced" variant of the font is used. Otherwise, for the "unenhanced IIe" the "unenhanced" fonts are used (with firmware >= v1.4).
 * When an Apple II is detected, but an Apple IIe font is selected, it switches to "Apple II+ US character set".
 
 If you do not want the automatic font switching (i.e. you want to use an Apple II font on the IIe), then disable the auto-detection by setting a *fixed* machine type.
 
-If your A2DVI is installed in a specific/fixed machine, it's recommended to set the configuration to a fixed type.
+If your A2DVI is installed in a specific/fixed machine, it's recommended to set "machine type" to the matching fixed type.
 
 ## Rendering Options
-* **Monochrome Mode**: configures the display of monochrom video modes. Selects display as black & white, green or amber (the most popular 1980s CRT types).
+* **Monochrome Mode**: configures the display of monochrome video modes. Selects display as black & white, green or amber (the most popular 1980s CRT types).
 * **Color Mode**: configures the display of color video modes. Selects "color" or "monochrome". When "monochrome" is selected, then all video modes are in monochrome.
 * **Scan Lines**: enables an effect to mimic the look of original CRT screens with scan lines.
 * **Analog Rendering Effects**: configures the rendering of double-LORES and double-HIRES video modes.
@@ -99,8 +100,9 @@ Included fonts for Apple IIe:
 
 * **US**, **UK**, **French**, **German**, **Italian**, **Spanish**, **Swedish/Finnish**, **Hebrew**, **Pravetz/Cyrillic**
 
-* The IIe fonts are "*enhanced character sets*" (include "mouse text characters" required for the "*enhanced* //e").
-There is a separate configuration option to disable "enhanced fonts": this replaces the mousetext characters with normal characters, like on an original "*unenhanced* Apple //e".
+* For the Apple IIe the "enhanced" or "unenhanced" variant of the IIe font is used - according to the machine type ("Apple IIe" vs "Apple //e enhanced").
+The machine is either auto-detected, or can be set manually.
+(The difference between the "*enhanced*" and "*unenhanced*" fonts are the graphical "mouse text characters", which only the "Apple //e enhanced" supported.)
 
 Included fonts for Apple II:
 
@@ -164,7 +166,7 @@ Connect the single pin on the A2DVI card to the language switch signal "ALTCHR",
 
 ## Video7 Support
 Video7 provided additional color text and video modes for the Apple IIe.
-Some (all?) of these modes were also available with other video cards, like the "Apple Extended 80 column Text/AppleColor Card".
+Some of these modes were also available with other video cards, like the "Apple Extended 80 column Text/AppleColor Card".
 
 A2DVI supports these extended video modes - even if your Apple IIe only has a standard 80 column card (and no extended video card).
 
@@ -177,7 +179,7 @@ The extra video modes:
 
 The following photo shows the difference of the default vs enhanced DHGR video mode (as supported by DazzleDraw).
 This video mode provides a mix of 140x192 pixels in 16 colors (just like default DHGR),
-but uses an unused 8th data bit to switich to a 560pixel/line monochrome resolution for a block of 7 bits:
+but uses an unused 8th data bit to switch to a 560pixel/line monochrome resolution for a block of 7 bits:
 
 ![Video7](images/A2DVI_Video7_DHGR.jpg)
 
@@ -237,7 +239,7 @@ The A2DVI firmware supports the font selection protocol of ROMX/ROMXe devices.
 
 * ROMX supports selecting between 16 different fonts.
 * A2DVI maps the 16 fonts selected by ROMX to A2DVI's 16 custom font slots. So you can upload and change those 16 fonts as you wish.
-* When ROMX selectes an empty custom font slot (1-16), then one of the built-in fonts (1-16) is used instead.
+* When ROMX selects an empty custom font slot (1-16), then one of the built-in fonts (1-16) is used instead.
 
 # Photos
 Here are some photos showing A2DVI in action - using the DVI/HDMI connection.
@@ -284,7 +286,7 @@ Firmware updates of an A2DVI card are easy and safe:
 * **Flash** (permanent) vs temporary configuration.
 * **Card registers** for configuration.
 * **Configuration menu**.
-* **Debug monitor** (Apple II video softswitches, 6502 CPU state).
+* **Debug monitor** (Apple II video soft switches, 6502 CPU state).
 * **PICO2 (RP2350) support**.
 * **Analog rendering effects** for Double-HIRES/Double-LORES (optional).
 * **ROMX font selection**.

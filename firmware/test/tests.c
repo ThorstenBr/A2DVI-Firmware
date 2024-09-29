@@ -84,7 +84,7 @@ SOFTWARE.
 #define TEST_MIX_MODES
 
 #define TEST_PAGE_SWITCH
-#define TEST_ALTCHAR_SWTICH
+#define TEST_ALTCHAR_SWITCH
 #endif
 
 //#define TEST_MENU
@@ -149,7 +149,7 @@ void togglePages()
 
 void toggleAltChar()
 {
-#ifdef TEST_ALTCHAR_SWTICH
+#ifdef TEST_ALTCHAR_SWITCH
     // toggle mousetext vs default character set
     for (uint i=0;i<3;i++)
     {
@@ -670,7 +670,7 @@ void test_loop()
 
     while (1)
     {
-        current_machine = MACHINE_IIE;
+        current_machine = MACHINE_IIE_ENH;
         internal_flags |= IFLAGS_IIE_REGS;
 
         // test text modes

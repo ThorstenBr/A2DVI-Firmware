@@ -53,7 +53,10 @@ void DELAYED_COPY_CODE(update_text_flasher)()
                 next_flash_tick = now + 125000u;
                 break;
             case MACHINE_IIE:
+            case MACHINE_IIE_ENH:
+#ifdef MACHINE_IIGS
             case MACHINE_IIGS:
+#endif
                 next_flash_tick = now + 250000u;
                 break;
         }

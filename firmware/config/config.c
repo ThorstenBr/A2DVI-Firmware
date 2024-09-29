@@ -38,7 +38,7 @@ volatile compat_t  detected_machine = MACHINE_AUTO;
 volatile compat_t  cfg_machine = MACHINE_AUTO;
 volatile compat_t  current_machine = MACHINE_AUTO;
 volatile bool      language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
-volatile bool      enhanced_font_enabled;
+volatile bool      unenhance_font; // switch to explicitly "unenhance" a font (by removing the mouse text characters)
 volatile uint8_t   reload_charsets = 4;
 
 uint8_t            cfg_videx_selection = 0; //0:DISABLED
@@ -76,7 +76,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  alt_charset;   // selection for alternate video ROM (usually fixed to US charset)
 
     uint8_t  input_switch_mode;
-    uint8_t  enhanced_font_enabled;
+    uint8_t  OBSOLETE_enhanced_font_enabled; // no longer used (replaced by MACHINE_IIE_ENH)
     uint8_t  video7_enabled;
     uint8_t  debug_lines_enabled;
 
@@ -155,28 +155,47 @@ void __time_critical_func(set_machine)(compat_t machine)
 {
     switch(machine)
     {
+        case MACHINE_IIE:
+        case MACHINE_IIE_ENH:
+            internal_flags &= ~IFLAGS_IIGS_REGS;
+            internal_flags |=  IFLAGS_IIE_REGS;
+            break;
+#ifdef MACHINE_IIGS
+        case MACHINE_IIGS:
+            internal_flags &= ~IFLAGS_IIE_REGS;
+            internal_flags |=  IFLAGS_IIGS_REGS;
+            break;
+#endif
         case MACHINE_AUTO:
         case MACHINE_AGAT7:
         case MACHINE_AGAT9:
         case MACHINE_BASIS:
         case MACHINE_PRAVETZ:
         case MACHINE_II:
+        default:
             internal_flags &= ~(IFLAGS_IIGS_REGS|IFLAGS_IIE_REGS);
             break;
-
-        case MACHINE_IIE:
-            internal_flags &= ~IFLAGS_IIGS_REGS;
-            internal_flags |= IFLAGS_IIE_REGS;
-            break;
-
-        case MACHINE_IIGS:
-            internal_flags &= ~IFLAGS_IIE_REGS;
-            internal_flags |= IFLAGS_IIGS_REGS;
-            break;
-
-        default:
-            break;
     }
+
+    if (machine == MACHINE_IIE)
+    {
+        // we need to "unenhance" the fonts for the IIe (unenhanced)
+        if (!unenhance_font)
+        {
+            unenhance_font = true;
+            reload_charsets |= 3;
+        }
+    }
+    else
+    {
+        // all other machines, including "//e enhanced": leave fonts unchanged
+        if (unenhance_font)
+        {
+            unenhance_font = false;
+            reload_charsets |= 3;
+        }
+    }
+
     if ((current_machine == MACHINE_AUTO)&&
         (machine != MACHINE_AUTO))
     {
@@ -244,7 +263,7 @@ void DELAYED_COPY_CODE(config_load_charsets)(void)
         // local font
         memcpy32(character_rom, character_roms[check_valid_font(cfg_local_charset)], CHARACTER_ROM_SIZE);
 
-        if (!enhanced_font_enabled)
+        if (unenhance_font)
         {
             // unenhance the font, by overwriting the mousetext characters
             memcpy32(&character_rom[0x40*8], &character_rom[0], 0x20*8);
@@ -256,7 +275,7 @@ void DELAYED_COPY_CODE(config_load_charsets)(void)
         // alternate fixed US font (with language switch)
         memcpy32(&character_rom[0x800], character_roms[check_valid_font(cfg_alt_charset)], CHARACTER_ROM_SIZE);
 
-        if (!enhanced_font_enabled)
+        if (unenhance_font)
         {
             // unenhance the font, by overwriting the mousetext characters
             memcpy32(&character_rom[0x800+0x40*8], &character_rom[0x800], 0x20*8);
@@ -293,6 +312,11 @@ void config_load(void)
     }
 
     cfg_machine = (cfg->machine_type <= MACHINE_MAX_CFG) ? cfg->machine_type : MACHINE_AUTO;
+    if ((cfg_machine == MACHINE_IIE)&&(cfg->OBSOLETE_enhanced_font_enabled != 0))
+    {
+        // convert old config setting
+        cfg_machine = MACHINE_IIE_ENH;
+    }
     set_machine(cfg_machine);
 
     SET_IFLAG(cfg->scanline_emulation,   IFLAGS_SCANLINEEMU);
@@ -313,7 +337,7 @@ void config_load(void)
     config_setflags();
 
     input_switch_mode = cfg->input_switch_mode;
-    enhanced_font_enabled   = (cfg->enhanced_font_enabled != 0);
+    unenhance_font = (cfg_machine == MACHINE_IIE);
 
     color_mode = (cfg->color_mode <= 2) ? cfg->color_mode : 0;
 
@@ -344,7 +368,7 @@ void config_load_defaults(void)
     set_machine(detected_machine);
 
     input_switch_mode       = ModeSwitchLangCycle;
-    enhanced_font_enabled   = true;
+    unenhance_font          = false;
 
     cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
     cfg_alt_charset         = DEFAULT_ALT_CHARSET;
@@ -380,7 +404,6 @@ void DELAYED_COPY_CODE(config_save)(void)
     new_config->local_charset           = cfg_local_charset;
     new_config->alt_charset             = cfg_alt_charset;
     new_config->input_switch_mode       = input_switch_mode;
-    new_config->enhanced_font_enabled   = enhanced_font_enabled;
 
     // update flash
     config_flash_write(cfg, (uint8_t *)new_config, new_config_size);
