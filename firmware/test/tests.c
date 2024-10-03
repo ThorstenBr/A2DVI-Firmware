@@ -69,8 +69,6 @@ SOFTWARE.
 #define REG_CARD          (0xc080 | 0x30)
 
 
-//#define TEST_TMDS
-
 #ifndef TEST_TMDS
 #define TEST_40_COLUMNS
 #define TEST_40_COLUMNS_COLOR
@@ -534,7 +532,7 @@ void test_menu()
 #endif
 }
 
-#ifdef TEST_TMDS
+#ifdef FEATURE_TEST_TMDS
 void render_tmds_test()
 {
     static uint32_t count = 0;
@@ -546,9 +544,9 @@ void render_tmds_test()
     for(uint y=0; y < 192; y++)
     {
         dvi_get_scanline(tmdsbuf);
-        dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
+        dvi_scanline_rgb640(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
-        for(uint col=0; col < 280;col++)
+        for(uint col=0; col < 320;col++)
         {
             uint16_t symbol = 0;
             //if ((y<=113)&&(y>=112))

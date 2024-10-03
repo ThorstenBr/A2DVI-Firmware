@@ -57,6 +57,8 @@ extern void render_mixed_dgr();
 extern void render_debug(bool IsVidexMode, bool top);
 extern void copy_str(uint8_t* dest, const char* pMsg);
 
-#ifdef FEATURE_TEST
+//#define FEATURE_TEST_TMDS
+
+#ifdef FEATURE_TEST_TMDS
 extern void render_tmds_test();
 #endif

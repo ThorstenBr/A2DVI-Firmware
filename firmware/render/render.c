@@ -265,6 +265,7 @@ void DELAYED_COPY_CODE(render_loop)()
         // copy soft switches - since we need consistent settings throughout a rendering cycle
         uint32_t current_softsw = soft_switches;
         bool IsVidex = ((current_softsw & (SOFTSW_TEXT_MODE|SOFTSW_VIDEX_80COL)) == (SOFTSW_TEXT_MODE|SOFTSW_VIDEX_80COL));
+#ifndef FEATURE_TEST_TMDS
         render_debug(IsVidex, true);
 
         // set flag when monochrome rendering is requested
@@ -272,7 +273,17 @@ void DELAYED_COPY_CODE(render_loop)()
 
         // prepare state indicating whether the current display mode supports colors
         color_support = (current_softsw & SOFTSW_MONOCHROME) ? false : true;
-
+#else
+        // no scanlines/no videx when running the TMDS test
+        internal_flags &= ~IFLAGS_SCANLINEEMU;
+        IsVidex = false;
+        render_debug(IsVidex, true);
+        if (1)
+        {
+            render_tmds_test();
+        }
+        else
+#endif
         if (IsVidex)
             render_videx_text();
         else
