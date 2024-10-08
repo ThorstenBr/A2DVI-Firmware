@@ -91,7 +91,7 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_PAGE_2         0x00000008ul
 
 // Apple IIe/c/gs softswitches
-#define SOFTSW_CXROM          0x00000010ul
+#define SOFTSW_INTCXROM       0x00000010ul
 //                            0x00000020ul
 //                            0x00000040ul
 //                            0x00000080ul

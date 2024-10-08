@@ -120,7 +120,7 @@ void DELAYED_COPY_CODE(update_debug_monitor)(void)
             if (IS_SOFTSWITCH(SOFTSW_SLOT3ROM))
                 copy_str(&line2[24], "C3ROM");
 
-            if (IS_SOFTSWITCH(SOFTSW_CXROM))
+            if (IS_SOFTSWITCH(SOFTSW_INTCXROM))
                  copy_str(&line2[30], "CXROM");
 
             if (IS_SOFTSWITCH(SOFTSW_IOUDIS))

@@ -185,16 +185,16 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
             soft_switches |= SOFTSW_AUX_WRITE;
         }
         break;
-    case 0x06: // INTCXROMOFF
+    case 0x06: // INTCXROMOFF: slot ROMs mapped to CXXX range
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
         {
-            soft_switches &= ~SOFTSW_CXROM;
+            soft_switches &= ~SOFTSW_INTCXROM;
         }
         break;
-    case 0x07: // INTCXROMON
+    case 0x07: // INTCXROMON: internal ROM mapped to CXXX range
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
         {
-            soft_switches |= SOFTSW_CXROM;
+            soft_switches |= SOFTSW_INTCXROM;
         }
         break;
     case 0x08: // ALTZPOFF
@@ -209,13 +209,13 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
             soft_switches |= SOFTSW_AUXZP;
         }
         break;
-    case 0x0a: // SLOTC3ROMOFF
+    case 0x0a: // SLOTC3ROMOFF: 80 column ROM mapped to C3xx range
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
         {
             soft_switches &= ~SOFTSW_SLOT3ROM;
         }
         break;
-    case 0x0b: // SLOTC3ROMON
+    case 0x0b: // SLOTC3ROMON: slot 3's ROM mapped to C3xx range
         if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
         {
             soft_switches |= SOFTSW_SLOT3ROM;
