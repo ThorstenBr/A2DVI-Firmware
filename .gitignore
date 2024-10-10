@@ -4,7 +4,7 @@
 *.bin
 _BUILD/PICO
 _BUILD/PICO2
-_BUILD/RELEASE
+_BUILD/ZIP
 _BUILD/localsettings.mk
 _BUILD/*.zip
 _BUILD/*.uf2
