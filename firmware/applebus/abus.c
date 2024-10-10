@@ -600,9 +600,15 @@ void __time_critical_func(abus_loop)()
     // initialize the Apple II bus interface
     abus_init();
 
+    uint32_t value = 0;
     while(1)
     {
-        uint32_t value = abus_pio_blocking_read();
+        if (abus_pio_is_full())
+        {
+            bus_overflow_counter++;
+        }
+
+        value = abus_pio_blocking_read();
 
         abus_interface(value);
 
