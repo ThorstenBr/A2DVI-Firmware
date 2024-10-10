@@ -150,7 +150,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
     switch(address & 0x7f)
     {
     case 0x00: // 80STOREOFF
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (is_write) // on IIE+IIGS only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_80STORE;
         }
@@ -162,7 +162,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x02: // RAMRDOFF
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (is_write) // on IIE+IIGS only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_AUX_READ;
         }
@@ -174,7 +174,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x04: // RAMWRTOFF
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (is_write) // on IIE+IIGS only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_AUX_WRITE;
         }
@@ -186,7 +186,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x06: // INTCXROMOFF: slot ROMs mapped to CXXX range
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (is_write) // on IIE+IIGS only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_INTCXROM;
         }
@@ -198,7 +198,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x08: // ALTZPOFF
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (is_write) // on IIE+IIGS only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_AUXZP;
         }
@@ -210,7 +210,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x0a: // SLOTC3ROMOFF: 80 column ROM mapped to C3xx range
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (is_write) // on IIE+IIGS only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_SLOT3ROM;
         }
@@ -222,7 +222,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x0c: // 80COLOFF
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (is_write) // on IIE+IIGS only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_80COL;
         }
@@ -234,7 +234,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x0e: // ALTCHARSETOFF
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (is_write) // on IIE+IIGS only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_ALTCHAR;
         }
@@ -314,13 +314,10 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
     case 0x57: // HIRESON
         soft_switches |= SOFTSW_HIRES_MODE;
         break;
-    case 0x58:
-        if ((internal_flags & (IFLAGS_VIDEX|IFLAGS_IIE_REGS)) == IFLAGS_VIDEX)
-        {
-            soft_switches &= ~SOFTSW_VIDEX_80COL;
-        }
+    case 0x58: // VIDEX80COLUMN: OFF
+        soft_switches &= ~SOFTSW_VIDEX_80COL;
         break;
-    case 0x59:
+    case 0x59: // VIDEX80COLUMN: ON
         if ((internal_flags & (IFLAGS_VIDEX|IFLAGS_IIE_REGS)) == IFLAGS_VIDEX)
         {
             soft_switches |= SOFTSW_VIDEX_80COL;
@@ -346,14 +343,14 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
             soft_switches &= ~SOFTSW_DGR;
         }
         break;
-    case 0x7e: // IOUDISOFF
+    case 0x7e: // IOUDISON: disable IOU
         if((internal_flags & IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_IOUDIS;
         }
         break;
-    case 0x7f: // IOUDISON
-        if((internal_flags & IFLAGS_IIE_REGS) && (is_write))
+    case 0x7f: // IOUDISOFF: enable IOU
+        if (is_write) // on IIE only (but doesn't matter for clearing the register)
         {
             soft_switches &= ~SOFTSW_IOUDIS;
         }
