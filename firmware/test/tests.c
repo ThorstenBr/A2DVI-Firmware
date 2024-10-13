@@ -469,10 +469,14 @@ void testHires()
 void test_videx()
 {
 #ifdef TEST_VIDEX
-    uint32_t saved_flags = internal_flags;
-
-    internal_flags &= ~ IFLAGS_IIE_REGS;
-    internal_flags |=  IFLAGS_VIDEX;
+    bool saved_videx_enabled = videx_enabled;
+    if (!videx_enabled)
+    {
+        // temporarily enable the Videx support and load the Videx fonts
+        videx_enabled = true;
+        cfg_videx_selection = 1;
+        reload_charsets |= 4;
+    }
 
     simulateRead(REG_SW_VIDEX_ON);
 
@@ -492,7 +496,7 @@ void test_videx()
     sleep(TestDelayMilliseconds);
     simulateRead(REG_SW_VIDEX_OFF);
 
-    internal_flags = saved_flags;
+    videx_enabled = saved_videx_enabled;
 #endif
 }
 

@@ -54,6 +54,8 @@ extern void render_mixed_dhgr();
 extern void render_dgr();
 extern void render_mixed_dgr();
 
+extern void render_videx_text();
+
 extern void render_debug(bool IsVidexMode, bool top);
 extern void copy_str(uint8_t* dest, const char* pMsg);
 

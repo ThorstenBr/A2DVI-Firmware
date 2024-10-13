@@ -131,7 +131,7 @@ extern volatile uint32_t internal_flags;
 #define IFLAGS_INTERP_DHGR    0x02000000ul
 #define IFLAGS_VIDEO7         0x04000000ul
 //#define IFLAGS_OLDCOLOR       0x08000000ul
-#define IFLAGS_VIDEX          0x10000000ul
+//#define IFLAGS_VIDEX          0x10000000ul
 #define IFLAGS_TEST           0x20000000ul
 #define IFLAGS_IIE_REGS       0x40000000ul
 #define IFLAGS_IIGS_REGS      0x80000000ul

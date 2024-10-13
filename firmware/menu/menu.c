@@ -615,7 +615,8 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                         reload_charsets |= 4;
                 }
             }
-            SET_IFLAG((cfg_videx_selection>0), IFLAGS_VIDEX);
+            // videx not supported on IIe/IIgs
+            videx_enabled = (cfg_videx_selection>0)&&((internal_flags & (IFLAGS_IIGS_REGS|IFLAGS_IIE_REGS)) == 0);
             break;
         case 10:
             SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);

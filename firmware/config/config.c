@@ -33,6 +33,7 @@ SOFTWARE.
 #include "applebus/buffers.h"
 #include "util/dmacopy.h"
 #include "fonts/textfont.h"
+#include "videx/videx_vterm.h"
 
 volatile compat_t  detected_machine = MACHINE_AUTO;
 volatile compat_t  cfg_machine = MACHINE_AUTO;
@@ -41,6 +42,7 @@ volatile bool      language_switch = false; // false: main/local char set, true:
 volatile bool      unenhance_font; // switch to explicitly "unenhance" a font (by removing the mouse text characters)
 volatile uint8_t   reload_charsets = 4;
 
+bool               videx_enabled;
 uint8_t            cfg_videx_selection = 0; //0:DISABLED
 uint8_t            cfg_local_charset = 0;
 uint8_t            cfg_alt_charset   = 0;
@@ -159,11 +161,15 @@ void __time_critical_func(set_machine)(compat_t machine)
         case MACHINE_IIE_ENH:
             internal_flags &= ~IFLAGS_IIGS_REGS;
             internal_flags |=  IFLAGS_IIE_REGS;
+        #if VIDEX_SLOT != 1
+            videx_enabled = false;
+        #endif
             break;
 #ifdef MACHINE_IIGS
         case MACHINE_IIGS:
             internal_flags &= ~IFLAGS_IIE_REGS;
             internal_flags |=  IFLAGS_IIGS_REGS;
+            videx_enabled = false;
             break;
 #endif
         case MACHINE_AUTO:
@@ -328,7 +334,6 @@ void config_load(void)
     if (IS_STORED_IN_CONFIG(cfg, videx_selection))
     {
         cfg_videx_selection = cfg->videx_selection;
-        SET_IFLAG(cfg_videx_selection>0, IFLAGS_VIDEX);
     }
     if(IS_STORED_IN_CONFIG(cfg, rendering_fx))
     {
@@ -373,7 +378,6 @@ void config_load_defaults(void)
     cfg_local_charset       = DEFAULT_LOCAL_CHARSET;
     cfg_alt_charset         = DEFAULT_ALT_CHARSET;
     cfg_videx_selection     = 0;
-    SET_IFLAG((cfg_videx_selection>0), IFLAGS_VIDEX);
 
     config_setflags();
     set_machine(detected_machine);

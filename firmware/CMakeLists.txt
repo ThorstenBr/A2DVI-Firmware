@@ -90,6 +90,7 @@ add_executable(${BINARY_NAME}
     render/render_dgr.c
     render/render_hires.c
     render/render_dhgr.c
+    render/render_videx.c
 
     config/config.c
     config/device_regs.c

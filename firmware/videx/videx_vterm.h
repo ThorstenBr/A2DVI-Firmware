@@ -28,11 +28,23 @@ SOFTWARE.
 #include <stdint.h>
 #include <stdbool.h>
 
-extern volatile bool videx_vterm_mem_selected;
+// VIDEX was hardcoded to use slot 3.
+// Only for internal testing, we can switch to slot 1.
+#define VIDEX_SLOT 3
+#define VIDEX_ROM_ADDR (0xC000 | (VIDEX_SLOT<<8))
+#define VIDEX_REG_ADDR (0xC080 | (VIDEX_SLOT<<4))
 
-extern void videx_reg_read  (uint_fast16_t address);
-extern void videx_reg_write (uint_fast16_t address, uint_fast8_t data);
-extern void videx_c8xx_read (uint_fast16_t address);
-extern void videx_c8xx_write(uint_fast16_t address, uint_fast8_t data);
+extern uint8_t videx_vterm_mem_selected;
+extern uint8_t videx_vram[2048];
+extern uint_fast16_t videx_bankofs;  // selected videx memory bank offset
+extern uint8_t videx_crtc_regs[18];
 
-extern void render_videx_text   (void);
+#define VIDEXFUNC extern
+
+VIDEXFUNC void videx_reg_read  (uint_fast16_t address);
+VIDEXFUNC void videx_reg_write (uint_fast16_t address, uint_fast8_t data);
+VIDEXFUNC void videx_c8xx_read (uint_fast16_t address);
+VIDEXFUNC void videx_c8xx_write(uint_fast16_t address, uint_fast8_t data);
+
+#undef VIDEXFUNC
+#define VIDEXFUNC

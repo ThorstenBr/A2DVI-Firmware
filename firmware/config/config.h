@@ -78,6 +78,7 @@ extern ToggleSwitchMode_t input_switch_mode;
 extern          uint32_t invalid_fonts;
 extern          uint8_t  cfg_local_charset;
 extern          uint8_t  cfg_alt_charset;
+extern          bool     videx_enabled;
 extern          uint8_t  cfg_videx_selection;
 extern volatile uint8_t  reload_charsets;
 

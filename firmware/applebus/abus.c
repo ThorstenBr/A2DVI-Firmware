@@ -32,6 +32,8 @@ SOFTWARE.
 #include "config/config.h"
 #include "config/device_regs.h"
 #include "fonts/textfont.h"
+
+#define VIDEX_ABUS
 #include "videx/videx_vterm.h"
 
 static uint8_t       romx_unlocked;
@@ -318,7 +320,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         soft_switches &= ~SOFTSW_VIDEX_80COL;
         break;
     case 0x59: // VIDEX80COLUMN: ON
-        if ((internal_flags & (IFLAGS_VIDEX|IFLAGS_IIE_REGS)) == IFLAGS_VIDEX)
+        if (videx_enabled)
         {
             soft_switches |= SOFTSW_VIDEX_80COL;
         }
@@ -434,7 +436,7 @@ void __time_critical_func(bus_func_cxxx_read)(uint32_t value)
         return apple2_softswitches(false, address, value);
     }
 
-    if ((internal_flags & (IFLAGS_IIE_REGS|IFLAGS_VIDEX)) == IFLAGS_VIDEX)
+    if (videx_enabled)
     {
         if ((address & 0xFFF0) == 0xC0B0) // slot #3 register area ($C0B0-$C0BF)
             videx_reg_read(address);
@@ -464,7 +466,7 @@ void __time_critical_func(bus_func_cxxx_write)(uint32_t value)
         return apple2_softswitches(true, address, value);
     }
 
-    if ((internal_flags & (IFLAGS_IIE_REGS|IFLAGS_VIDEX)) == IFLAGS_VIDEX)
+    if (videx_enabled)
     {
         if ((address & 0xFFF0) == 0xC0B0) // slot #3 register area ($C0B0-$C0BF)
             videx_reg_write(address, DATA_BUS(value));
