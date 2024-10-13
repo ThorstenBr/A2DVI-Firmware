@@ -242,7 +242,7 @@ static void update_toggle_switch()
     debounce_last = input_switch_state;
 
     // when cycling through the video modes, we need to update the menu when it's on display
-    if ((IS_IFLAG(IFLAGS_MENU_ENABLE) && (input_switch_mode != ModeSwitchLanguage)))
+    if ((IS_SOFTSWITCH(SOFTSW_MENU_ENABLE) && (input_switch_mode != ModeSwitchLanguage)))
     {
         menuShow(1);
     }

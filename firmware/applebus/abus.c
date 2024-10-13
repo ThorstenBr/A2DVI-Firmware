@@ -415,7 +415,7 @@ void __time_critical_func(bus_func_screen_write)(uint32_t value)
                 private_memory[address] = data;
             }
             else
-            if((internal_flags & IFLAGS_MENU_ENABLE)==0)
+            if (!IS_SOFTSWITCH(SOFTSW_MENU_ENABLE))
             {
                 apple_memory[address] = data;
                 if (address < 0x800)
@@ -495,7 +495,6 @@ void __time_critical_func(bus_func_fxxx_read)(uint32_t value)
         (last_read_address == 0xFFFCFFFD)) // 6502 reset vector (0xFFFC+0xFFFD)
     {
         soft_switches   = SOFTSW_TEXT_MODE | SOFTSW_V7_MODE3;
-        internal_flags &= ~IFLAGS_MENU_ENABLE;
         romx_unlocked = 0;
         dev_config_lock = 0;
         bus_overflow_counter = 0;

@@ -114,6 +114,7 @@ extern volatile uint32_t internal_flags;
 #define SOFTSW_V7_MODE3       0x00300000ul
 // emulation-specific soft switches
 #define SOFTSW_VIDEX_80COL    0x00400000ul
+#define SOFTSW_MENU_ENABLE    0x00800000ul
 
 #ifdef APPLEIIGS
 #define SOFTSW_NEWVID_MASK    0xE0ul
@@ -123,7 +124,7 @@ extern volatile uint32_t internal_flags;
 
 // internal config switches
 #define IFLAGS_DEBUG_LINES    0x00100000ul
-#define IFLAGS_MENU_ENABLE    0x00200000ul
+//                            0x00200000ul
 #define IFLAGS_FORCED_MONO    0x00400000ul
 #define IFLAGS_SCANLINEEMU    0x00800000ul
 #define IFLAGS_INTERP_DGR     0x01000000ul

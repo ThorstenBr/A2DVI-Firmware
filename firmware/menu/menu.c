@@ -580,13 +580,13 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
         case 7:
             if (increase)
             {
-                if (rendering_fx < FX_DGR_ONLY)
-                    rendering_fx++;
+                if (cfg_rendering_fx < FX_DGR_ONLY)
+                    cfg_rendering_fx++;
             }
             else
             {
-                if (rendering_fx > 0)
-                    rendering_fx--;
+                if (cfg_rendering_fx > 0)
+                    cfg_rendering_fx--;
             }
             config_setflags();
             break;
@@ -775,7 +775,7 @@ static inline bool menuCheckKeys(char key)
             break;
         case 27: // ESCAPE
             // clear menu mode when exiting
-            SET_IFLAG(0, IFLAGS_MENU_ENABLE);
+            soft_switches &= ~SOFTSW_MENU_ENABLE;
             // abort the menu: do not redraw
             return true;
         case '!': // special debug feature
@@ -848,7 +848,7 @@ void DELAYED_COPY_CODE(menuShow)(char key)
     menuOption( 9,4,  "4 MONOCHROME MODE:",  MenuColorMode[color_mode]);
     menuOption(10,5,  "5 COLOR MODE:",       MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
     menuOption(11,6,  "6 SCAN LINES:",       MenuOnOff[IS_IFLAG(IFLAGS_SCANLINEEMU)]);
-    menuOption(12,7,  "7 ANALOG RENDER FX:", MenuRendering[rendering_fx]);
+    menuOption(12,7,  "7 ANALOG RENDER FX:", MenuRendering[cfg_rendering_fx]);
     menuOption(13,8,  "8 VIDEO7 (IIE):",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
     menuOption(14,9,  "9 VIDEX  (II/II+):",  MenuVidex[cfg_videx_selection]);
     menuOption(15,10, "D DEBUG MONITOR:",    MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);

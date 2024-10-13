@@ -195,9 +195,9 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
         if (data == 0)
         {
             // 0 unlocks the menu dialog
-            SET_IFLAG(1, IFLAGS_MENU_ENABLE);
+            soft_switches |= SOFTSW_MENU_ENABLE;
         }
-        if (IS_IFLAG(IFLAGS_MENU_ENABLE))
+        if (IS_SOFTSWITCH(SOFTSW_MENU_ENABLE))
         {
             // show/update menu dialog
             menuShow(data);

@@ -55,7 +55,7 @@ extern volatile compat_t detected_machine;
 extern volatile compat_t cfg_machine;
 extern volatile compat_t current_machine;
 
-extern    rendering_fx_t rendering_fx;
+extern    rendering_fx_t cfg_rendering_fx;
 
 typedef enum
 {
