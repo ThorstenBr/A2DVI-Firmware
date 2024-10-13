@@ -51,7 +51,7 @@ bool PrintModePage2    = false;
 static uint8_t CurrentMenu        = 0;
 static bool    IgnoreNextKeypress = false;
 static bool    MenuNeedsRedraw;
-static bool    MenuSubTitleToggle;
+static uint8_t MenuSubTitleToggle;
 
 void __time_critical_func(centerY)(uint32_t y, const char* pMsg, TPrintMode PrintMode)
 {
@@ -139,27 +139,16 @@ void __time_critical_func(clearLine)(uint8_t line, TPrintMode PrintMode)
     }
 }
 
-void __time_critical_func(showTitle)(TPrintMode PrintMode)
-{
-    // initialize the screen buffer area
-    clearTextScreen();
+const char* DELAYED_COPY_DATA(TitleFirmware) =
+    "A2DVI - FIRMWARE V" FW_VERSION;
 
-    if (PrintMode == PRINTMODE_INVERSE)
-    {
-        clearLine(0, PrintMode);
-        clearLine(22, PrintMode);
-        clearLine(23, PrintMode);
-    }
+const char* DELAYED_COPY_DATA(TitleCopyright) =
+    "(C) 2024 THORSTEN BREHM, RALLE PALAVEEV ";
 
-    centerY(0,  "A2DVI - FIRMWARE V" FW_VERSION, PrintMode);
-
-    centerY(22, "(C) 2024 THORSTEN BREHM, RALLE PALAVEEV ", PrintMode);
-    if (MenuSubTitleToggle)
-        centerY(23, "GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE", PrintMode);
-    else
-        centerY(23, "GITHUB.COM/RALLEPALAVEEV/A2DVI", PrintMode);
-}
-
+const char* DELAYED_COPY_DATA(TitleGitHub)[2] = {
+    "GITHUB.COM/RALLEPALAVEEV/A2DVI",
+    "  GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE  "
+};
 
 const char* DELAYED_COPY_DATA(MachineNames)[MACHINE_MAX_CFG+1] =
 {
@@ -262,6 +251,23 @@ const char* DELAYED_COPY_DATA(MenuVidex)[VIDEX_FONT_COUNT+1] =
     "EPSON",     //9
     "SYMBOL"     //10
 };
+
+void __time_critical_func(showTitle)(TPrintMode PrintMode)
+{
+    // initialize the screen buffer area
+    clearTextScreen();
+
+    if (PrintMode == PRINTMODE_INVERSE)
+    {
+        clearLine( 0, PrintMode);
+        clearLine(22, PrintMode);
+        clearLine(23, PrintMode);
+    }
+
+    centerY( 0, TitleFirmware,                   PrintMode);
+    centerY(22, TitleCopyright,                  PrintMode);
+    centerY(23, TitleGitHub[MenuSubTitleToggle], PrintMode);
+}
 
 static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const char* pValue)
 {
@@ -397,7 +403,7 @@ void DELAYED_COPY_CODE(menuShowDebug)()
 
         // show statistics
         printXY(X1, 6, "BUS CYCLES:", PRINTMODE_NORMAL);
-        int2str(bus_counter, s, 14);
+        int2str(bus_cycle_counter, s, 14);
         printXY(X2, 6, s, PRINTMODE_NORMAL);
 
         printXY(X1,7, "BUS OVERFLOWS:", PRINTMODE_NORMAL);
@@ -806,7 +812,7 @@ void DELAYED_COPY_CODE(menuShow)(char key)
         CurrentMenu = 0;
         MenuNeedsRedraw = true;
         IgnoreNextKeypress = false;
-        MenuSubTitleToggle = (bus_counter & 1);
+        MenuSubTitleToggle = (bus_cycle_counter & 1);
     }
     else
     if (key == 1)

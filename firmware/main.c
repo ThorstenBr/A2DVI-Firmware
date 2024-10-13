@@ -63,10 +63,6 @@ int main()
     // load config settings
     config_load();
 
-    // initialize the screen buffer area
-    showTitle(PRINTMODE_NORMAL);
-    centerY(11, "NO 6502 BUS ACTIVITY", PRINTMODE_FLASH);
-
 #ifdef FEATURE_TEST
     // start testsuite, simulating some 6502 activity and
     // cycle through the test cases

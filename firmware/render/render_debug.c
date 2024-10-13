@@ -27,10 +27,12 @@ SOFTWARE.
 #include "config/config.h"
 
 #include "render.h"
+#include "menu/menu.h"
+#include "dvi/a2dvi.h"
 
 uint32_t show_subtitle_cycles;
 
-void int2hex(uint8_t* pStrBuf, uint32_t value, uint32_t digits)
+void DELAYED_COPY_CODE(int2hex)(uint8_t* pStrBuf, uint32_t value, uint32_t digits)
 {
     for (int32_t i=0;i<digits;i++)
     {

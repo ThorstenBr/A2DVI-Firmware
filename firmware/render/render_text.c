@@ -235,9 +235,6 @@ void DELAYED_COPY_CODE(render_mixed_text)()
 
 void DELAYED_COPY_CODE(render_text)()
 {
-    const bool page2 = PAGE2SEL;
-    const uint8_t *pageA = (const uint8_t *)(page2 ? text_p2 : text_p1);
-
     if((internal_flags & IFLAGS_VIDEO7) && ((soft_switches & (SOFTSW_80STORE | SOFTSW_80COL | SOFTSW_DGR)) == (SOFTSW_80STORE | SOFTSW_DGR)))
     {
         if (!mono_rendering)
@@ -256,6 +253,9 @@ void DELAYED_COPY_CODE(render_text)()
 
     // monochrome rendering
     {
+        const bool page2 = PAGE2SEL;
+        const uint8_t *pageA = (const uint8_t *)(page2 ? text_p2 : text_p1);
+
         if(soft_switches & SOFTSW_80COL)
         {
             // 80 column mode rendering

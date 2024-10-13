@@ -59,6 +59,16 @@ static void a2dvi_init(void)
     set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
 }
 
+void DELAYED_COPY_CODE(a2dvi_dvi_enable)(void)
+{
+    // configure DVI
+    dvi0.timing = &DVI_TIMING;
+    dvi0.ser_cfg = DVI_SERIAL_CONFIG;
+    dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
+    dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
+    dvi_start(&dvi0);
+}
+
 void DELAYED_COPY_CODE(a2dvi_loop)(void)
 {
     // free DMA channel and stop others from using it (would interfere with the DVI processing)
@@ -69,14 +79,6 @@ void DELAYED_COPY_CODE(a2dvi_loop)(void)
 
     // load character sets etc
     render_init();
-
-    // configure DVI
-    dvi0.timing = &DVI_TIMING;
-    dvi0.ser_cfg = DVI_SERIAL_CONFIG;
-    dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
-    dvi0.scanline_emulation = true;
-    dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
-    dvi_start(&dvi0);
 
     // start DVI output
     render_loop();

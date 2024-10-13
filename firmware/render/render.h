@@ -34,6 +34,7 @@ extern bool mono_rendering;
 extern bool color_support;  // flag indicating whether current display mode supports color
 
 extern void render_init();
+extern void render_splash();
 extern void render_loop();
 
 extern void update_text_flasher();
@@ -58,6 +59,7 @@ extern void render_videx_text();
 
 extern void render_debug(bool IsVidexMode, bool top);
 extern void copy_str(uint8_t* dest, const char* pMsg);
+extern void int2hex(uint8_t* pStrBuf, uint32_t value, uint32_t digits);
 
 //#define FEATURE_TEST_TMDS
 

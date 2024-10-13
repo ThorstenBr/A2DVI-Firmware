@@ -29,7 +29,7 @@ SOFTWARE.
 #include <stdint.h>
 
 extern volatile uint32_t reset_counter;
-extern volatile uint32_t bus_counter;
+extern volatile uint32_t bus_cycle_counter;
 extern volatile uint32_t bus_overflow_counter;
 extern volatile uint32_t frame_counter;
 extern volatile uint32_t devicereg_counter;
@@ -39,6 +39,7 @@ extern volatile uint32_t vblank_counter;
 extern volatile uint16_t last_address_stack;
 extern volatile uint16_t last_address_pc;
 extern volatile uint16_t last_address_zp;
+extern volatile uint32_t last_read_address;
 
 extern          uint32_t boot_time;
 

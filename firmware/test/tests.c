@@ -655,6 +655,15 @@ void test_loop()
     // initialize the Apple II bus interface
     abus_init();
 
+    // simulate reset to pass the splash screen diagnostics
+    simulateRead(0xFFFC);
+    simulateRead(0xFFFD);
+    simulateRead(0xFA62);
+    for (uint i=0;i<6*1000*1000;i++)
+    {
+        simulateRead(0);
+    }
+
     // unlock register area
     simulateWrite(REG_CARD+0xf, 11);
     simulateWrite(REG_CARD+0xf, 22);

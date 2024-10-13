@@ -250,16 +250,19 @@ static void update_toggle_switch()
 
 static void update_led()
 {
-    static uint32_t last_bus_counter;
-    if (bus_counter != last_bus_counter) // 6502 is also alive
+    static uint32_t last_bus_cycle_counter;
+    if (bus_cycle_counter != last_bus_cycle_counter) // 6502 is also alive
     {
         gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
-        last_bus_counter = bus_counter;
+        last_bus_cycle_counter = bus_cycle_counter;
     }
 }
 
 void DELAYED_COPY_CODE(render_loop)()
 {
+    // show splash/diagnostic screen
+    render_splash();
+
     for(;;)
     {
         // copy soft switches - since we need consistent settings throughout a rendering cycle

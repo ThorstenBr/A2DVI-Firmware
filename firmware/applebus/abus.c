@@ -36,9 +36,8 @@ SOFTWARE.
 #define VIDEX_ABUS
 #include "videx/videx_vterm.h"
 
-static uint8_t       romx_unlocked;
-static uint8_t       romx_textbank;
-static uint_fast16_t last_read_address;
+static uint8_t  romx_unlocked;
+static uint8_t  romx_textbank;
 
 typedef void (*a2busfunc)(uint32_t value);
 
@@ -614,6 +613,6 @@ void __time_critical_func(abus_loop)()
 
         abus_interface(value);
 
-        bus_counter++;
+        bus_cycle_counter++;
     }
 }
