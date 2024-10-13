@@ -47,8 +47,6 @@ extern          uint32_t dbg_counter1;
 extern          uint32_t dbg_counter2;
 #endif
 
-extern volatile uint8_t  reset_state;
-
 extern volatile uint8_t  cardslot;
 
 #define MAX_ADDRESS (0x6000)

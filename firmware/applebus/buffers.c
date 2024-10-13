@@ -49,8 +49,6 @@ volatile uint32_t internal_flags = IFLAGS_INTERP_DGR | IFLAGS_INTERP_DHGR;
 
 volatile uint8_t  cardslot;
 
-volatile uint8_t reset_state = 0;
-
 uint8_t __attribute__((section (".appledata."))) apple_memory[MAX_ADDRESS];
 uint8_t __attribute__((section (".appledata."))) private_memory[MAX_ADDRESS];
 
