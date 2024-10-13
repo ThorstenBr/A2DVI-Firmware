@@ -1,0 +1,24 @@
+# general rule
+* text=auto
+
+# source files
+*.c text
+*.h text
+*.S text
+*.pio text
+*.py text
+*.cmake text
+*.ld text
+*.BAS text
+*.bas text
+*.mk text
+Makefile text
+
+# documentation files
+*.md text
+*.txt text
+
+# binary files
+*.png binary
+*.jpg binary
+*.bin binary
