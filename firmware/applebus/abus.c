@@ -553,7 +553,7 @@ static inline void abus_interface(uint32_t value)
         uint_fast8_t adr = ADDRESS_BUS_HI_NIBBLE(value);
         // check read/write access
         if (ACCESS_WRITE(value))
-            adr |= 0x10;
+            adr += 0x10;
         // call handler for this memory area/access type
         bus_functions[adr](value);
     }

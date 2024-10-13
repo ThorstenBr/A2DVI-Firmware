@@ -79,8 +79,11 @@ void abus_pio_setup(void)
     // map the SET pin group to the bus transceiver enable signals
     sm_config_set_set_pins(&pio_cfg, CONFIG_PIN_APPLEBUS_CONTROL_BASE, control_bit_count);
 
-    // configure left shift into ISR & autopush every 27 bits
-    sm_config_set_in_shift(&pio_cfg, false, true, 27);
+    // configure left shift into ISR & autopush every 26 bits (8 data + 16 address + select + r/w = 26)
+    sm_config_set_in_shift(&pio_cfg, false, true, 26);
+
+    // no divider, run at full speed
+    sm_config_set_clkdiv_int_frac(&pio_cfg, 1, 0);
 
     pio_sm_init(pio, sm, program_offset, &pio_cfg);
 
@@ -103,8 +106,8 @@ void abus_pio_setup(void)
         pio_gpio_init(pio, pin);
     }
 
-    // initialize GPIO on all 8 data pins + SELECT + RW + LANGUAGE_SW = 11
-    for(int pin = CONFIG_PIN_APPLEBUS_DATA_BASE; pin < CONFIG_PIN_APPLEBUS_DATA_BASE + 11; pin++)
+    // initialize GPIO on all 8 data pins + SELECT + RW = 10
+    for(int pin = CONFIG_PIN_APPLEBUS_DATA_BASE; pin < CONFIG_PIN_APPLEBUS_DATA_BASE + 10; pin++)
     {
         pio_gpio_init(pio, pin);
         gpio_set_pulls(pin, false, false);

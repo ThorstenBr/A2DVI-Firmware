@@ -42,7 +42,7 @@
 ;  * JMP pin is mapped to the R/W signal
 ;  * IN pins are mapped to Data[7:0], ~SELECT, R/W
 ;  * SET pins are mapped to the transceiver enable signals
-;  * input shift left & autopush @ 27 bits
+;  * input shift left & autopush @ 26 bits
 ;  * run at about 250MHz (4ns/instruction)
 ;
 .wrap_target
@@ -63,13 +63,13 @@ write_cycle:
     ; the current time is P0+114ns (P0 + 18ns (buffer + clock input delays) + 2 clocks (input synchronizers) + 10 instructions)
 
     set PINS, CTRL_DATAIN    [30]       ; enable Data transceiver & wait until both ~SELECT and the written data are valid (P0+200ns)
-    in PINS, 11                         ; read Data[7:0], ~SELECT, R/W, LANGSW and then autopush
+    in PINS, 10                         ; read Data[7:0], ~SELECT and R/W then autopush
     wait 0 GPIO, PHI0_GPIO   [7]        ; wait for PHI0 to fall
     jmp next_bus_cycle
 
 read_cycle:
     ; the current time is P0+114ns (P0 + 18ns (buffer + clock input delays) + 2 clocks (input synchronizers) + 10 instructions)
 
-    in PINS, 11                         ; read dontcare[7:0], ~SELECT, R/W, LANGSW and then autopush
+    in PINS, 10                         ; read dontcare[7:0], ~SELECT and R/W and then autopush
     wait 0 GPIO, PHI0_GPIO   [7]        ; wait for PHI0 to fall
 .wrap
