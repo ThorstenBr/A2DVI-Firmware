@@ -49,7 +49,7 @@ bool PrintModePage2    = false;
 #endif
 
 static uint8_t CurrentMenu        = 0;
-static bool    IgnoreNextKeypress = false;
+       bool    IgnoreNextKeypress = false;
 static bool    MenuNeedsRedraw;
 static uint8_t MenuSubTitleToggle;
 
@@ -290,12 +290,6 @@ void __time_critical_func(menuShowFrame)()
     centerY(21, "'ESC' TO EXIT", PRINTMODE_NORMAL);
 }
 
-void DELAYED_COPY_CODE(menuShowSaved)()
-{
-    menuShowFrame();
-    centerY(11, "SAVED!", PRINTMODE_NORMAL);
-}
-
 //   1234567890123456789012345678901234567890
 static const char* DELAYED_COPY_DATA(AboutText)[]=
 {
@@ -308,21 +302,63 @@ static const char* DELAYED_COPY_DATA(AboutText)[]=
     "THEN GENERATES 'TMDS'  ENCODED  RGB  BIT", //9
     "STREAMS (3X252MBIT/S) FOR DVI/HDMI.",      //10
     "",                                         //11
-    "MORE:",                                    //12
-    "     GITHUB.COM/RALLEPALAVEEV/A2DVI",      //13
-    "  GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE",   //14
-    "",                                         //15
-    "A2DVI IS BASED ON PROJECTS 'APPLEII VGA'", //16
-    "(C) 2021 MARK AIKENS & DAVID KUDER,  AND", //17
-    "ON 'PICODVI' (C) 2021 LUKE WREN.",         //18
-    "  MANY THANKS TO ALL! APPLE II FOREVER!",  //19
-    "          THORSTEN AND RALLE",             //20
+    "MORE: GITHUB.COM/RALLEPALAVEEV/A2DVI",     //12
+    "   GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE",  //13
+    "",                                         //14
+    "A2DVI IS BASED ON PROJECTS 'APPLEII VGA'", //15
+    "(C) 2021 MARK AIKENS & DAVID KUDER,  AND", //16
+    "ON 'PICODVI' (C) 2021 LUKE WREN.",         //17
+    "  MANY THANKS TO ALL! APPLE II FOREVER!",  //18
+    "",                                         //19
+    "           THORSTEN AND RALLE",            //20
     0
 };
+
+#define TEXT_OFFSET(line) ((((line) & 0x7) << 7) + ((((line) >> 3) & 0x3) * 40))
+
+void DELAYED_COPY_CODE(menuVideo7Text)()
+{
+    if ((internal_flags & (IFLAGS_IIE_REGS|IFLAGS_VIDEO7)) == (IFLAGS_IIE_REGS|IFLAGS_VIDEO7))
+    {
+        // initialize colors when Video 7 is enabled (on Apple //e)
+        soft_switches |= (SOFTSW_80STORE | SOFTSW_DGR);
+
+        for (uint line=0;line<24;line++)
+        {
+            uint ofs = TEXT_OFFSET(line);
+            uint8_t color;
+            switch(line)
+            {
+                case 0: // fall-through
+                case 22:// fall-through
+                case 23:color = 0x4F;break; // white, dark-green
+                case 21:color = 0xA2;break; // light gray, blue
+                default:color = 0xD2;break; // yellow, blue
+            }
+            for (uint i=0;i<40;i++)
+            {
+                text_p3[ofs+i] = color;
+            }
+        }
+    }
+    else
+    {
+        // Video 7 is disabled or Apple II only
+        soft_switches &= ~(SOFTSW_80STORE | SOFTSW_DGR);
+    }
+}
+
+void DELAYED_COPY_CODE(menuShowSaved)()
+{
+    menuShowFrame();
+    menuVideo7Text();
+    centerY(11, "SAVED!", PRINTMODE_NORMAL);
+}
 
 void DELAYED_COPY_CODE(menuShowAbout)()
 {
     menuShowFrame();
+    menuVideo7Text();
     for (uint y=0;AboutText[y];y++)
     {
         printXY(0,2+y, AboutText[y], PRINTMODE_NORMAL);
@@ -333,7 +369,7 @@ void DELAYED_COPY_CODE(menuShowTest)()
 {
     // initialize the screen buffer area
     clearTextScreen();
-    soft_switches &= ~(SOFTSW_TEXT_MODE|SOFTSW_PAGE_2);
+    soft_switches &= ~(SOFTSW_TEXT_MODE|SOFTSW_PAGE_2|SOFTSW_80STORE|SOFTSW_DGR);
     soft_switches |=  SOFTSW_MIX_MODE | SOFTSW_80COL;
 
     for (uint y=0;y<40;y++)
@@ -384,6 +420,7 @@ void int2str(uint32_t value, char* pStrBuf, uint32_t digits)
 void DELAYED_COPY_CODE(menuShowDebug)()
 {
     menuShowFrame();
+    menuVideo7Text();
 
     // show detected machine and slot
     {
@@ -781,8 +818,8 @@ static inline bool menuCheckKeys(char key)
             }
             break;
         case 27: // ESCAPE
-            // clear menu mode when exiting
-            soft_switches &= ~SOFTSW_MENU_ENABLE;
+            // clear menu and Video 7 modes when exiting
+            soft_switches &= ~(SOFTSW_MENU_ENABLE | SOFTSW_80STORE | SOFTSW_DGR);
             // abort the menu: do not redraw
             return true;
         case '!': // special debug feature
@@ -837,6 +874,7 @@ void DELAYED_COPY_CODE(menuShow)(char key)
     if (MenuNeedsRedraw)
     {
         menuShowFrame();
+        menuVideo7Text();
         MenuNeedsRedraw = false;
     }
     centerY(2, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);

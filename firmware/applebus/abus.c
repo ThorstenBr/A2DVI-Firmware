@@ -402,6 +402,7 @@ void __time_critical_func(bus_func_screen_write)(uint32_t value)
             if(soft_switches & SOFTSW_PAGE_2)
                 private_memory[address] = data;
             else
+            if (!IS_SOFTSWITCH(SOFTSW_MENU_ENABLE))
                 apple_memory[address] = data;
             // nothing else to do
         }
