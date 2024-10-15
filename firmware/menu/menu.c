@@ -35,7 +35,7 @@ SOFTWARE.
 #include "menu.h"
 
 // number of elements in the menu
-#define MENU_ENTRY_COUNT (17)
+#define MENU_ENTRY_COUNT (18)
 
 // number of non-config elements in the two column menu area
 #define MENU_ENTRIES_NONCFG (6)
@@ -198,6 +198,14 @@ const char* DELAYED_COPY_DATA(MenuForcedMono)[2] =
 {
     "COLOR",
     "MONOCHROME"
+};
+
+
+const char* DELAYED_COPY_DATA(MenuColorStyle)[3] =
+{
+    "DEFAULT",
+    "ORIGINAL (IIE)",
+    "IMPROVED (IIGS/IIE)"
 };
 
 const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_FONT_COUNT] =
@@ -618,9 +626,28 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             SET_IFLAG(!IS_IFLAG(IFLAGS_FORCED_MONO), IFLAGS_FORCED_MONO);
             break;
         case 6:
-            SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
+            if (increase)
+            {
+                if (cfg_color_style < 2)
+                {
+                    cfg_color_style++;
+                    reload_colors = true;
+                }
+            }
+            else
+            {
+                if (cfg_color_style > 0)
+                {
+                    cfg_color_style--;
+                    reload_colors = true;
+                }
+            }
+
             break;
         case 7:
+            SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
+            break;
+        case 8:
             if (increase)
             {
                 if (cfg_rendering_fx < FX_DGR_ONLY)
@@ -633,14 +660,14 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             }
             config_setflags();
             break;
-        case 8:
+        case 9:
             SET_IFLAG(!IS_IFLAG(IFLAGS_VIDEO7), IFLAGS_VIDEO7);
             if (IS_IFLAG(IFLAGS_VIDEO7))
             {
                 soft_switches |= SOFTSW_V7_MODE3;
             }
             break;
-        case 9:
+        case 10:
             if (increase)
             {
                 if (cfg_videx_selection < VIDEX_FONT_COUNT)
@@ -661,7 +688,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             // videx not supported on IIe/IIgs
             videx_enabled = (cfg_videx_selection>0)&&((internal_flags & (IFLAGS_IIGS_REGS|IFLAGS_IIE_REGS)) == 0);
             break;
-        case 10:
+        case 11:
             SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
             SET_IFLAG(0, IFLAGS_TEST);
             break;
@@ -736,8 +763,11 @@ static inline bool menuCheckKeys(char key)
             if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 3))
                 CurrentMenu = 2;
             break;
-        case 'D':
+        case 'X':
             CurrentMenu = 10;
+            break;
+        case 'D':
+            CurrentMenu = 11;
             break;
         case 'R':
             CurrentMenu = MENU_OFS_NONCFG+0;
@@ -877,34 +907,39 @@ void DELAYED_COPY_CODE(menuShow)(char key)
         menuVideo7Text();
         MenuNeedsRedraw = false;
     }
-    centerY(2, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
+    uint Y=1;
+    centerY(Y++, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
+    Y++;
 
     //                0123456789012345678
-    menuOption(4,0,  "0 MACHINE TYPE:",       (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
-    menuOption(5,1,  "1 CHARACTER SET:",      (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
-    menuOption(6,2,  "2 ALTCHR SWITCH:",      MenuButtonModes[input_switch_mode]);
+    menuOption(Y++,0,  "0 MACHINE TYPE:",       (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
+    menuOption(Y++,1,  "1 CHARACTER SET:",      (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
+    menuOption(Y++,2,  "2 ALTCHR SWITCH:",      MenuButtonModes[input_switch_mode]);
     if ((input_switch_mode == ModeSwitchLanguage)||
         (input_switch_mode == ModeSwitchLangMonochrome)||
         (input_switch_mode == ModeSwitchLangCycle))
     {
-        menuOption(7,3, "3 US CHARACTER SET:", (cfg_alt_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_alt_charset] : "?");
+        menuOption(Y,3, "3 US CHARACTER SET:", (cfg_alt_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_alt_charset] : "?");
     }
+    Y++;
+    Y++;
 
-    menuOption( 9,4,  "4 MONOCHROME MODE:",  MenuColorMode[color_mode]);
-    menuOption(10,5,  "5 COLOR MODE:",       MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
-    menuOption(11,6,  "6 SCAN LINES:",       MenuOnOff[IS_IFLAG(IFLAGS_SCANLINEEMU)]);
-    menuOption(12,7,  "7 ANALOG RENDER FX:", MenuRendering[cfg_rendering_fx]);
-    menuOption(13,8,  "8 VIDEO7 (IIE):",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
-    menuOption(14,9,  "9 VIDEX  (II/II+):",  MenuVidex[cfg_videx_selection]);
-    menuOption(15,10, "D DEBUG MONITOR:",    MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);
+    menuOption(Y++,4,  "4 MONOCHROME MODE:",  MenuColorMode[color_mode]);
+    menuOption(Y++,5,  "5 COLOR MODE:",       MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
+    menuOption(Y++,6,  "6 RGB COLOR STYLE:",  MenuColorStyle[cfg_color_style]);
+    menuOption(Y++,7,  "7 SCAN LINES:",       MenuOnOff[IS_IFLAG(IFLAGS_SCANLINEEMU)]);
+    menuOption(Y++,8,  "8 ANALOG RENDER FX:", MenuRendering[cfg_rendering_fx]);
+    menuOption(Y++,9,  "9 VIDEO7 (IIE):",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
+    menuOption(Y++,10, "X VIDEX  (II/II+):",  MenuVidex[cfg_videx_selection]);
+    menuOption(Y++,11, "D DEBUG MONITOR:",    MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);
 
-    menuOption(17,11, "R RESTORE DEFAULTS",  0);
-    menuOption(18,12, "L LOAD FROM FLASH",   0);
-    menuOption(19,13, "S SAVE TO FLASH",     0);
+    menuOption(Y+1,12, "R RESTORE DEFAULTS",  0);
+    menuOption(Y+2,13, "L LOAD FROM FLASH",   0);
+    menuOption(Y+3,14, "S SAVE TO FLASH",     0);
 
-    menuOption(17,14, "A ABOUT",             0);
-    menuOption(18,15, "B DEBUG",             0);
-    menuOption(19,16, "T TEST",              0);
+    menuOption(Y+1,15, "A ABOUT",             0);
+    menuOption(Y+2,16, "B DEBUG",             0);
+    menuOption(Y+3,17, "T TEST",              0);
 
     // show some special characters, for immediate feedback when selecting character sets
     printXY(40-11, 21, "[{\\~#$`^|}]", PRINTMODE_NORMAL);

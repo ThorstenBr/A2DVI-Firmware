@@ -81,6 +81,7 @@ extern          uint8_t  cfg_alt_charset;
 extern          bool     videx_enabled;
 extern          uint8_t  cfg_videx_selection;
 extern volatile uint8_t  reload_charsets;
+extern volatile bool     reload_colors;
 
 extern volatile bool language_switch;
 
@@ -90,6 +91,7 @@ typedef enum {
     COLOR_MODE_AMBER = 2
 } color_mode_t;
 
+extern          uint8_t cfg_color_style;
 extern volatile uint8_t color_mode;
 
 #if 1

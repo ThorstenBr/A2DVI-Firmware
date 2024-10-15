@@ -41,12 +41,14 @@ volatile compat_t  current_machine = MACHINE_AUTO;
 volatile bool      language_switch = false; // false: main/local char set, true: alternate char set (normally fixed to US default)
 volatile bool      unenhance_font; // switch to explicitly "unenhance" a font (by removing the mouse text characters)
 volatile uint8_t   reload_charsets = 4;
+volatile bool      reload_colors;
 
 bool               videx_enabled;
 uint8_t            cfg_videx_selection = 0; //0:DISABLED
 uint8_t            cfg_local_charset = 0;
 uint8_t            cfg_alt_charset   = 0;
 uint32_t           invalid_fonts = 0xffffffff;
+uint8_t            cfg_color_style;
 volatile uint8_t   color_mode = 1;
 rendering_fx_t     cfg_rendering_fx = FX_ENABLED;
 ToggleSwitchMode_t input_switch_mode = ModeSwitchCycleVideo;
@@ -85,6 +87,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  test_mode_enabled;
     rendering_fx_t rendering_fx;
     uint8_t  videx_selection;
+    uint8_t  color_style;
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
@@ -340,6 +343,11 @@ void config_load(void)
         cfg_rendering_fx = cfg->rendering_fx;
     }
 
+    if(IS_STORED_IN_CONFIG(cfg, color_style))
+    {
+        cfg_color_style = cfg->color_style;
+    }
+
     config_setflags();
     set_machine(cfg_machine);
 
@@ -358,6 +366,9 @@ void config_load(void)
 
     // load both character sets
     reload_charsets |= 3;
+
+    // reload color palette
+    reload_colors = true;
 }
 
 void config_load_defaults(void)
@@ -368,6 +379,7 @@ void config_load_defaults(void)
     SET_IFLAG(1, IFLAGS_VIDEO7);
     SET_IFLAG(0, IFLAGS_TEST);
 
+    cfg_color_style         = 2; // improved
     color_mode              = COLOR_MODE_BW;
     cfg_machine             = MACHINE_AUTO;
 
@@ -406,6 +418,7 @@ void DELAYED_COPY_CODE(config_save)(void)
     new_config->test_mode_enabled       = IS_IFLAG(IFLAGS_TEST);
     new_config->videx_selection         = cfg_videx_selection;
     new_config->rendering_fx            = cfg_rendering_fx;
+    new_config->color_style             = cfg_color_style;
     new_config->color_mode              = color_mode;
     new_config->machine_type            = cfg_machine;
     new_config->local_charset           = cfg_local_charset;

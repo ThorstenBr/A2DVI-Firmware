@@ -71,11 +71,14 @@ void DELAYED_COPY_CODE(a2dvi_dvi_enable)(void)
 
 void DELAYED_COPY_CODE(a2dvi_loop)(void)
 {
-    // free DMA channel and stop others from using it (would interfere with the DVI processing)
-    dmacopy_disable_dma();
-
     // CPU clock configuration required for DVI
     a2dvi_init();
+
+    // load TMDS color palette (with DMA)
+    tmds_color_load();
+
+    // free DMA channel and stop others from using it (would interfere with the DVI processing)
+    dmacopy_disable_dma();
 
     // load character sets etc
     render_init();

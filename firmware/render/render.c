@@ -335,6 +335,15 @@ void DELAYED_COPY_CODE(render_loop)()
                     break;
                 default:
                     render_text();
+                    if (reload_charsets)
+                    {
+                        config_load_charsets();
+                    }
+                    else
+                    if (reload_colors)
+                    {
+                        tmds_color_load();
+                    }
                     break;
             }
         }

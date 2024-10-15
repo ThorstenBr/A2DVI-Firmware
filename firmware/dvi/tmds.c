@@ -55,3 +55,10 @@ uint32_t DELAYED_COPY_DATA(tmds_mono_pixel_pair)[4*3*3] =
     /*G*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_128_0, TMDS_SYMBOL_0_128, TMDS_SYMBOL_128_128,
     /*B*/ TMDS_SYMBOL_0_0, TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0,   TMDS_SYMBOL_0_0
 };
+
+void DELAYED_COPY_CODE(tmds_color_load)(void)
+{
+    reload_colors = false;
+    tmds_color_load_lores(cfg_color_style);
+    tmds_color_load_dhgr(cfg_color_style);
+}

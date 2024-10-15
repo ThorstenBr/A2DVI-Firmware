@@ -104,3 +104,7 @@ extern uint32_t tmds_hires_color_patterns_blue[2*256];
 extern uint32_t tmds_dhgr_red[16*16];
 extern uint32_t tmds_dhgr_green[16*16];
 extern uint32_t tmds_dhgr_blue[16*16];
+
+extern void tmds_color_load(void);
+extern void tmds_color_load_lores(uint color_style);
+extern void tmds_color_load_dhgr(uint color_style);
