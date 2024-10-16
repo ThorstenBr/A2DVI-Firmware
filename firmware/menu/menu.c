@@ -384,7 +384,7 @@ void DELAYED_COPY_CODE(menuShowTest)()
     {
         for (uint x=0;x<40;x++)
         {
-            uint8_t color = x&0xf;
+            uint8_t color = ((x/10)+(y/10)*4) & 0xf;
             uint8_t mask = 0xF0; // even rows in low nibble
             if ((y & 1) == 1)
             {
