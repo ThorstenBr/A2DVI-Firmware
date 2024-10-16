@@ -848,8 +848,9 @@ static inline bool menuCheckKeys(char key)
             }
             break;
         case 27: // ESCAPE
-            // clear menu and Video 7 modes when exiting
-            soft_switches &= ~(SOFTSW_MENU_ENABLE | SOFTSW_80STORE | SOFTSW_DGR);
+            // clear menu, Video 7 and MIX modes when exiting, enable TEXT mode
+            soft_switches &= ~(SOFTSW_MENU_ENABLE | SOFTSW_MIX_MODE | SOFTSW_80COL | SOFTSW_80STORE | SOFTSW_DGR);
+            soft_switches |= SOFTSW_TEXT_MODE;
             // abort the menu: do not redraw
             return true;
         case '!': // special debug feature
