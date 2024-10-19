@@ -131,16 +131,16 @@ Advanced control options for the "*language rocker switch*" of your Euro-Apple I
 For machines without this switch, you can install a custom push button or rocker switch and connect it to the "ALTCHR" input of A2DVI.
 
 The switch normally toggles the machine's character set (local language vs US character set).
-You can enable advanced behavior, so quickly rocking the switch back and changes the display mode.
+You can enable advanced behavior, so quickly rocking the switch back and forth changes the display mode.
 So you no longer need to enter the configuration menu in order to change between color, monochrome or other display modes.
 
-The switching behavior is configurable via the menu. Available options:
+Menu options for switching behavior:
 
-* **DISABLED**: the input switch does nothing.
-* **TOGGLE CHARACTER SET**: switch only controls the character set (normal behavior of the Euro-Apple IIe).
+* **DISABLED**: input switch does nothing.
+* **TOGGLE CHARACTER SET**: switch controls the character set only (original Euro-Apple IIe default behavior).
 * **TOGGLE MONO/COLOR**: switch selects monochrome or color display mode.
-* **CYCLE DISPLAY MODE**: switch cycles through various display modes (color, black&white, green, amber - with/without scanlines). The cycled options depend on the capabilities of the currently active video mode.
-* **CHARSET+TOGGLE M/C**: switch controls the character set. Quickly rocking the switch back and forth toggles color vs monochrome display.
+* **CYCLE DISPLAY MODE**: switch cycles through various display modes (color, black&white, green, amber - with/without scanlines). The cycled options depend on the currently active video mode.
+* **CHARSET+TOGGLE M/C**: switch controls the character set. Quickly rocking the switch back and forth toggles color vs monochrome mode.
 * **CHARSET+CYCLE MODES**: switch controls the character set. Quickly rocking the switch back and forth cycles through available display modes (see above).
 
 Use the ALTCHR language switch (Euro-Machines) or connect a custom switch/push-button to quickly cycle the available display modes:
@@ -189,6 +189,7 @@ but uses an unused 8th data bit to switch to a 560pixel/line monochrome resoluti
 ![Video7](images/A2DVI_Video7_DHGR.jpg)
 
 Another example showing the Video7 16color with hires monochrome pixel mix mode:
+
 ![Video7](images/A2DVI_Video7_DHGR2.jpg)
 
 ## Videx Support
@@ -249,7 +250,8 @@ The A2DVI firmware supports the font selection protocol of ROMX/ROMXe devices.
 ## Startup Diagnostics
 When the Apple II does not appear to boot, a diagnostics screen is displayed instead, showing the state of the 6502 bus.
 This may become helpful with *certain type* of Apple II mainboard defects.
-[A2DVI Startup Diagnostics](images/A2DVI_Splash.jpg)
+
+![A2DVI Startup Diagnostics](images/A2DVI_Splash.jpg)
 
 # Photos
 Here are some photos showing A2DVI in action - using the DVI/HDMI connection.
@@ -301,7 +303,7 @@ Firmware updates of an A2DVI card are easy and safe:
 * **Analog rendering effects** for Double-HIRES/Double-LORES (optional).
 * **ROMX font selection**.
 * **Display modes switchable through ALTCHR language switch or custom switch/push-button**
-* **Multiple color palettes*
+* **Multiple color palettes**
 * **Simple Startup Diagnostics**
 
 # License

@@ -5,7 +5,7 @@ The firmware supports various configuration properties.
 ![Config Utility](/images/A2DVI_Config.jpg)
 
 ## Configuration Disks
-There are configuration utility disks for [ProDOS](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_PRODOS.po) and [DOS3.3](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_DOS33.dsk).
+There are configuration [utility disks for ProDOS](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_PRODOS.po) and [DOS3.3](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_DOS33.dsk).
 The disk support the configuration of the card and uploading custom fonts (video ROMs).
 
 Download the files and transfer them to a disk using ADTpro or similar.
