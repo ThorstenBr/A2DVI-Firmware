@@ -29,6 +29,7 @@ SOFTWARE.
 #include "dvi/tmds.h"
 
 extern uint32_t show_subtitle_cycles;
+extern uint32_t led_bus_cycle_counter;
 extern bool mono_rendering;
 
 extern bool color_support;  // flag indicating whether current display mode supports color

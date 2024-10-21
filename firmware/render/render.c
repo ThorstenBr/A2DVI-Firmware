@@ -33,6 +33,7 @@ SOFTWARE.
 #include "render.h"
 #include "menu/menu.h"
 
+uint32_t led_bus_cycle_counter;
 bool mono_rendering = false;
 bool color_support;
 
@@ -250,11 +251,10 @@ static void update_toggle_switch()
 
 static void update_led()
 {
-    static uint32_t last_bus_cycle_counter;
-    if (bus_cycle_counter != last_bus_cycle_counter) // 6502 is also alive
+    if (bus_cycle_counter != led_bus_cycle_counter) // 6502 is also alive
     {
         gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
-        last_bus_cycle_counter = bus_cycle_counter;
+        led_bus_cycle_counter = bus_cycle_counter;
     }
 }
 

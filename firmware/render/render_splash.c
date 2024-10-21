@@ -94,6 +94,15 @@ uint8_t DELAYED_COPY_DATA(logoColors)[6] = {0xc, 0xd, 9, 1, 3, 6};
 
 #define TEXT_OFFSET(line) ((((line) & 0x7) << 7) + ((((line) >> 3) & 0x3) * 40))
 
+static inline void update_led()
+{
+    if (bus_cycle_counter != led_bus_cycle_counter) // 6502 is also alive
+    {
+        gpio_xor_mask(1u << PICO_DEFAULT_LED_PIN);
+        led_bus_cycle_counter = bus_cycle_counter;
+    }
+}
+
 void DELAYED_COPY_CODE(render_splash)()
 {
     // save original pointers to text page
@@ -194,12 +203,19 @@ void DELAYED_COPY_CODE(render_splash)()
         }
         render_debug(false, false);
         update_text_flasher();
-        frame_counter++;
         splash_frames++;
 
         if (bus_cycle_counter > 3*1000)
         {
             centerY(LINE_ACTIVITY, pStatus6502[5], PRINTMODE_FLASH);
+        }
+
+        frame_counter++;
+
+        // toggle LED
+        if ((frame_counter&7) == 0)
+        {
+            update_led();
         }
     }
 
