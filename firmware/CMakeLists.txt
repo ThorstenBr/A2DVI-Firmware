@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 # firmware version
-set(FW_VERSION "1.5")
+set(FW_VERSION "1.6A1")
 message(STATUS "Building firmware version ${FW_VERSION}")
 
 option(FEATURE_PICO2 "Build project for PICO2 (RP2350) instead of original PICO (RP2040)" OFF)
@@ -57,12 +57,16 @@ enable_language(C CXX ASM)
 project(A2DVI C CXX ASM)
 
 # enable compiler warnings
-add_compile_options(-Wall -Wno-unused-function)
+add_compile_options(-Wall)
 
 # At 640pixels each TMDS buffer requires 3840bytes
 add_compile_options(-DDVI_N_TMDS_BUFFERS=8)
 
 add_compile_options(-DFW_VERSION="${FW_VERSION}")
+
+# wrap/disable some library symbols, to speed up the boot time (reduce code)
+add_link_options(-Wl,--wrap=weak_raw_vprintf)
+add_link_options(-Wl,--wrap=panic)
 
 # just for debugging
 #add_compile_options(-DFEATURE_DEBUG_COUNTER)

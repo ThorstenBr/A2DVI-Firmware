@@ -23,6 +23,8 @@ SOFTWARE.
 */
 
 #include <malloc.h>
+#include <stdarg.h>
+
 #include "pico/multicore.h"
 #include "pico/bootrom.h"
 #include "hardware/clocks.h"
@@ -169,4 +171,17 @@ uint32_t getFreeHeap(void)
 {
    struct mallinfo m = mallinfo();
    return getTotalHeap() - m.uordblks;
+}
+
+/* dummy wrapper to get rid of PICO_STDLIB's weak_raw_vprintf, which
+* consumes several KB of memory, due to its dependencies */
+bool __wrap_weak_raw_vprintf(const char *fmt, va_list args)
+{
+    return 0;
+}
+
+/* dummy wrapper to get rid of PICO_STDLIB's "panic" */
+void __wrap_panic(const char *msg)
+{
+    while (1);
 }
