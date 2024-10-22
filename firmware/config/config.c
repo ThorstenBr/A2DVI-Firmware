@@ -322,7 +322,7 @@ void config_load(void)
         return;
     }
 
-    cfg_machine = (cfg->machine_type <= MACHINE_MAX_CFG) ? cfg->machine_type : MACHINE_AUTO;
+    cfg_machine = ((cfg->machine_type <= MACHINE_MAX_CFG-1)&&(cfg->machine_type > 0)) ? cfg->machine_type+1 : MACHINE_AUTO;
     if ((cfg_machine == MACHINE_IIE)&&(cfg->OBSOLETE_enhanced_font_enabled != 0))
     {
         // convert old config setting
@@ -420,7 +420,7 @@ void DELAYED_COPY_CODE(config_save)(void)
     new_config->rendering_fx            = cfg_rendering_fx;
     new_config->color_style             = cfg_color_style;
     new_config->color_mode              = color_mode;
-    new_config->machine_type            = cfg_machine;
+    new_config->machine_type            = (cfg_machine>MACHINE_AUTO) ? cfg_machine-1 : 0xff; // old encoding
     new_config->local_charset           = cfg_local_charset;
     new_config->alt_charset             = cfg_alt_charset;
     new_config->input_switch_mode       = input_switch_mode;

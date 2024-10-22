@@ -51,6 +51,20 @@ static uint8_t CurrentMenu        = 0;
 static bool    MenuNeedsRedraw;
 static uint8_t MenuSubTitleToggle;
 
+
+const char* DELAYED_COPY_CODE(getMenuString)(const char* pResource, uint Index)
+{
+    const char* pText = pResource;
+    while (Index--)
+    {
+        if (!*pText)
+            return "";
+        while (*(++pText) != 0);
+        pText++;
+    }
+    return pText;
+}
+
 void DELAYED_COPY_CODE(centerY)(uint32_t y, const char* pMsg, TPrintMode PrintMode)
 {
     uint32_t x = 0;
@@ -137,126 +151,154 @@ void DELAYED_COPY_CODE(clearLine)(uint8_t line, TPrintMode PrintMode)
     }
 }
 
-const char* DELAYED_COPY_DATA(TitleFirmware) =
+char DELAYED_COPY_DATA(TitleFirmware)[] =
     "A2DVI - FIRMWARE V" FW_VERSION;
 
-const char* DELAYED_COPY_DATA(TitleCopyright) =
+char DELAYED_COPY_DATA(TitleCopyright)[] =
     "(C) 2024 THORSTEN BREHM, RALLE PALAVEEV ";
 
-const char* DELAYED_COPY_DATA(TitleGitHub)[2] = {
-    "GITHUB.COM/RALLEPALAVEEV/A2DVI",
-    "  GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE  "
-};
+char DELAYED_COPY_DATA(TitleGitHub0)[] = "GITHUB.COM/RALLEPALAVEEV/A2DVI";
+char DELAYED_COPY_DATA(TitleGitHub1)[] = "  GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE  ";
+char* DELAYED_COPY_DATA(TitleGitHub)[2] = {TitleGitHub0, TitleGitHub1};
 
-const char* DELAYED_COPY_DATA(MachineNames)[MACHINE_MAX_CFG+2] =
+char DELAYED_COPY_DATA(MachineNames)[] =
 {
-    "APPLE II",
-    "APPLE IIE",
-    "APPLE IIE ENHANCED",
-    "AGAT7",
-    "AGAT9",
-    "BASIS",
-    "PRAVETZ"
+    "AUTO DETECT\0"
+    "APPLE II\0"
+    "APPLE IIE\0"
+    "APPLE IIE ENHANCED\0"
+    "AGAT7\0"
+    "AGAT9\0"
+    "BASIS\0"
+    "PRAVETZ\0"
+    "\0"
 };
 
-const char* DELAYED_COPY_DATA(MenuOnOff)[2] =
-{
-    "DISABLED",
-    "ENABLED"
-};
+char DELAYED_COPY_DATA(MenuOnOff)[] =
+    "DISABLED\0"
+    "ENABLED\0"
+    "\0";
 
-const char* DELAYED_COPY_DATA(MenuButtonModes)[6] =
-{
-//   12345678901234567890
-    "DISABLED",
-    "TOGGLE CHARACTER SET",
-    "TOGGLE MONO/COLOR",
-    "CYCLE DISPLAY MODE",
-    "CHARSET+TOGGLE M/C",
-    "CHARSET+CYCLE MODES"
-};
-
-const char* DELAYED_COPY_DATA(MenuRendering)[4] =
+char DELAYED_COPY_DATA(MenuButtonModes)[] =
 {
 //   12345678901234567890
-    "DISABLED",
-    "ENABLED",
-    "DOUBLE HIRES ONLY",
-    "DOUBLE LORES ONLY"
+    "DISABLED\0"
+    "TOGGLE CHARACTER SET\0"
+    "TOGGLE MONO/COLOR\0"
+    "CYCLE DISPLAY MODE\0"
+    "CHARSET+TOGGLE M/C\0"
+    "CHARSET+CYCLE MODES\0"
+    "\0"
 };
 
-const char* DELAYED_COPY_DATA(MenuColorMode)[COLOR_MODE_AMBER+1] =
+char DELAYED_COPY_DATA(MenuRendering)[] =
+//   12345678901234567890
+    "DISABLED\0"
+    "ENABLED\0"
+    "DOUBLE HIRES ONLY\0"
+    "DOUBLE LORES ONLY\0"
+    "\0";
+
+
+char DELAYED_COPY_DATA(MenuColorBW)[]    = "BLACK & WHITE";
+char DELAYED_COPY_DATA(MenuColorGreen)[] = "GREEN";
+char DELAYED_COPY_DATA(MenuColorAmber)[] = "AMBER";
+
+char* DELAYED_COPY_DATA(MenuColorMode)[COLOR_MODE_AMBER+1] =
 {
-    "BLACK & WHITE",
-    "GREEN",
-    "AMBER"
+    MenuColorBW,
+    MenuColorGreen,
+    MenuColorAmber
 };
 
-const char* DELAYED_COPY_DATA(MenuForcedMono)[2] =
-{
-    "COLOR",
-    "MONOCHROME"
-};
+char DELAYED_COPY_DATA(MenuForcedMono)[] =
+    "COLOR\0"
+    "MONOCHROME\0"
+    "\0";
 
 
-const char* DELAYED_COPY_DATA(MenuColorStyle)[3] =
-{
-    "DEFAULT",
-    "ORIGINAL (IIE)",
-    "IMPROVED (IIGS/IIE)"
-};
+char DELAYED_COPY_DATA(MenuColorStyle)[] =
+    "DEFAULT\0"
+    "ORIGINAL (IIE)\0"
+    "IMPROVED (IIGS/IIE)\0"
+    "\0";
 
-const char* DELAYED_COPY_DATA(MenuFontNames)[MAX_FONT_COUNT] =
-{
-    "IIE US", //0
-    "IIE UK", //1
-    "IIE FRENCH", //2
-    "IIE GERMAN", //3
-    "IIE SPANISH", //4
-    "IIE ITALIAN", //5
-    "IIE SWEDISH/FINNISH", //6
-    "IIE HEBREW", //7
-    "PRAVETZ CYRILLIC", //8
-    "IIE US REACTIVE", //9
-    "IIE US UNENHANCED", //10
-    "II+ US", //11
-    "II+ VIDEX LOWER 1",//12
-    "II+ VIDEX LOWER 2",//13
-    "II+ PIG FONT",//14
-    "II+ JAPAN KATAKANA",//15
+char DELAYED_COPY_DATA(MenuFontNames)[] =
+    "IIE US\0" //0
+    "IIE UK\0" //1
+    "IIE FRENCH\0" //2
+    "IIE GERMAN\0" //3
+    "IIE SPANISH\0" //4
+    "IIE ITALIAN\0" //5
+    "IIE SWEDISH/FINNISH\0" //6
+    "IIE HEBREW\0" //7
+    "PRAVETZ CYRILLIC\0" //8
+    "IIE US REACTIVE\0" //9
+    "IIE US UNENHANCED\0" //10
+    "II+ US\0" //11
+    "II+ VIDEX LOWER 1\0"//12
+    "II+ VIDEX LOWER 2\0"//13
+    "II+ PIG FONT\0"//14
+    "II+ JAPAN KATAKANA\0"//15
 
-    "CUSTOM FONT 1",
-    "CUSTOM FONT 2",
-    "CUSTOM FONT 3",
-    "CUSTOM FONT 4",
-    "CUSTOM FONT 5",
-    "CUSTOM FONT 6",
-    "CUSTOM FONT 7",
-    "CUSTOM FONT 8",
-    "CUSTOM FONT 9",
-    "CUSTOM FONT 10",
-    "CUSTOM FONT 11",
-    "CUSTOM FONT 12",
-    "CUSTOM FONT 13",
-    "CUSTOM FONT 14",
-    "CUSTOM FONT 15",
-    "CUSTOM FONT 16"
-};
+    "CUSTOM FONT 1\0"
+    "CUSTOM FONT 2\0"
+    "CUSTOM FONT 3\0"
+    "CUSTOM FONT 4\0"
+    "CUSTOM FONT 5\0"
+    "CUSTOM FONT 6\0"
+    "CUSTOM FONT 7\0"
+    "CUSTOM FONT 8\0"
+    "CUSTOM FONT 9\0"
+    "CUSTOM FONT 10\0"
+    "CUSTOM FONT 11\0"
+    "CUSTOM FONT 12\0"
+    "CUSTOM FONT 13\0"
+    "CUSTOM FONT 14\0"
+    "CUSTOM FONT 15\0"
+    "CUSTOM FONT 16\0"
+    "\0";
 
-const char* DELAYED_COPY_DATA(MenuVidex)[VIDEX_FONT_COUNT+1] =
-{
-    "DISABLED",  //0
-    "US",        //1
-    "UPPERCASE", //2
-    "GERMAN",    //3
-    "FRENCH",    //4
-    "SPANISH",   //5
-    "KATAKANA",  //6
-    "APL",       //7
-    "SUPER SUB", //8
-    "EPSON",     //9
-    "SYMBOL"     //10
-};
+char DELAYED_COPY_DATA(MenuVidex)[] =
+    "DISABLED\0"  //0
+    "US\0"        //1
+    "UPPERCASE\0" //2
+    "GERMAN\0"    //3
+    "FRENCH\0"    //4
+    "SPANISH\0"   //5
+    "KATAKANA\0"  //6
+    "APL\0"       //7
+    "SUPER SUB\0" //8
+    "EPSON\0"     //9
+    "SYMBOL\0"    //10
+    "\0";
+
+char DELAYED_COPY_DATA(MenuTitle)[] = "- CONFIGURATION MENU -";
+
+char DELAYED_COPY_DATA(MenuItems)[] =
+    "0 MACHINE TYPE:\0"
+    "1 CHARACTER SET:\0"
+    "2 ALTCHR SWITCH:\0"
+    "3 US CHARACTER SET:\0"
+    "4 MONOCHROME MODE:\0"
+    "5 COLOR MODE:\0"
+    "6 RGB COLOR STYLE:\0"
+    "7 SCAN LINES:\0"
+    "8 ANALOG RENDER FX:\0"
+    "9 VIDEO7 (IIE):\0"
+    "X VIDEX  (II/II+):\0"
+    "D DEBUG MONITOR:\0"
+    "R RESTORE DEFAULTS\0"
+    "L LOAD FROM FLASH\0"
+    "S SAVE TO FLASH\0"
+    "A ABOUT\0"
+    "B DEBUG\0"
+    "T TEST\0"
+    "\0";
+
+char DELAYED_COPY_DATA(MenuExit)[] = "'ESC' TO EXIT";
+
+char DELAYED_COPY_DATA(MenuSpecialChars)[] = "[{\\~#$`^|}]";
 
 void DELAYED_COPY_CODE(showTitle)(TPrintMode PrintMode)
 {
@@ -275,10 +317,13 @@ void DELAYED_COPY_CODE(showTitle)(TPrintMode PrintMode)
     centerY(23, TitleGitHub[MenuSubTitleToggle], PrintMode);
 }
 
-static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const char* pValue)
+void DELAYED_COPY_CODE(menuOption)(uint8_t y, uint8_t Selection, const char* pValue)
 {
     uint x = (Selection >= (MENU_OFS_NONCFG+3)) ? 20:0;
     char MenuKey[2];
+
+    const char* pMenu = getMenuString(MenuItems, Selection);
+
     MenuKey[0] = pMenu[0];
     MenuKey[1] = 0;
     printXY(x, y, MenuKey, PRINTMODE_INVERSE);
@@ -293,31 +338,30 @@ void DELAYED_COPY_CODE(menuShowFrame)()
     soft_switches &= ~(SOFTSW_MIX_MODE | SOFTSW_80COL | SOFTSW_PAGE_2 | SOFTSW_DGR | SOFTSW_HIRES_MODE);
 
     showTitle(PRINTMODE_INVERSE);
-    centerY(21, "'ESC' TO EXIT", PRINTMODE_NORMAL);
+    centerY(21, MenuExit, PRINTMODE_NORMAL);
 }
 
 //   1234567890123456789012345678901234567890
-static const char* DELAYED_COPY_DATA(AboutText)[]=
+static char DELAYED_COPY_DATA(AboutText)[]=
 {
-    "A2DVI IS A DVI/HDMI  GRAPHICS  CARD  FOR", //3
-    "APPLE II COMPUTERS,  GENERATING  A  TRUE", //4
-    "DIGITAL VIDEO SIGNAL WITHOUT ANY  ANALOG", //5
-    "CONVERSION. THE CARD MONITORS  THE  6502", //6
-    "BUS, CREATES A SHADOW COPY OF THE  VIDEO", //7
-    "MEMORY WITHIN ITS  RASPBERRY  PICO  MCU,", //8
-    "THEN GENERATES 'TMDS'  ENCODED  RGB  BIT", //9
-    "STREAMS (3X252MBIT/S) FOR DVI/HDMI.",      //10
-    "",                                         //11
-    "MORE: GITHUB.COM/RALLEPALAVEEV/A2DVI",     //12
-    "   GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE",  //13
-    "",                                         //14
-    "A2DVI IS BASED ON PROJECTS 'APPLEII VGA'", //15
-    "(C) 2021 MARK AIKENS & DAVID KUDER,  AND", //16
-    "ON 'PICODVI' (C) 2021 LUKE WREN.",         //17
-    "  MANY THANKS TO ALL! APPLE II FOREVER!",  //18
-    "",                                         //19
-    "           THORSTEN AND RALLE",            //20
-    0
+    "A2DVI IS A DVI/HDMI  GRAPHICS  CARD  FOR\0" //3
+    "APPLE II COMPUTERS,  GENERATING  A  TRUE\0" //4
+    "DIGITAL VIDEO SIGNAL WITHOUT ANY  ANALOG\0" //5
+    "CONVERSION. THE CARD MONITORS  THE  6502\0" //6
+    "BUS, CREATES A SHADOW COPY OF THE  VIDEO\0" //7
+    "MEMORY WITHIN ITS  RASPBERRY  PICO  MCU,\0" //8
+    "THEN GENERATES 'TMDS'  ENCODED  RGB  BIT\0" //9
+    "STREAMS (3X252MBIT/S) FOR DVI/HDMI.\0"      //10
+    " \0"                                        //11
+    "MORE: GITHUB.COM/RALLEPALAVEEV/A2DVI\0"     //12
+    "   GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE\0"  //13
+    " \0"                                        //14
+    "A2DVI IS BASED ON PROJECTS 'APPLEII VGA'\0" //15
+    "(C) 2021 MARK AIKENS & DAVID KUDER,  AND\0" //16
+    "ON 'PICODVI' (C) 2021 LUKE WREN.\0"         //17
+    "  MANY THANKS TO ALL! APPLE II FOREVER!\0"  //18
+    " \0"                                        //19
+    "           THORSTEN AND RALLE\0\0"          //20
 };
 
 #define TEXT_OFFSET(line) ((((line) & 0x7) << 7) + ((((line) >> 3) & 0x3) * 40))
@@ -365,9 +409,12 @@ void DELAYED_COPY_CODE(menuShowAbout)()
 {
     menuShowFrame();
     menuVideo7Text();
-    for (uint y=0;AboutText[y];y++)
+    char* pText = AboutText;
+    for (uint y=0;*pText!=0;y++)
     {
-        printXY(0,2+y, AboutText[y], PRINTMODE_NORMAL);
+        printXY(0,2+y, pText, PRINTMODE_NORMAL);
+        while (*(++pText) != 0);
+        pText++;
     }
 }
 
@@ -435,7 +482,7 @@ void DELAYED_COPY_CODE(menuShowDebug)()
 
         printXY(X1,   3, "DETECTED MACHINE:", PRINTMODE_NORMAL);
         // show current machine type
-        printXY(X2+1, 3, (current_machine > MACHINE_MAX_CFG) ? "-" : MachineNames[current_machine], PRINTMODE_NORMAL);
+        printXY(X2+1, 3, (current_machine > MACHINE_MAX_CFG) ? "-" : getMenuString(MachineNames, current_machine), PRINTMODE_NORMAL);
 
         // show slot
         printXY(X1,   4, "DETECTED SLOT:",    PRINTMODE_NORMAL);
@@ -500,18 +547,12 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
         case 0:
             if (increase)
             {
-                if (cfg_machine == MACHINE_AUTO)
-                    cfg_machine = 0;
-                else
                 if (cfg_machine < MACHINE_MAX_CFG)
                     cfg_machine++;
             }
             else
             {
-                if (cfg_machine == 0)
-                    cfg_machine = MACHINE_AUTO;
-                else
-                if (cfg_machine != MACHINE_AUTO)
+                if (cfg_machine > 0)
                     cfg_machine--;
             }
             // update current machine type
@@ -907,41 +948,41 @@ void DELAYED_COPY_CODE(menuShow)(char key)
         MenuNeedsRedraw = false;
     }
     uint Y=1;
-    centerY(Y++, "- CONFIGURATION MENU -", PRINTMODE_NORMAL);
+    centerY(Y++, MenuTitle, PRINTMODE_NORMAL);
     Y++;
 
     //                0123456789012345678
-    menuOption(Y++,0,  "0 MACHINE TYPE:",       (cfg_machine <= MACHINE_MAX_CFG) ? MachineNames[cfg_machine] : "AUTO DETECT");
-    menuOption(Y++,1,  "1 CHARACTER SET:",      (cfg_local_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_local_charset] : "?");
-    menuOption(Y++,2,  "2 ALTCHR SWITCH:",      MenuButtonModes[input_switch_mode]);
+    menuOption(Y++,0,  getMenuString(MachineNames, (cfg_machine <= MACHINE_MAX_CFG) ? cfg_machine : 0));
+    menuOption(Y++,1,  (cfg_local_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_local_charset) : "?");
+    menuOption(Y++,2,  getMenuString(MenuButtonModes, input_switch_mode));
     if ((input_switch_mode == ModeSwitchLanguage)||
         (input_switch_mode == ModeSwitchLangMonochrome)||
         (input_switch_mode == ModeSwitchLangCycle))
     {
-        menuOption(Y,3, "3 US CHARACTER SET:", (cfg_alt_charset < MAX_FONT_COUNT) ? MenuFontNames[cfg_alt_charset] : "?");
+        menuOption(Y,3, (cfg_alt_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_alt_charset) : "?");
     }
     Y++;
     Y++;
 
-    menuOption(Y++,4,  "4 MONOCHROME MODE:",  MenuColorMode[color_mode]);
-    menuOption(Y++,5,  "5 COLOR MODE:",       MenuForcedMono[IS_IFLAG(IFLAGS_FORCED_MONO)]);
-    menuOption(Y++,6,  "6 RGB COLOR STYLE:",  MenuColorStyle[cfg_color_style]);
-    menuOption(Y++,7,  "7 SCAN LINES:",       MenuOnOff[IS_IFLAG(IFLAGS_SCANLINEEMU)]);
-    menuOption(Y++,8,  "8 ANALOG RENDER FX:", MenuRendering[cfg_rendering_fx]);
-    menuOption(Y++,9,  "9 VIDEO7 (IIE):",     MenuOnOff[IS_IFLAG(IFLAGS_VIDEO7)]);
-    menuOption(Y++,10, "X VIDEX  (II/II+):",  MenuVidex[cfg_videx_selection]);
-    menuOption(Y++,11, "D DEBUG MONITOR:",    MenuOnOff[IS_IFLAG(IFLAGS_DEBUG_LINES)]);
+    menuOption(Y++,4,  MenuColorMode[color_mode]);
+    menuOption(Y++,5,  getMenuString(MenuForcedMono, IS_IFLAG(IFLAGS_FORCED_MONO)));
+    menuOption(Y++,6,  getMenuString(MenuColorStyle, cfg_color_style));
+    menuOption(Y++,7,  getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_SCANLINEEMU)));
+    menuOption(Y++,8,  getMenuString(MenuRendering, cfg_rendering_fx));
+    menuOption(Y++,9,  getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_VIDEO7)));
+    menuOption(Y++,10, getMenuString(MenuVidex, cfg_videx_selection));
+    menuOption(Y++,11, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_DEBUG_LINES)));
 
-    menuOption(Y+1,12, "R RESTORE DEFAULTS",  0);
-    menuOption(Y+2,13, "L LOAD FROM FLASH",   0);
-    menuOption(Y+3,14, "S SAVE TO FLASH",     0);
+    menuOption(Y+1,12, 0);
+    menuOption(Y+2,13, 0);
+    menuOption(Y+3,14, 0);
 
-    menuOption(Y+1,15, "A ABOUT",             0);
-    menuOption(Y+2,16, "B DEBUG",             0);
-    menuOption(Y+3,17, "T TEST",              0);
+    menuOption(Y+1,15, 0);
+    menuOption(Y+2,16, 0);
+    menuOption(Y+3,17, 0);
 
     // show some special characters, for immediate feedback when selecting character sets
-    printXY(40-11, 21, "[{\\~#$`^|}]", PRINTMODE_NORMAL);
+    printXY(40-11, 21, MenuSpecialChars, PRINTMODE_NORMAL);
 
     /* We're drawing the menu inside the bus cycle loop. That's too slow, of course.
      * But it doesn't matter, since we know the config utility isn't doing anything

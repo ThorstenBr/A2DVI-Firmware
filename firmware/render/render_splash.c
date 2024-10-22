@@ -58,7 +58,7 @@ SOFTWARE.
 23            GITHUB.COM
 */
 
-const char* DELAYED_COPY_DATA(pLogo) =
+char DELAYED_COPY_DATA(pLogo)[] =
     "    AAAA    2222   DDDDD   V    V  I\n"
     "   A    A  2   22  D    D  V    V  I\n"
     "   A    A     22   D    D  V    V  I\n"
@@ -66,20 +66,16 @@ const char* DELAYED_COPY_DATA(pLogo) =
     "   A    A  22      D    D   V  V   I\n"
     "   A    A  222222  DDDDD     VV    I\n";
 
-const char* DELAYED_COPY_DATA(pSplashMsg)[3] = {
-    "APPLE II DIGITAL VIDEO",
-    "COPYRIGHT 2024",
-    "THORSTEN BREHM & RALLE PALAVEEV"
-};
+char DELAYED_COPY_DATA(pSplashMsg_0[]) = "APPLE II DIGITAL VIDEO";
+char DELAYED_COPY_DATA(pSplashMsg_1[]) = "COPYRIGHT 2024";
+char DELAYED_COPY_DATA(pSplashMsg_2[]) = "THORSTEN BREHM & RALLE PALAVEEV";
 
-const char* DELAYED_COPY_DATA(pStatus6502)[6] = {
-    "6502 STATUS",
-    "BUS CYCLES :",
-    "ADDRESS BUS: ?",
-    "PC         : ?",
-    "NO 6502 BUS ACTIVITY",
-    "WAITING FOR APPLE II ROM RESET ROUTINE"
-};
+char DELAYED_COPY_DATA(pStatus6502_0[]) = "6502 STATUS";
+char DELAYED_COPY_DATA(pStatus6502_1[]) = "BUS CYCLES :";
+char DELAYED_COPY_DATA(pStatus6502_2[]) = "ADDRESS BUS: ?";
+char DELAYED_COPY_DATA(pStatus6502_3[]) = "PC         : ?";
+char DELAYED_COPY_DATA(pStatus6502_4[]) = "NO 6502 BUS ACTIVITY";
+char DELAYED_COPY_DATA(pStatus6502_5[]) = "WAITING FOR APPLE II ROM RESET ROUTINE";
 
 #define LINE_A2DVI     (2)
 #define LINE_A2DIGITAL (LINE_A2DVI+7)
@@ -117,12 +113,12 @@ void DELAYED_COPY_CODE(render_splash)()
 
     // initialize the splash screen
     showTitle(PRINTMODE_NORMAL);
-    centerY(LINE_A2DIGITAL,   pSplashMsg[0], PRINTMODE_NORMAL);
-    centerY(LINE_COPYRIGHT,   pSplashMsg[1], PRINTMODE_NORMAL);
-    centerY(LINE_COPYRIGHT+1, pSplashMsg[2], PRINTMODE_NORMAL);
-    centerY(LINE_6502,        pStatus6502[0], PRINTMODE_INVERSE);
+    centerY(LINE_A2DIGITAL,   pSplashMsg_0, PRINTMODE_NORMAL);
+    centerY(LINE_COPYRIGHT,   pSplashMsg_1, PRINTMODE_NORMAL);
+    centerY(LINE_COPYRIGHT+1, pSplashMsg_2, PRINTMODE_NORMAL);
+    centerY(LINE_6502,        pStatus6502_0, PRINTMODE_INVERSE);
     if (bus_cycle_counter < 3*1000)
-        centerY(LINE_ACTIVITY,    pStatus6502[4], PRINTMODE_FLASH);
+        centerY(LINE_ACTIVITY,    pStatus6502_4, PRINTMODE_FLASH);
     centerY(22, TitleGitHub[1], PRINTMODE_NORMAL);
 
     // set colors
@@ -206,7 +202,7 @@ void DELAYED_COPY_CODE(render_splash)()
 
         if (bus_cycle_counter > 3*1000)
         {
-            centerY(LINE_ACTIVITY, pStatus6502[5], PRINTMODE_FLASH);
+            centerY(LINE_ACTIVITY, pStatus6502_5, PRINTMODE_FLASH);
         }
 
         frame_counter++;

@@ -39,8 +39,8 @@ typedef enum {
 } TPrintMode;
 
 extern bool        IgnoreNextKeypress;
-extern const char* TitleGitHub[2];
-extern const char* MenuColorMode[COLOR_MODE_AMBER+1];
+extern char* TitleGitHub[2];
+extern char* MenuColorMode[COLOR_MODE_AMBER+1];
 
 void printXY(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode);
 void centerY(uint32_t y, const char* pMsg, TPrintMode PrintMode);

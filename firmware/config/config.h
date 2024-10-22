@@ -31,17 +31,17 @@ SOFTWARE.
 
 typedef enum
 {
-    MACHINE_II      = 0,
-    MACHINE_IIE     = 1,
-    MACHINE_IIE_ENH = 2,
-    MACHINE_AGAT7   = 3,
-    MACHINE_AGAT9   = 4,
-    MACHINE_BASIS   = 5,
-    MACHINE_PRAVETZ = 6,
+    MACHINE_AUTO    = 0,
+    MACHINE_II      = 1,
+    MACHINE_IIE     = 2,
+    MACHINE_IIE_ENH = 3,
+    MACHINE_AGAT7   = 4,
+    MACHINE_AGAT9   = 5,
+    MACHINE_BASIS   = 6,
+    MACHINE_PRAVETZ = 7,
     MACHINE_MAX_CFG = MACHINE_PRAVETZ, // valid maximum option for config, otherwise "AUTO" is assumed
-//  MACHINE_IIGS    = 7,             // currently not supported
-    MACHINE_INVALID = 0xfe,
-    MACHINE_AUTO    = 0xff
+//  MACHINE_IIGS    = 8,             // currently not supported
+//    MACHINE_INVALID = 0xfe
 } compat_t;
 
 typedef enum {
