@@ -24,7 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "pico/stdlib.h"
 #include "dvi.h"
 
 extern struct dvi_inst dvi0;

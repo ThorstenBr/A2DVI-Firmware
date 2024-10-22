@@ -7,6 +7,9 @@ message(STATUS "Building firmware version ${FW_VERSION}")
 option(FEATURE_PICO2 "Build project for PICO2 (RP2350) instead of original PICO (RP2040)" OFF)
 option(FEATURE_TEST  "Build test firmware instead of normal firmware" OFF)
 
+set(PICO_STDIO_UART OFF)
+set(PICO_STDIO_USB  OFF)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -36,9 +39,6 @@ else()
 endif()
 
 set(BOARD pico_sdk)
-
-set(PICO_STDIO_UART OFF)
-set(PICO_STDIO_USB  OFF)
 
 # Pull in SDK (must be before project)
 include(cmake/pico_sdk_import.cmake)
@@ -139,10 +139,13 @@ add_executable(${BINARY_NAME}
 target_compile_options(${BINARY_NAME} PRIVATE -Wall)
 
 target_link_libraries(${BINARY_NAME}
-    pico_stdlib
+    pico_runtime_init
+    pico_runtime
     pico_multicore
     pico_util
     hardware_flash
+    hardware_vreg
+    hardware_clocks
     libdvi
 )
 

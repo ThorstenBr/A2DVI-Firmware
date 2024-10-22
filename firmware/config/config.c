@@ -24,9 +24,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <pico.h>
 #include <string.h>
+#include <malloc.h>
 #include <hardware/flash.h>
 
 #include "config.h"

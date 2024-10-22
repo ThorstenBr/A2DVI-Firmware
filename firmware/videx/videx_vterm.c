@@ -26,7 +26,6 @@ SOFTWARE.
 #include <string.h>
 #include "videx_vterm.h"
 
-#include <pico/stdlib.h>
 #include "applebus/buffers.h"
 #include "config/config.h"
 

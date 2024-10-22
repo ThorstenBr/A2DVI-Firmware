@@ -27,7 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include <stdint.h>
-#include <pico/stdlib.h>
+#include <stdbool.h>
 
 typedef enum
 {
