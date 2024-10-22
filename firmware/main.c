@@ -74,9 +74,6 @@ int main()
     // Finish copying remaining data and code from flash to RAM
     memcpy32(__ram_delayed_copy_start__, __ram_delayed_copy_source__, ((uint32_t)__ram_delayed_copy_end__) - (uint32_t) __ram_delayed_copy_start__);
 
-    // when testing: release flash, so we can access the BOOTSEL button
-    debug_flash_release();
-
     // DVI processing on core 0
     a2dvi_loop();
 }

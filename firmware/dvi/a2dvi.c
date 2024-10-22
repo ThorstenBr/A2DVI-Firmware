@@ -33,6 +33,7 @@ SOFTWARE.
 #include "render/render.h"
 #include "util/dmacopy.h"
 #include "config/config.h"
+#include "debug/debug.h"
 
 // clock/DVI configuration
 #if DVI_X_RESOLUTION == 640
@@ -72,11 +73,13 @@ void DELAYED_COPY_CODE(a2dvi_loop)(void)
     // CPU clock configuration required for DVI
     a2dvi_init();
 
-    // load TMDS color palette (with DMA)
+    // load TMDS color palette from flash (with DMA)
     tmds_color_load();
 
     // free DMA channel and stop others from using it (would interfere with the DVI processing)
     dmacopy_disable_dma();
+    // when testing: release flash, so we can access the BOOTSEL button
+    debug_flash_release();
 
     // load character sets etc
     render_init();
