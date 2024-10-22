@@ -114,42 +114,46 @@ void DELAYED_COPY_CODE(render_text40_line)(const uint8_t *page, unsigned int lin
     }
 }
 
-#define ADD_LORES_PIXEL(color) { \
-    uint32_t* pTmds = &tmds_lorescolor[color*3]; \
-    *(tmdsbuf_red++)   = pTmds[0]; \
-    *(tmdsbuf_green++) = pTmds[1]; \
-    *(tmdsbuf_blue++)  = pTmds[2]; \
+#define ADD_LORES_PIXEL(color3) { \
+    uint32_t* pTmds = &tmds_lorescolor[color3]; \
+    *(tmdsbuf_red++)   = *(pTmds++); \
+    *(tmdsbuf_green++) = *(pTmds++); \
+    *(tmdsbuf_blue++)  = *pTmds; \
 }
 
 void DELAYED_COPY_CODE(render_color_text40_line)(unsigned int line)
 {
-    const uint8_t *line_buf = (const uint8_t *)(text_p1 + ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
-    const uint8_t *color_buf = (const uint8_t *)(text_p3 + ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
+    const uint16_t xofs = ((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40);
+    const uint32_t *line_buf  = (const uint32_t *)(text_p1 + xofs);
+    const uint32_t *color_buf = (const uint32_t *)(text_p3 + xofs);
 
     for(uint glyph_line=0; glyph_line < 8; glyph_line++)
     {
         dvi_get_scanline(tmdsbuf);
         dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue);
 
-        for(uint col=0; col < 40; col++)
+        for(uint col=0; col < 10; col++)
         {
-            // Grab 7 pixels from the next character
-            uint32_t bits  = char_text_bits(line_buf[col], glyph_line);
-            uint8_t foreground_color = (color_buf[col] >> 4) & 0xf;
-            uint8_t background_color = (color_buf[col]     ) & 0xf;
+            // grab 4 characters and color bytes
+            uint32_t chars  = line_buf[col];
+            uint32_t colors = color_buf[col];
 
-            // Translate each pair of bits into a pair of pixels
-            for(int i=0; i < 7; i++)
+            // process 4 characters
+            for (uint c=0;c<4;c++)
             {
-                if (bits & 0x1)
+                // Grab 7 pixels from the next character
+                uint32_t bits  = char_text_bits(chars&0xff, glyph_line);
+                chars >>= 8;
+                uint8_t foreground_color3 = ((colors >> 4) & 0xf)*3;
+                uint8_t background_color3 = ((colors     ) & 0xf)*3;
+                colors >>= 8;
+
+                // Translate each pair of bits into a pair of pixels
+                for(int i=0; i < 7; i++)
                 {
-                    ADD_LORES_PIXEL(foreground_color);
+                    ADD_LORES_PIXEL((bits & 0x1) ? foreground_color3 : background_color3);
+                    bits >>= 1;
                 }
-                else
-                {
-                    ADD_LORES_PIXEL(background_color);
-                }
-                bits >>= 1;
             }
         }
 
