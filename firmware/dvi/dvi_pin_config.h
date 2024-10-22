@@ -11,7 +11,7 @@
 // PicoDVI boards
 
 // Ralle Palaveev A2DVI
-static struct dvi_serialiser_cfg pico_a2dvi_cfg = {
+static struct dvi_serialiser_cfg DELAYED_COPY_DATA(pico_a2dvi_cfg) = {
 	.pio = pio1,
 	.sm_tmds = {0, 1, 2},
 	.pins_tmds = {20, 18, 16},

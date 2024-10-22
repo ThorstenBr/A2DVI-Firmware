@@ -7,6 +7,9 @@
 #include "dvi_serialiser.h"
 #include "tmds_encode.h"
 
+// just hang when something isn't right
+#define panic(x) {while (1);}
+
 #if 0
 // Time-critical functions pulled into RAM but each in a unique section to
 // allow garbage collection
@@ -34,6 +37,7 @@ void DELAYED_COPY_CODE(dvi_init)(struct dvi_inst *inst, uint spinlock_tmds_queue
 	}
 	inst->late_scanline_ctr = 0;
 	inst->scanline_emulation = 0;
+	inst->scanline_errors = 0;
 	inst->tmds_buf_release_next = NULL;
 	inst->tmds_buf_release = NULL;
 	queue_init_with_spinlock(&inst->q_tmds_valid,   sizeof(void*),  8, spinlock_tmds_queue);

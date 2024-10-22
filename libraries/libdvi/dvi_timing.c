@@ -9,10 +9,10 @@
 
 // Pull into RAM but apply unique section suffix to allow linker GC
 //#define __dvi_func(x) __not_in_flash_func(x)
-#define __dvi_const(x) __not_in_flash_func(x)
+//#define __dvi_const(x) __not_in_flash_func(x)
 
 // VGA -- we do this mode properly, with a pretty comfortable clk_sys (252 MHz)
-const struct dvi_timing __dvi_const(dvi_timing_640x480p_60hz) = {
+struct dvi_timing __dvi_const(dvi_timing_640x480p_60hz) = {
 	.h_sync_polarity   = false,
 	.h_front_porch     = 16,
 	.h_sync_width      = 96,
@@ -30,7 +30,7 @@ const struct dvi_timing __dvi_const(dvi_timing_640x480p_60hz) = {
 
 // 720x480p 60 Hz -- Required by CEA for EDTV/HDTV displays. Convenient for
 // emulating NTSC machines with visible overscan and reasonable clk_sys (270 MHz).
-const struct dvi_timing __dvi_const(dvi_timing_720x480p_60hz) = {
+struct dvi_timing __dvi_const(dvi_timing_720x480p_60hz) = {
 	.h_sync_polarity   = false,
 	.h_front_porch     = 16,
 	.h_sync_width      = 62,
@@ -212,7 +212,7 @@ const struct dvi_timing __dvi_const(dvi_timing_1600x900p_reduced_30hz) = {
 
 // Each symbol appears twice, concatenated in one word. Note these must be in
 // RAM because they see a lot of DMA traffic
-const uint32_t __dvi_const(dvi_ctrl_syms)[4] =
+uint32_t __dvi_const(dvi_ctrl_syms)[4] =
 {
 	0xd5354, //C1=0,C0=0: VSYNC=0,HSYNC=0
 	0x2acab, //C1=0,C0=1: VSYNC=0,HSYNC=1

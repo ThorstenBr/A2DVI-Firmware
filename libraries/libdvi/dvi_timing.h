@@ -71,17 +71,17 @@ struct dvi_lane_dma_cfg {
 };
 
 // Note these are already converted to pseudo-differential representation
-extern const uint32_t dvi_ctrl_syms[4];
+extern uint32_t dvi_ctrl_syms[4];
 
-extern const struct dvi_timing dvi_timing_640x480p_60hz;
-extern const struct dvi_timing dvi_timing_720x480p_60hz;
-extern const struct dvi_timing dvi_timing_800x480p_60hz;
-extern const struct dvi_timing dvi_timing_800x600p_60hz;
-extern const struct dvi_timing dvi_timing_960x540p_60hz;
-extern const struct dvi_timing dvi_timing_1280x720p_30hz;
+extern struct dvi_timing dvi_timing_640x480p_60hz;
+extern struct dvi_timing dvi_timing_720x480p_60hz;
+extern struct dvi_timing dvi_timing_800x480p_60hz;
+extern struct dvi_timing dvi_timing_800x600p_60hz;
+extern struct dvi_timing dvi_timing_960x540p_60hz;
+extern struct dvi_timing dvi_timing_1280x720p_30hz;
 
-extern const struct dvi_timing dvi_timing_800x600p_reduced_60hz;
-extern const struct dvi_timing dvi_timing_1280x720p_reduced_30hz;
+extern struct dvi_timing dvi_timing_800x600p_reduced_60hz;
+extern struct dvi_timing dvi_timing_1280x720p_reduced_30hz;
 
 void dvi_timing_state_init(struct dvi_timing_state *t);
 

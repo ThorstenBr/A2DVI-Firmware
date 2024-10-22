@@ -10,7 +10,7 @@ extern "C" {
 
 // Pull into RAM but apply unique section suffix to allow linker GC
 #define __dvi_func(x)  DELAYED_COPY_CODE(x)
-#define __dvi_const(x) __not_in_flash_func(x)
+#define __dvi_const(x) DELAYED_COPY_DATA(x)
 
 #define N_TMDS_LANES 3
 #define TMDS_SYNC_LANE 0 // blue!

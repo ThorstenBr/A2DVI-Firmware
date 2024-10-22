@@ -47,7 +47,7 @@ SOFTWARE.
 
 #define DVI_SERIAL_CONFIG pico_a2dvi_cfg
 
-struct dvi_inst dvi0;
+struct dvi_inst __attribute__((section (".appledata."))) dvi0;
 
 static void a2dvi_init(void)
 {
