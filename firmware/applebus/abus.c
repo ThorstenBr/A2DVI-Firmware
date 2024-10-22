@@ -42,6 +42,11 @@ SOFTWARE.
 // reset vector for original Apple II ROM
 #define APPLEII_ORIGINAL_ROM_RESET  0xFA59
 
+// address of the "HOME" routine (common to all Apple II ROMs)
+// (This is executed _after_ the beep, so with a little delay.
+//  Also, this is exeucted just prior to clearing the text area.)
+#define APPLEII_ROM_HOME            0xFC58
+
 static uint8_t  romx_unlocked;
 static uint8_t  romx_textbank;
 
@@ -505,6 +510,11 @@ void __time_critical_func(bus_func_fxxx_read)(uint32_t value)
         bus_overflow_counter = 0;
         videx_vterm_mem_selected = false;
         reset_counter++;
+    }
+    if (address == APPLEII_ROM_HOME+1) // HOME, executed after the BELL, about 100ms after RESET
+    {
+        if (((uint16_t) last_read_address) == APPLEII_ROM_HOME)
+            soft_switches &= ~ SOFTSW_SHOW_SPLASH;
     }
     else
     {

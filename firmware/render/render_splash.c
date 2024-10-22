@@ -180,7 +180,7 @@ void DELAYED_COPY_CODE(render_splash)()
 
     // render splash screen, show 6502 status
     uint32_t splash_frames = 0;
-    while ((bus_cycle_counter < 6*1000*1000)&&(reset_counter == 0)) // until reset vector detected, or bus activity for >= 6 seconds
+    while ((bus_cycle_counter < 6*1000*1000)&&(IS_SOFTSWITCH(SOFTSW_SHOW_SPLASH))) // until splash screen disabled, or bus activity for >= 6 seconds
     {
         if ((frame_counter & 0x7)==2) // don't update text in the very first frame, since the PIOs expect the TMDS stream to begin *immediately*
         {

@@ -45,7 +45,7 @@ volatile uint32_t last_read_address;
          uint32_t dbg_counter2;
 #endif
 
-volatile uint32_t soft_switches  = SOFTSW_TEXT_MODE  | SOFTSW_V7_MODE3;
+volatile uint32_t soft_switches  = SOFTSW_TEXT_MODE  | SOFTSW_V7_MODE3 | SOFTSW_SHOW_SPLASH;
 volatile uint32_t internal_flags = IFLAGS_INTERP_DGR | IFLAGS_INTERP_DHGR;
 
 volatile uint8_t  cardslot;
