@@ -125,6 +125,8 @@ extern volatile uint32_t internal_flags;
 
 
 // internal config switches
+#define IFLAGS_IIE_REGS       0x00000001ul
+#define IFLAGS_IIGS_REGS      0x00000002ul
 #define IFLAGS_DEBUG_LINES    0x00100000ul
 //                            0x00200000ul
 #define IFLAGS_FORCED_MONO    0x00400000ul
@@ -133,10 +135,8 @@ extern volatile uint32_t internal_flags;
 #define IFLAGS_INTERP_DHGR    0x02000000ul
 #define IFLAGS_VIDEO7         0x04000000ul
 //#define IFLAGS_OLDCOLOR       0x08000000ul
-//#define IFLAGS_VIDEX          0x10000000ul
+#define IFLAGS_RAMWORKS       0x10000000ul
 #define IFLAGS_TEST           0x20000000ul
-#define IFLAGS_IIE_REGS       0x40000000ul
-#define IFLAGS_IIGS_REGS      0x80000000ul
 
 // size of a single character set
 #define CHARACTER_ROM_SIZE    2048

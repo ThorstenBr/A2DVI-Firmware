@@ -56,32 +56,71 @@ static inline void __time_critical_func(machine_auto_detection)(uint32_t address
 {
     if(current_machine == MACHINE_AUTO)
     {
-        if((apple_memory[0x0403] == 0xD8) && (apple_memory[0x404] == 0xE5)) {        // "Xe" = ROMXe
-            detected_machine = MACHINE_IIE_ENH;
-            set_machine(MACHINE_IIE_ENH);
-        } else if((apple_memory[0x0412] == 0xC5) && (apple_memory[0x0413] == 0xD8)) {// "EX" = ROMX
-            detected_machine = MACHINE_II;
-            set_machine(MACHINE_II);
+        char Char1 = apple_memory[0x0413];
+        char Char2 = apple_memory[0x0415];
+        if (Char1 == 0xA0) // ' '
+        {
+            if (((uint16_t*)apple_memory)[0x07D0>>1] == 0x60AA)
+            {
+                detected_machine = MACHINE_II;  // "*(CURSOR)" = Apple II without Autostart
+                set_machine(MACHINE_II);
+            }
+        }
+        else
+        if (Char1 == 0xC5) // 'E'
+        {
+            if (Char2 == 0xDD) // ']': "APPLE ]["
+            {
+                detected_machine = MACHINE_II; // Apple II/Plus/J-Plus with Autostart
+                set_machine(MACHINE_II);
+            }
+        }
+        else
+        if (Char1 == 0xE5) // 'e'
+        {
+            if (Char2 == 0xDD) // ']': "Apple ]["
+            {
+                detected_machine = MACHINE_IIE; // Apple IIe unenhanced
+                set_machine(MACHINE_IIE);
+            }
+            else
+            if (Char2 == 0xAF) // '/': "Apple //e"
+            {
+                detected_machine = MACHINE_IIE_ENH;  // Apple //e enhanced
+                set_machine(MACHINE_IIE_ENH);
+            }
+            else
+            if (Char2 == 0xFA) // 'z': "Pravetz"
+            {
+                detected_machine = MACHINE_PRAVETZ;
+                set_machine(MACHINE_PRAVETZ);
+            }
 #if 0
-        } else if((apple_memory[0x416] == 0xC9) && (apple_memory[0x0417] == 0xE7)) { // "Ig" = Apple IIgs
-            detected_machine = MACHINE_IIGS;
-            set_machine(MACHINE_IIGS);
+            else
+            if (Char2 == 0xC9) // 'I': "Apple IIgs"
+            {
+                detected_machine = MACHINE_IIGS;
+                set_machine(MACHINE_IIGS);
+            }
 #endif
-        } else if((apple_memory[0x416] == 0xAF) && (apple_memory[0x0417] == 0xE5)) { // "/e" = Apple //e Enhanced
-            detected_machine = MACHINE_IIE_ENH;
-            set_machine(MACHINE_IIE_ENH);
-        } else if((apple_memory[0x413] == 0xE5) && (apple_memory[0x0415] == 0xDD)) { // "e ]" = Apple //e Unenhanced
-            detected_machine = MACHINE_IIE;
-            set_machine(MACHINE_IIE);
-        } else if(apple_memory[0x0410] == 0xD0) { // "P" = Apple II/Plus/J-Plus with Autostart
-            detected_machine = MACHINE_II;
-            set_machine(MACHINE_II);
-        } else if((apple_memory[0x07D0] == 0xAA)&&(apple_memory[0x07D1] == 0x60)) { // "*(CURSOR)" = Apple II without Autostart
-            detected_machine = MACHINE_II;
-            set_machine(MACHINE_II);
-        } else if(apple_memory[0x0410] == 0xF2) { // "r" = Pravetz!
-            detected_machine = MACHINE_PRAVETZ;
-            set_machine(MACHINE_PRAVETZ);
+        }
+        else
+        if (Char1 == 0xD8) // 'X'
+        {
+            if (Char2 == 0xC8) // 'H': ROMX ("ROM EXCHANGE")
+            {
+                detected_machine = MACHINE_II;
+                set_machine(MACHINE_II);
+            }
+        }
+        else
+        if (Char1 == 0xee) // 'n' "ROMXe: theRomExchange.com"
+        {
+            if (Char2 == 0xE5) // ''e'
+            {
+                detected_machine = MACHINE_IIE_ENH;
+                set_machine(MACHINE_IIE_ENH);
+            }
         }
     }
 }
@@ -125,7 +164,8 @@ static inline void romx_cxxx_check_read(uint_fast16_t address)
 // Control sequences used by ROMXe
 static inline void romxe_faxx_check_read(uint_fast16_t address)
 {
-    if ((current_machine != MACHINE_IIE)&&(current_machine != MACHINE_IIE_ENH))
+    // only supported on IIe
+    if (!IS_IFLAG(IFLAGS_IIE_REGS))
         return;
 
     // Trigger on read sequence FACA FACA FAFE
@@ -168,7 +208,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x01: // 80STOREON
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_80STORE;
         }
@@ -180,7 +220,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x03: // RAMRDON
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_AUX_READ;
         }
@@ -192,7 +232,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x05: // RAMWRTON
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_AUX_WRITE;
         }
@@ -204,7 +244,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x07: // INTCXROMON: internal ROM mapped to CXXX range
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_INTCXROM;
         }
@@ -216,7 +256,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x09: // ALTZPON
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_AUXZP;
         }
@@ -228,7 +268,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x0b: // SLOTC3ROMON: slot 3's ROM mapped to C3xx range
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_SLOT3ROM;
         }
@@ -240,7 +280,7 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x0d: // 80COLON
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_80COL;
         }
@@ -252,17 +292,17 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x0f: // ALTCHARSETON
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_ALTCHAR;
         }
         break;
     case 0x19: // VBLANK
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (!is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (!is_write))
             vblank_counter += 1;
         break;
     case 0x21: // COLOR/MONO
-        if((internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS)) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             uint_fast8_t  data = DATA_BUS(value);
             if(data & 0x80)
@@ -277,25 +317,25 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         break;
 #ifdef APPLEIIGS
     case 0x22:
-        if((internal_flags & IFLAGS_IIGS_REGS) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIGS_REGS) && (is_write))
         {
             apple_tbcolor = DATA_BUS(value);
         }
         break;
     case 0x29:
-        if((internal_flags & IFLAGS_IIGS_REGS) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIGS_REGS) && (is_write))
         {
             soft_switches = (soft_switches & ~(SOFTSW_NEWVID_MASK << SOFTSW_NEWVID_SHIFT)) | ((data & SOFTSW_NEWVID_MASK) << SOFTSW_NEWVID_SHIFT);
         }
         break;
     case 0x34:
-        if((internal_flags & IFLAGS_IIGS_REGS) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIGS_REGS) && (is_write))
         {
             apple_border = DATA_BUS(value);
         }
         break;
     case 0x35:
-        if((internal_flags & IFLAGS_IIGS_REGS) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIGS_REGS) && (is_write))
         {
             uint_fast8_t data = DATA_BUS(value);
             soft_switches = (soft_switches & ~(SOFTSW_SHADOW_MASK << SOFTSW_SHADOW_SHIFT)) | ((data & SOFTSW_SHADOW_MASK) << SOFTSW_SHADOW_SHIFT);
@@ -336,27 +376,27 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
         }
         break;
     case 0x5e: // DGRON
-        if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
+        if (IS_IFLAG(IFLAGS_IIE_REGS))
         {
             soft_switches |= SOFTSW_DGR;
         }
         break;
     case 0x5f: // DGROFF
         // Video 7 shift register
-        if(soft_switches & SOFTSW_DGR)
+        if (IS_SOFTSWITCH(SOFTSW_DGR))
         {
             soft_switches = ( soft_switches & (~SOFTSW_V7_MODE3)) |
                             ((soft_switches &   SOFTSW_V7_MODE1)<<1) |
                             ((soft_switches & SOFTSW_80COL) ? SOFTSW_V7_MODE1 : 0);
         }
 
-        if(internal_flags & (IFLAGS_IIGS_REGS | IFLAGS_IIE_REGS))
+        if (IS_IFLAG(IFLAGS_IIE_REGS))
         {
             soft_switches &= ~SOFTSW_DGR;
         }
         break;
     case 0x7e: // IOUDISON: disable IOU
-        if((internal_flags & IFLAGS_IIE_REGS) && (is_write))
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
             soft_switches |= SOFTSW_IOUDIS;
         }
@@ -376,7 +416,7 @@ static void bus_card_selected(uint32_t value)
     uint_fast16_t address = ADDRESS_BUS(value);
 
     // check if address in register range (DEVSEL)
-    if (address < 0xc100)
+    if ((address>>8) < (0xc100>>8))
     {
         if (ACCESS_WRITE(value))
         {
@@ -482,7 +522,7 @@ void __time_critical_func(bus_func_cxxx_write)(uint32_t value)
         if ((address & 0xFFF0) == 0xC0B0) // slot #3 register area ($C0B0-$C0BF)
             videx_reg_write(address, DATA_BUS(value));
         else
-        if ((address & 0xFF00) == 0xC300)
+        if ((address >> 8) == (0xC300>>8))
         {
             videx_vterm_mem_selected = true;
         }
@@ -507,7 +547,9 @@ void __time_critical_func(bus_func_fxxx_read)(uint32_t value)
         soft_switches = SOFTSW_TEXT_MODE | SOFTSW_V7_MODE3;
         romx_unlocked = 0;
         dev_config_lock = 0;
+#ifndef FEATURE_ABUS_DEBUG
         bus_overflow_counter = 0;
+#endif
         videx_vterm_mem_selected = false;
         reset_counter++;
     }
@@ -623,17 +665,34 @@ void __time_critical_func(abus_loop)()
     abus_init();
 
     uint32_t value = 0;
+#if FEATURE_ABUS_DEBUG
+    uint32_t idle_count = 0;
+    bus_overflow_counter = 0xffff;
+#endif
     while(1)
     {
         if (abus_pio_is_full())
         {
             bus_overflow_counter++;
+            value = abus_pio_read();
         }
-
-        value = abus_pio_blocking_read();
+        else
+        {
+#ifdef FEATURE_ABUS_DEBUG
+            idle_count = 0;
+            while (abus_pio_is_empty()) idle_count++;
+            value = abus_pio_read();
+#else
+            value = abus_pio_blocking_read();
+#endif
+        }
 
         abus_interface(value);
 
+#ifdef FEATURE_ABUS_DEBUG
+        if (idle_count < bus_overflow_counter)
+            bus_overflow_counter = idle_count;
+#endif
         bus_cycle_counter++;
     }
 }

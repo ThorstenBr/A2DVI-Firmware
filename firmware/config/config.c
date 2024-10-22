@@ -170,8 +170,7 @@ void __time_critical_func(set_machine)(compat_t machine)
             break;
 #ifdef MACHINE_IIGS
         case MACHINE_IIGS:
-            internal_flags &= ~IFLAGS_IIE_REGS;
-            internal_flags |=  IFLAGS_IIGS_REGS;
+            internal_flags |=  IFLAGS_IIE_REGS | IFLAGS_IIGS_REGS;
             videx_enabled = false;
             break;
 #endif

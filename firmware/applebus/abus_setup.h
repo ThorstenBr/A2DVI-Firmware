@@ -32,10 +32,11 @@ SOFTWARE.
 // statemachines (0-3)
 #define ABUS_MAIN_SM    0
 
-#define abus_pio_fifo_level()    (pio_sm_get_rx_fifo_level(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
-#define abus_pio_is_full()       (pio_sm_is_rx_fifo_full(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
-#define abus_pio_is_empty()      (pio_sm_is_rx_fifo_empty(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
+#define abus_pio_fifo_level()       (pio_sm_get_rx_fifo_level(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
+#define abus_pio_is_full()          (pio_sm_is_rx_fifo_full(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
+#define abus_pio_is_empty()         (pio_sm_is_rx_fifo_empty(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
 
-#define abus_pio_blocking_read() (pio_sm_get_blocking(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
+#define abus_pio_read()             (pio_sm_get(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
+#define abus_pio_blocking_read()    (pio_sm_get_blocking(CONFIG_ABUS_PIO, ABUS_MAIN_SM))
 
 void abus_pio_setup(void);
