@@ -36,6 +36,12 @@ SOFTWARE.
 #define VIDEX_ABUS
 #include "videx/videx_vterm.h"
 
+// reset vector for Apple II AUTOSTART ROMs (and all IIe ROMs)
+#define APPLEII_AUTOSTART_ROM_RESET 0xFA62
+
+// reset vector for original Apple II ROM
+#define APPLEII_ORIGINAL_ROM_RESET  0xFA59
+
 static uint8_t  romx_unlocked;
 static uint8_t  romx_textbank;
 
@@ -488,17 +494,21 @@ void __time_critical_func(bus_func_fxxx_read)(uint32_t value)
 {
     uint_fast16_t address = ADDRESS_BUS(value);
 
-    romxe_faxx_check_read(address);
-
-    if ((address == 0xFA62)&&              // Apple II reset routine
-        (last_read_address == 0xFFFCFFFD)) // 6502 reset vector (0xFFFC+0xFFFD)
+    if ((last_read_address == 0xFFFCFFFD)&&  // 6502 reset vector (0xFFFC+0xFFFD)
+        ((address == APPLEII_AUTOSTART_ROM_RESET)||
+        (address == APPLEII_ORIGINAL_ROM_RESET)) // Apple II reset routine
+       )
     {
-        soft_switches   = SOFTSW_TEXT_MODE | SOFTSW_V7_MODE3;
+        soft_switches = SOFTSW_TEXT_MODE | SOFTSW_V7_MODE3;
         romx_unlocked = 0;
         dev_config_lock = 0;
         bus_overflow_counter = 0;
         videx_vterm_mem_selected = false;
         reset_counter++;
+    }
+    else
+    {
+        romxe_faxx_check_read(address);
     }
 }
 
