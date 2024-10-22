@@ -39,7 +39,7 @@ uint8_t DELAYED_COPY_DATA(dgr_dot_pattern)[32] = {
 };
 
 // double lores to dhgr palette mapping (for odd columns, with "non-rotated" nibbles)
-static uint8_t dlores_dhgr_map[16] = {
+static uint8_t DELAYED_COPY_DATA(dlores_dhgr_map)[16] = {
     0x00,0x08,0x01,0x09,0x02,0x0A,0x03,0x0B,
     0x04,0x0C,0x05,0x0D,0x06,0x0E,0x07,0x0F
 };

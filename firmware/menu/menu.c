@@ -51,7 +51,7 @@ static uint8_t CurrentMenu        = 0;
 static bool    MenuNeedsRedraw;
 static uint8_t MenuSubTitleToggle;
 
-void __time_critical_func(centerY)(uint32_t y, const char* pMsg, TPrintMode PrintMode)
+void DELAYED_COPY_CODE(centerY)(uint32_t y, const char* pMsg, TPrintMode PrintMode)
 {
     uint32_t x = 0;
     while (pMsg[x] != 0)
@@ -60,7 +60,7 @@ void __time_critical_func(centerY)(uint32_t y, const char* pMsg, TPrintMode Prin
     printXY(x, y, pMsg, PrintMode);
 }
 
-void __time_critical_func(printXY)(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode)
+void DELAYED_COPY_CODE(printXY)(uint32_t x, uint32_t line, const char* pMsg, TPrintMode PrintMode)
 {
     uint32_t ScreenOffset = (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
     char* pScreenArea = ((char*) text_p1) + ScreenOffset;
@@ -104,7 +104,7 @@ void __time_critical_func(printXY)(uint32_t x, uint32_t line, const char* pMsg, 
     }
 }
 
-void __time_critical_func(clearTextScreen)(void)
+void DELAYED_COPY_CODE(clearTextScreen)(void)
 {
     // initialize the screen buffer area
     for (uint32_t i=0;i<40*26/4;i++)
@@ -127,7 +127,7 @@ void __time_critical_func(clearTextScreen)(void)
     }
 }
 
-void __time_critical_func(clearLine)(uint8_t line, TPrintMode PrintMode)
+void DELAYED_COPY_CODE(clearLine)(uint8_t line, TPrintMode PrintMode)
 {
     uint32_t ScreenOffset = (((line & 0x7) << 7) + (((line >> 3) & 0x3) * 40));
     char blank = (PrintMode == PRINTMODE_NORMAL) ? ' '|0x80 : ' ';
@@ -148,7 +148,7 @@ const char* DELAYED_COPY_DATA(TitleGitHub)[2] = {
     "  GITHUB.COM/THORSTENBR/A2DVI-FIRMWARE  "
 };
 
-const char* DELAYED_COPY_DATA(MachineNames)[MACHINE_MAX_CFG+1] =
+const char* DELAYED_COPY_DATA(MachineNames)[MACHINE_MAX_CFG+2] =
 {
     "APPLE II",
     "APPLE IIE",
@@ -258,7 +258,7 @@ const char* DELAYED_COPY_DATA(MenuVidex)[VIDEX_FONT_COUNT+1] =
     "SYMBOL"     //10
 };
 
-void __time_critical_func(showTitle)(TPrintMode PrintMode)
+void DELAYED_COPY_CODE(showTitle)(TPrintMode PrintMode)
 {
     // initialize the screen buffer area
     clearTextScreen();
@@ -287,7 +287,7 @@ static void menuOption(uint8_t y, uint8_t Selection, const char* pMenu, const ch
         printXY(20, y, pValue, PRINTMODE_NORMAL);
 }
 
-void __time_critical_func(menuShowFrame)()
+void DELAYED_COPY_CODE(menuShowFrame)()
 {
     soft_switches |= SOFTSW_TEXT_MODE;
     soft_switches &= ~(SOFTSW_MIX_MODE | SOFTSW_80COL | SOFTSW_PAGE_2 | SOFTSW_DGR | SOFTSW_HIRES_MODE);
