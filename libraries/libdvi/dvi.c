@@ -25,12 +25,12 @@ static void dvi_dma1_irq();
 void DELAYED_COPY_CODE(dvi_init)(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_colour_queue)
 {
 	dvi_timing_state_init(&inst->timing_state);
-	dvi_serialiser_init(&inst->ser_cfg);
+	dvi_serialiser_init(inst->ser_cfg);
 	for (int i = 0; i < N_TMDS_LANES; ++i) {
 		inst->dma_cfg[i].chan_ctrl = dma_claim_unused_channel(true);
 		inst->dma_cfg[i].chan_data = dma_claim_unused_channel(true);
-		inst->dma_cfg[i].tx_fifo = (void*)&inst->ser_cfg.pio->txf[inst->ser_cfg.sm_tmds[i]];
-		inst->dma_cfg[i].dreq = pio_get_dreq(inst->ser_cfg.pio, inst->ser_cfg.sm_tmds[i], true);
+		inst->dma_cfg[i].tx_fifo = (void*)&inst->ser_cfg->pio->txf[inst->ser_cfg->sm_tmds[i]];
+		inst->dma_cfg[i].dreq = pio_get_dreq(inst->ser_cfg->pio, inst->ser_cfg->sm_tmds[i], true);
 	}
 	inst->late_scanline_ctr = 0;
 	inst->scanline_emulation = 0;
@@ -124,9 +124,9 @@ void DELAYED_COPY_CODE(dvi_start)(struct dvi_inst *inst) {
 	// We really don't want the FIFOs to bottom out, so wait for full before
 	// starting the shift-out.
 	for (int i = 0; i < N_TMDS_LANES; ++i)
-		while (!pio_sm_is_tx_fifo_full(inst->ser_cfg.pio, inst->ser_cfg.sm_tmds[i]))
+		while (!pio_sm_is_tx_fifo_full(inst->ser_cfg->pio, inst->ser_cfg->sm_tmds[i]))
 			tight_loop_contents();
-	dvi_serialiser_enable(&inst->ser_cfg, true);
+	dvi_serialiser_enable(inst->ser_cfg, true);
 }
 
 #if 0 // DISABLED: not used by A2DVI

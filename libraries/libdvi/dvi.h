@@ -31,7 +31,7 @@ struct dvi_inst {
 	const struct dvi_timing *timing;
 	struct dvi_lane_dma_cfg dma_cfg[N_TMDS_LANES];
 	struct dvi_timing_state timing_state;
-	struct dvi_serialiser_cfg ser_cfg;
+	struct dvi_serialiser_cfg* ser_cfg;
 #if 0
 	// Called in the DMA IRQ once per scanline -- careful with the run time!
 	dvi_callback_t scanline_callback;

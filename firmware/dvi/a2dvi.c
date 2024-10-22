@@ -61,7 +61,7 @@ void DELAYED_COPY_CODE(a2dvi_dvi_enable)(void)
 {
     // configure DVI
     dvi0.timing = &DVI_TIMING;
-    dvi0.ser_cfg = DVI_SERIAL_CONFIG;
+    dvi0.ser_cfg = &DVI_SERIAL_CONFIG;
     dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
     dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
     dvi_start(&dvi0);
