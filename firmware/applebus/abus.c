@@ -49,6 +49,7 @@ SOFTWARE.
 
 static uint8_t  romx_unlocked;
 static uint8_t  romx_textbank;
+static bool     ramworks_active;
 
 typedef void (*a2busfunc)(uint32_t value);
 
@@ -395,6 +396,20 @@ static inline void __time_critical_func(apple2_softswitches)(bool is_write, uint
             soft_switches &= ~SOFTSW_DGR;
         }
         break;
+    case 0x71: // fall-through
+    case 0x75: // fall-through
+    case 0x77: // fall-through
+    case 0x73: // RAMWorks ($C073 is the official address, but 71,75,77 were also supported)
+        if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
+        {
+            if (IS_IFLAG(IFLAGS_RAMWORKS))
+            {
+                uint_fast8_t data = DATA_BUS(value);
+                // we don't care which page is active, just check if page is 1..127
+                ramworks_active = (data) && ((data & 0x80)==0);
+            }
+        }
+        break;
     case 0x7e: // IOUDISON: disable IOU
         if (IS_IFLAG(IFLAGS_IIE_REGS) && (is_write))
         {
@@ -451,18 +466,21 @@ void __time_critical_func(bus_func_screen_write)(uint32_t value)
         {
             // 80STORE is on AND address is within an active display page
             if(soft_switches & SOFTSW_PAGE_2)
-                private_memory[address] = data;
+            {
+                if (!ramworks_active)
+                    aux_memory[address] = data;
+            }
             else
             if (!IS_SOFTSWITCH(SOFTSW_MENU_ENABLE))
                 apple_memory[address] = data;
             // nothing else to do
         }
         else
-        //if (address >= 0x200)
         {
             if(soft_switches & SOFTSW_AUX_WRITE)
             {
-                private_memory[address] = data;
+                if (!ramworks_active)
+                    aux_memory[address] = data;
             }
             else
             if (!IS_SOFTSWITCH(SOFTSW_MENU_ENABLE))
@@ -551,6 +569,7 @@ void __time_critical_func(bus_func_fxxx_read)(uint32_t value)
         bus_overflow_counter = 0;
 #endif
         videx_vterm_mem_selected = false;
+        ramworks_active = false;
         reset_counter++;
     }
     if (address == APPLEII_ROM_HOME+1) // HOME, executed after the BELL, about 100ms after RESET

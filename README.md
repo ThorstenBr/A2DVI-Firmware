@@ -206,6 +206,9 @@ The Videx support of A2DVI is currently "passive" only:
 
 ![A2DVI Videx](images/A2DVI_Videx.jpg)
 
+## RAMWorks Support
+If your Apple //e has installed a RAMWorks-compatible memory expansion (>128KB), then enable the "RAMWorks" option in the menu. RAMWorks introduced a new register which changed the memory bank switching behavior, which A2DVI needs to know about.
+
 ## Debug Monitor
 The configuration menu offers a debugging feature. Enabling the "**DEBUG MONITOR**" shows extra lines above and below the normal Apple II screen (in red):
 
@@ -305,6 +308,7 @@ Firmware updates of an A2DVI card are easy and safe:
 * **Display modes switchable through ALTCHR language switch or custom switch/push-button**
 * **Multiple color palettes**
 * **Simple Startup Diagnostics**
+* **RAMWorks memory expansion compatibility**
 
 # License
 The A2DVI firmware is released under the [MIT License](https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):

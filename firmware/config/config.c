@@ -88,6 +88,7 @@ struct __attribute__((__packed__)) config_t
     rendering_fx_t rendering_fx;
     uint8_t  videx_selection;
     uint8_t  color_style;
+    uint8_t  ramworks_enabled;
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
@@ -347,6 +348,11 @@ void config_load(void)
         cfg_color_style = cfg->color_style;
     }
 
+    if(IS_STORED_IN_CONFIG(cfg, ramworks_enabled))
+    {
+        SET_IFLAG(cfg->ramworks_enabled, IFLAGS_RAMWORKS);
+    }
+
     config_setflags();
     set_machine(cfg_machine);
 
@@ -377,6 +383,7 @@ void config_load_defaults(void)
     SET_IFLAG(0, IFLAGS_FORCED_MONO);
     SET_IFLAG(1, IFLAGS_VIDEO7);
     SET_IFLAG(0, IFLAGS_TEST);
+    SET_IFLAG(0, IFLAGS_RAMWORKS);
 
     cfg_color_style         = 2; // improved
     color_mode              = COLOR_MODE_BW;
@@ -423,6 +430,7 @@ void DELAYED_COPY_CODE(config_save)(void)
     new_config->local_charset           = cfg_local_charset;
     new_config->alt_charset             = cfg_alt_charset;
     new_config->input_switch_mode       = input_switch_mode;
+    new_config->ramworks_enabled        = IS_IFLAG(IFLAGS_RAMWORKS);
 
     // update flash
     config_flash_write(cfg, (uint8_t *)new_config, new_config_size);
