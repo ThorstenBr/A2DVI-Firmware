@@ -25,7 +25,7 @@ static void dvi_dma1_irq();
 
 #define A2DVI_SCANLINES (2*192 + 4*16)
 
-void DELAYED_COPY_CODE(dvi_init)(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_colour_queue)
+void __dvi_func(dvi_init)(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_colour_queue)
 {
 	dvi_timing_state_init(&inst->timing_state);
 	dvi_serialiser_init(inst->ser_cfg);
@@ -42,8 +42,10 @@ void DELAYED_COPY_CODE(dvi_init)(struct dvi_inst *inst, uint spinlock_tmds_queue
 	inst->tmds_buf_release = NULL;
 	queue_init_with_spinlock(&inst->q_tmds_valid,   sizeof(void*),  8, spinlock_tmds_queue);
 	queue_init_with_spinlock(&inst->q_tmds_free,    sizeof(void*),  8, spinlock_tmds_queue);
+#if 0
 	queue_init_with_spinlock(&inst->q_colour_valid, sizeof(void*),  8, spinlock_colour_queue);
 	queue_init_with_spinlock(&inst->q_colour_free,  sizeof(void*),  8, spinlock_colour_queue);
+#endif
 
 	dvi_setup_scanline_for_vblank(inst->timing, inst->dma_cfg, true,  &inst->dma_list_vblank_sync);
 	dvi_setup_scanline_for_vblank(inst->timing, inst->dma_cfg, false, &inst->dma_list_vblank_nosync);
@@ -73,7 +75,7 @@ void DELAYED_COPY_CODE(dvi_init)(struct dvi_inst *inst, uint spinlock_tmds_queue
 
 // The IRQs will run on whichever core calls this function (this is why it's
 // called separately from dvi_init)
-void DELAYED_COPY_CODE(dvi_register_irqs_this_core)(struct dvi_inst *inst, uint irq_num)
+void __dvi_func(dvi_register_irqs_this_core)(struct dvi_inst *inst, uint irq_num)
 {
 	uint32_t mask_sync_channel = 1u << inst->dma_cfg[TMDS_SYNC_LANE].chan_data;
 	uint32_t mask_all_channels = 0;
@@ -92,6 +94,30 @@ void DELAYED_COPY_CODE(dvi_register_irqs_this_core)(struct dvi_inst *inst, uint 
 		irq_set_exclusive_handler(DMA_IRQ_1, dvi_dma1_irq);
 	}
 	irq_set_enabled(irq_num, true);
+}
+
+// The IRQs will run on whichever core calls this function (this is why it's
+// called separately from dvi_init)
+void __dvi_func(dvi_unregister_irqs)(struct dvi_inst *inst, uint irq_num)
+{
+	irq_set_enabled(irq_num, false);
+
+	uint32_t mask_all_channels = 0;
+	for (int i = 0; i < N_TMDS_LANES; ++i)
+		mask_all_channels |= 1u << inst->dma_cfg[i].chan_ctrl | 1u << inst->dma_cfg[i].chan_data;
+
+	dma_hw->ints0 = 0;
+
+	if (irq_num == DMA_IRQ_0) {
+		hw_write_masked(&dma_hw->inte0, 0, mask_all_channels);
+		dma_irq_privdata[0] = 0;
+		//irq_set_exclusive_handler(DMA_IRQ_0, 0);
+	}
+	else {
+		hw_write_masked(&dma_hw->inte1, 0, mask_all_channels);
+		dma_irq_privdata[1] = 0;
+		//irq_set_exclusive_handler(DMA_IRQ_1, 0);
+	}
 }
 
 // Set up control channels to make transfers to data channels' control
@@ -118,7 +144,7 @@ static inline void __attribute__((always_inline)) _dvi_load_dma_op(const struct 
 // trigger them. Control channels will subsequently be triggered only by DMA
 // CHAIN_TO on data channel completion. IRQ handler *must* be prepared before
 // calling this. (Hooked to DMA IRQ0)
-void DELAYED_COPY_CODE(dvi_start)(struct dvi_inst *inst) {
+void __dvi_func(dvi_start)(struct dvi_inst *inst) {
 	_dvi_load_dma_op(inst->dma_cfg, &inst->dma_list_vblank_nosync);
 	dma_start_channel_mask(
 		(1u << inst->dma_cfg[0].chan_ctrl) |
@@ -280,4 +306,81 @@ static void __dvi_func(dvi_dma1_irq)() {
 	struct dvi_inst *inst = dma_irq_privdata[1];
 	dma_hw->ints1 = 1u << inst->dma_cfg[TMDS_SYNC_LANE].chan_data;
 	dvi_dma_irq_handler(inst);
+}
+
+// must be called on the CPU core which is running the IRQ handlers
+void __dvi_func(dvi_destroy)(struct dvi_inst *inst, uint irq_num)
+{
+	// disable IRQ
+	dvi_unregister_irqs(inst, irq_num);
+
+	// disable serialisers
+	dvi_serialiser_enable(inst->ser_cfg, false);
+
+	// clear serialiser PIO
+	pio_clear_instruction_memory(inst->ser_cfg->pio);
+
+	// remove tmds buffers from queues and free memory
+	{
+		uint buf_count = 0;
+		if (inst->tmds_buf_release)
+		{
+			free(inst->tmds_buf_release);
+			inst->tmds_buf_release = NULL;
+			buf_count++;
+		}
+		if (inst->tmds_buf_release_next)
+		{
+			free(inst->tmds_buf_release_next);
+			inst->tmds_buf_release_next = NULL;
+			buf_count++;
+		}
+		while (buf_count < DVI_N_TMDS_BUFFERS)
+		{
+			void *tmdsbuf = NULL;
+			// free queue
+			if (queue_try_remove_u32(&inst->q_tmds_free, &tmdsbuf))
+			{
+				free(tmdsbuf);
+				buf_count++;
+			}
+			// also consider valid queue, since we may have aborted a frame display cycle
+			if (queue_try_remove_u32(&inst->q_tmds_valid, &tmdsbuf))
+			{
+				free(tmdsbuf);
+				buf_count++;
+			}
+		}
+	}
+
+	// disable TMDS clock output
+	for (uint i = inst->ser_cfg->pins_clk; i <= inst->ser_cfg->pins_clk + 1; ++i)
+	{
+		gpio_set_function(i, GPIO_FUNC_NULL);
+	}
+
+	// clean up DMA channels
+	for (int i = 0; i < N_TMDS_LANES; ++i)
+	{
+		//pio_sm_drain_tx_fifo(inst->ser_cfg->pio, inst->ser_cfg->sm_tmds[i]);
+
+		// clean up and free DMA channels
+		dma_channel_cleanup(inst->dma_cfg[i].chan_ctrl);
+		dma_channel_unclaim(inst->dma_cfg[i].chan_ctrl);
+
+		dma_channel_cleanup(inst->dma_cfg[i].chan_data);
+		dma_channel_unclaim(inst->dma_cfg[i].chan_data);
+
+		// free serialiser PIO statemachines
+		pio_sm_unclaim(inst->ser_cfg->pio, inst->ser_cfg->sm_tmds[i]);
+	}
+
+	// free queues
+	queue_free(&inst->q_tmds_valid);
+	queue_free(&inst->q_tmds_free);
+
+#if 0
+	queue_free(&inst->q_colour_valid);
+	queue_free(&inst->q_colour_free);
+#endif
 }

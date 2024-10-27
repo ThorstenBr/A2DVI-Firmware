@@ -61,14 +61,17 @@ struct dvi_inst {
 	queue_t q_tmds_valid;
 	queue_t q_tmds_free;
 
+#if 0
 	// Either scanline buffers or frame buffers:
 	queue_t q_colour_valid;
 	queue_t q_colour_free;
-
+#endif
 };
 
 // Set up data structures and hardware for DVI.
 void dvi_init(struct dvi_inst *inst, uint spinlock_tmds_queue, uint spinlock_colour_queue);
+
+void dvi_destroy(struct dvi_inst *inst, uint irq_num);
 
 // Call this after calling dvi_init(). DVI DMA interrupts will be routed to
 // whichever core called this function. Registers an exclusive IRQ handler.
