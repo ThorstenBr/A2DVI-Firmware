@@ -91,6 +91,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  color_style;
     uint8_t  ramworks_enabled;
     uint8_t  video_mode;
+    uint8_t  pal_enabled; // pal vs ntsc
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
@@ -360,6 +361,11 @@ void config_load(void)
         cfg_video_mode = cfg->video_mode & 1;
     }
 
+    if(IS_STORED_IN_CONFIG(cfg, pal_enabled))
+    {
+        SET_IFLAG(cfg->pal_enabled, IFLAGS_PAL);
+    }
+
     config_setflags();
     set_machine(cfg_machine);
 
@@ -391,6 +397,7 @@ void config_load_defaults(void)
     SET_IFLAG(1, IFLAGS_VIDEO7);
     SET_IFLAG(0, IFLAGS_TEST);
     SET_IFLAG(0, IFLAGS_RAMWORKS);
+    SET_IFLAG(0, IFLAGS_PAL);
 
     cfg_video_mode          = Dvi640x480;
     cfg_color_style         = 2; // improved
@@ -439,6 +446,7 @@ void DELAYED_COPY_CODE(config_save)(void)
     new_config->local_charset           = cfg_local_charset;
     new_config->alt_charset             = cfg_alt_charset;
     new_config->input_switch_mode       = input_switch_mode;
+    new_config->pal_enabled             = IS_IFLAG(IFLAGS_PAL);
     new_config->ramworks_enabled        = IS_IFLAG(IFLAGS_RAMWORKS);
 
     // update flash

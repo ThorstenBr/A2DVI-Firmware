@@ -107,6 +107,9 @@ However, there were no perfect digital displays in the 1980s and this is not how
 
 ![A2DVI Rendering Options](images/A2DVI_Rendering.jpg)
 
+## PAL vs NTSC
+The config option offers an option to chose between PAL and NTSC. This currently only has marginal effects, e.g. changes the flashing frequency for Apple //e (differed between NTSC and PAL).
+
 ## Built-in Fonts
 The firmware has built-in support for various fonts. Additional custom fonts can be uploaded using normal Apple II/IIe video ROM binaries.
 
