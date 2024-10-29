@@ -455,14 +455,16 @@ void __time_critical_func(bus_func_ignore)(uint32_t value)
 void __time_critical_func(bus_func_screen_write)(uint32_t value)
 {
     uint_fast16_t address = ADDRESS_BUS(value);
-    if ((address > 0x200)&&(address < MAX_ADDRESS))
+    if ((address >= 0x400)&&(address < MAX_ADDRESS))
     {
         uint_fast8_t data = DATA_BUS(value);
 
         // Mirror Video Memory from MAIN & AUX banks
         if ((soft_switches & SOFTSW_80STORE)&&
-            (((address >= 0x400) && (address < 0x800))||
-            ((soft_switches & SOFTSW_HIRES_MODE) && (address >= 0x2000) && (address < 0x4000))))
+            ((/*(address >= 0x400) && */(address < 0x800))||
+             ((soft_switches & SOFTSW_HIRES_MODE) && (address >= 0x2000) && (address < 0x4000))
+            )
+           )
         {
             // 80STORE is on AND address is within an active display page
             if(soft_switches & SOFTSW_PAGE_2)

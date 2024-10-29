@@ -53,7 +53,7 @@ extern volatile uint8_t  cardslot;
 #define MAX_ADDRESS (0x6000)
 
 extern uint8_t apple_memory[MAX_ADDRESS];
-extern uint8_t private_memory[MAX_ADDRESS];
+extern uint8_t aux_memory[MAX_ADDRESS];
 
 extern uint8_t status_line[4*40]; // 4 rows of 40 columns
 
