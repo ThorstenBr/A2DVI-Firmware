@@ -61,6 +61,8 @@ You can also manually type and save the configuration program. It takes just 15 
 
 ![Config Utility](images/A2DVI_Config.jpg)
 
+![Config Utility Page 2](images/A2DVI_Config2.jpg)
+
 ## Machine Type
 The A2DVI firmware tries to auto-detect your machine type - and adjusts various features and register sets accordingly.
 

@@ -41,16 +41,32 @@ SOFTWARE.
 // offset of the first non-config menu element
 #define MENU_OFS_NONCFG (MENU_ENTRY_COUNT-MENU_ENTRIES_NONCFG)
 
+// extra commands start at this offset
+#define MENU_EXTRA (0x10)
+
 #ifdef FEATURE_TEST
 bool PrintMode80Column = false;
 bool PrintModePage2    = false;
 #endif
 
-static uint8_t CurrentMenu        = 0;
+static uint8_t MenuSelection      = 0;
+static uint8_t MenuPage           = 0;
+static uint8_t MenuPageItems      = 0;
        bool    IgnoreNextKeypress = false;
 static bool    MenuNeedsRedraw;
 static uint8_t MenuSubTitleToggle;
+static uint8_t MenuOptionNr;
 
+#define TEXT_OFFSET(line) ((((line) & 0x7) << 7) + ((((line) >> 3) & 0x3) * 40))
+
+static void setLineColor(uint line, uint8_t color)
+{
+    uint ofs = TEXT_OFFSET(line);
+    for (uint i=0;i<40;i++)
+    {
+        text_p3[ofs+i] = color;
+    }
+}
 
 const char* DELAYED_COPY_CODE(getMenuString)(const char* pResource, uint Index)
 {
@@ -179,6 +195,11 @@ char DELAYED_COPY_DATA(MenuOnOff)[] =
     "ENABLED\0"
     "\0";
 
+char DELAYED_COPY_DATA(MenuPalNtsc)[] =
+    "NTSC\0"
+    "PAL\0"
+    "\0";
+
 char DELAYED_COPY_DATA(MenuButtonModes)[] =
 {
 //   12345678901234567890
@@ -223,8 +244,8 @@ char DELAYED_COPY_DATA(MenuColorStyle)[] =
     "\0";
 
 char DELAYED_COPY_DATA(MenuVideoMode)[] =
-    "DVI 640x480\0"
-    "DVI 720x480\0"
+    "640x480p60\0"
+    "720x480p60\0"
     "\0";
 
 char DELAYED_COPY_DATA(MenuFontNames)[] =
@@ -279,20 +300,34 @@ char DELAYED_COPY_DATA(MenuVidex)[] =
 
 char DELAYED_COPY_DATA(MenuTitle)[] = "- CONFIGURATION MENU -";
 
-char DELAYED_COPY_DATA(MenuItems)[] =
+char DELAYED_COPY_DATA(MenuPage0)[] =
     "0 MACHINE TYPE:\0"
     "1 CHARACTER SET:\0"
     "2 ALTCHR SWITCH:\0"
     "3 US CHARACTER SET:\0"
-    "4 DVI VIDEO MODE:\0"
-    "5 MONOCHROME MODE:\0"
-    "6 COLOR MODE:\0"
-    "7 RGB COLOR STYLE:\0"
-    "8 SCAN LINES:\0"
-    "9 ANALOG RENDER FX:\0"
-    "V VIDEO7 (IIE):\0"
-    "X VIDEX  (II/II+):\0"
-    "D DEBUG MONITOR:\0"
+    "  \0"
+    "4 MONOCHROME MODE:\0"
+    "5 COLOR MODE:\0"
+    "6 RGB COLOR STYLE:\0"
+    "7 SCAN LINES:\0"
+    "8 ANALOG RENDER FX:\0"
+    "\0";
+
+char DELAYED_COPY_DATA(MenuPage1)[] =
+    "0 DVI VIDEO OUTPUT:\0"
+    "1 VIDEO TIMING:\0"
+    "2 DEBUG MONITOR:\0"
+    "  \0"
+    "             APPLE IIE\0"
+    "3 VIDEO7:\0"
+    "4 RAMWORKS MEMORY:\0"
+    "  \0"
+    "            APPLE II/II+\0"
+    "5 VIDEX 80 COL:\0"
+    "\0";
+
+char DELAYED_COPY_DATA(MenuExtra)[] =
+    "N NEXT PAGE...\0"
     "R RESTORE DEFAULTS\0"
     "L LOAD FROM FLASH\0"
     "S SAVE TO FLASH\0"
@@ -322,19 +357,45 @@ void DELAYED_COPY_CODE(showTitle)(TPrintMode PrintMode)
     centerY(23, TitleGitHub[MenuSubTitleToggle], PrintMode);
 }
 
-void DELAYED_COPY_CODE(menuOption)(uint8_t y, uint8_t Selection, const char* pValue)
+void DELAYED_COPY_CODE(menuOption)(uint8_t y, const char* pValue)
 {
-    uint x = (Selection >= (MENU_OFS_NONCFG+3)) ? 20:0;
+    uint x = (MenuOptionNr >= (0x10+4)) ? 20:0;
     char MenuKey[2];
 
-    const char* pMenu = getMenuString(MenuItems, Selection);
+    const char* pMenu;
+    if (MenuOptionNr < 0x10)
+    {
+        pMenu = getMenuString((MenuPage==0) ? MenuPage0 : MenuPage1, y);
+        y += 4;
+    }
+    else
+    {
+        pMenu = getMenuString(MenuExtra, MenuOptionNr & 0x7);
+    }
 
-    MenuKey[0] = pMenu[0];
-    MenuKey[1] = 0;
-    printXY(x, y, MenuKey, PRINTMODE_INVERSE);
-    printXY(x+2, y, &pMenu[2], (Selection == CurrentMenu) ? PRINTMODE_FLASH : PRINTMODE_NORMAL);
+    TPrintMode PrintMode = (MenuOptionNr == MenuSelection) ? PRINTMODE_FLASH : PRINTMODE_NORMAL;
+    if (pMenu[0] == ' ')
+    {
+        PrintMode = PRINTMODE_NORMAL;
+        setLineColor(y, 0xA2); // light gray, blue
+    }
+    else
+    {
+        MenuKey[0] = pMenu[0];
+        MenuKey[1] = 0;
+        printXY(x, y, MenuKey, PRINTMODE_INVERSE);
+    }
+
+    printXY(x+2, y, &pMenu[2], PrintMode);
+
     if (pValue)
+    {
         printXY(20, y, pValue, PRINTMODE_NORMAL);
+        MenuPageItems = MenuOptionNr+1;
+    }
+
+    if (pMenu[0] != ' ')
+        MenuOptionNr++;
 }
 
 void DELAYED_COPY_CODE(menuShowFrame)()
@@ -369,8 +430,6 @@ static char DELAYED_COPY_DATA(AboutText)[]=
     "           THORSTEN AND RALLE\0\0"          //20
 };
 
-#define TEXT_OFFSET(line) ((((line) & 0x7) << 7) + ((((line) >> 3) & 0x3) * 40))
-
 void DELAYED_COPY_CODE(menuVideo7Text)()
 {
     if ((internal_flags & (IFLAGS_IIE_REGS|IFLAGS_VIDEO7)) == (IFLAGS_IIE_REGS|IFLAGS_VIDEO7))
@@ -380,7 +439,6 @@ void DELAYED_COPY_CODE(menuVideo7Text)()
 
         for (uint line=0;line<24;line++)
         {
-            uint ofs = TEXT_OFFSET(line);
             uint8_t color;
             switch(line)
             {
@@ -390,10 +448,7 @@ void DELAYED_COPY_CODE(menuVideo7Text)()
                 case 21:color = 0xA2;break; // light gray, blue
                 default:color = 0xD2;break; // yellow, blue
             }
-            for (uint i=0;i<40;i++)
-            {
-                text_p3[ofs+i] = color;
-            }
+            setLineColor(line, color);
         }
     }
     else
@@ -545,11 +600,11 @@ void DELAYED_COPY_CODE(menuShowDebug)()
     }
 }
 
-bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
+bool DELAYED_COPY_CODE(menuDoSelectionPage0)(bool increase)
 {
-    switch(CurrentMenu)
+    switch(MenuSelection)
     {
-        case 0:
+        case 0: // MACHINE TYPE
             if (increase)
             {
                 if (cfg_machine < MACHINE_MAX_CFG)
@@ -563,7 +618,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             // update current machine type
             set_machine((cfg_machine == MACHINE_AUTO) ? detected_machine : cfg_machine);
             break;
-        case 1:
+        case 1: // CHARACTER SET
             if (increase)
             {
                 if (cfg_local_charset+1 < MAX_FONT_COUNT)
@@ -581,7 +636,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 }
             }
             break;
-        case 2:
+        case 2: // LANGUAGE SWITCH
             if (increase)
             {
                 if (input_switch_mode < ModeSwitchLangCycle)
@@ -597,7 +652,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 language_switch = false;
             }
             break;
-        case 3:
+        case 3: // US FONT
             if (!LANGUAGE_SWITCH_ENABLED())
                 break;
             // only show US character set for alternate (alternate was always US/default ASCII)
@@ -654,26 +709,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 }
             }
             break;
-        case 4:
-            cfg_video_mode &= 0x1;
-            if (increase)
-            {
-                if (cfg_video_mode < 1)
-                {
-                    cfg_video_mode++;
-                    cfg_video_mode |= 0x10;
-                }
-            }
-            else
-            {
-                if (cfg_video_mode)
-                {
-                    cfg_video_mode--;
-                    cfg_video_mode |= 0x10;
-                }
-            }
-            break;
-        case 5:
+        case 4: // MONOCHROME MODE
             if (increase)
             {
                 if (color_mode < 2)
@@ -685,10 +721,10 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                     color_mode--;
             }
             break;
-        case 6:
+        case 5: // COLOR vs MONOCHROME
             SET_IFLAG(!IS_IFLAG(IFLAGS_FORCED_MONO), IFLAGS_FORCED_MONO);
             break;
-        case 7:
+        case 6: // COLOR STYLE
             if (increase)
             {
                 if (cfg_color_style < 2)
@@ -706,10 +742,10 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 }
             }
             break;
-        case 8:
+        case 7: // SCANLINE EMULATION
             SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
             break;
-        case 9:
+        case 8: // RENDERING
             if (increase)
             {
                 if (cfg_rendering_fx < FX_DGR_ONLY)
@@ -722,14 +758,36 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             }
             config_setflags();
             break;
-        case 10:
+    }
+    return false;
+}
+
+bool DELAYED_COPY_CODE(menuDoSelectionPage1)(bool increase)
+{
+    switch(MenuSelection)
+    {
+        case 0: //640x480 vs 720x480
+            cfg_video_mode ^= 1;
+            cfg_video_mode |= 0x10;
+            break;
+        case 1: // PAL vs NTSC
+            SET_IFLAG(!IS_IFLAG(IFLAGS_PAL), IFLAGS_PAL);
+            break;
+        case 2: // SCANLINES
+            SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
+            SET_IFLAG(0, IFLAGS_TEST);
+            break;
+        case 3: // VIDEO7
             SET_IFLAG(!IS_IFLAG(IFLAGS_VIDEO7), IFLAGS_VIDEO7);
             if (IS_IFLAG(IFLAGS_VIDEO7))
             {
                 soft_switches |= SOFTSW_V7_MODE3;
             }
             break;
-        case 11:
+        case 4: // RAMWORKS
+            SET_IFLAG(!IS_IFLAG(IFLAGS_RAMWORKS), IFLAGS_RAMWORKS);
+            break;
+        case 5: // VIDEX
             if (increase)
             {
                 if (cfg_videx_selection < VIDEX_FONT_COUNT)
@@ -750,25 +808,39 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             // videx not supported on IIe/IIgs
             videx_enabled = (cfg_videx_selection>0)&&((internal_flags & (IFLAGS_IIGS_REGS|IFLAGS_IIE_REGS)) == 0);
             break;
-        case 12:
-            SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
-            SET_IFLAG(0, IFLAGS_TEST);
+    }
+    return false;
+}
+
+bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
+{
+    if (MenuSelection<9)
+    {
+        return (MenuPage == 0) ? menuDoSelectionPage0(increase) : menuDoSelectionPage1(increase);
+    }
+
+    switch(MenuSelection)
+    {
+        case MENU_EXTRA+0: // next page
+            MenuNeedsRedraw = 1;
+            MenuPage ^= 1;
+            MenuSelection = 0;
             break;
-        case MENU_OFS_NONCFG+0: // restore
+        case MENU_EXTRA+1: // restore
             if (increase)
             {
                 config_load_defaults();
                 set_machine((cfg_machine == MACHINE_AUTO) ? detected_machine : cfg_machine);
             }
             break;
-        case MENU_OFS_NONCFG+1: // load config
+        case MENU_EXTRA+2: // load config
             if (increase)
             {
                 config_load();
                 set_machine((cfg_machine == MACHINE_AUTO) ? detected_machine : cfg_machine);
             }
             break;
-        case MENU_OFS_NONCFG+2: // flash
+        case MENU_EXTRA+3: // flash
             if (increase)
             {
                 config_save();
@@ -777,7 +849,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 return true;
             }
             break;
-        case MENU_OFS_NONCFG+3:  // about
+        case MENU_EXTRA+4:  // about
             if (increase)
             {
                 menuShowAbout();
@@ -785,7 +857,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 return true;
             }
             break;
-        case MENU_OFS_NONCFG+4:
+        case MENU_EXTRA+5:
             if (increase)
             {
                 menuShowDebug();
@@ -793,7 +865,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                 return true;
             }
             break;
-        case MENU_OFS_NONCFG+5: // test
+        case MENU_EXTRA+6: // test
             if (increase)
             {
                 menuShowTest();
@@ -821,79 +893,91 @@ static inline bool menuCheckKeys(char key)
     {
         // MENU ELEMENT SELECTION KEYS
         case '0' ... '9':
-            CurrentMenu = key-'0';
-            if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 3))
-                CurrentMenu = 2;
+            MenuSelection = key-'0';
+            if ((!LANGUAGE_SWITCH_ENABLED())&&(MenuSelection == 3)&&(MenuPage == 0))
+                MenuSelection = 2;
+            if (MenuSelection >= MenuPageItems)
+            {
+                MenuSelection = MenuPageItems-1;
+            }
             break;
-        case 'V':
-            CurrentMenu = 10;
-            break;
-        case 'X':
-            CurrentMenu = 11;
-            break;
-        case 'D':
-            CurrentMenu = 12;
+        case 'N':
+            MenuSelection = MENU_EXTRA;
+            Cmd = 1;
             break;
         case 'R':
-            CurrentMenu = MENU_OFS_NONCFG+0;
+            MenuSelection = MENU_EXTRA+1;
             Cmd = 1;
             break;
         case 'L':
-            CurrentMenu = MENU_OFS_NONCFG+1;
+            MenuSelection = MENU_EXTRA+2;
             Cmd = 1;
             break;
         case 'S':
-            CurrentMenu = MENU_OFS_NONCFG+2;
+            MenuSelection = MENU_EXTRA+3;
             Cmd = 1;
             break;
         case 'A':
-            CurrentMenu = MENU_OFS_NONCFG+3;
+            MenuSelection = MENU_EXTRA+4;
             Cmd = 1;
             break;
         case 'B':
-            CurrentMenu = MENU_OFS_NONCFG+4;
+            MenuSelection = MENU_EXTRA+5;
             Cmd = 1;
             break;
         case 'T':
-            CurrentMenu = MENU_OFS_NONCFG+5;
+            MenuSelection = MENU_EXTRA+6;
             Cmd = 1;
             break;
 
         // ARROW & CURSOR MOVEMENT KEYS
         case 'I':// fall through
         case 11: // UP
-            if (CurrentMenu > 0)
+            if (MenuSelection > 0)
             {
-                CurrentMenu--;
-                if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 3))
-                    CurrentMenu--;
+                if (MenuSelection == MENU_EXTRA)
+                    MenuSelection = MenuPageItems-1;
+                else
+                {
+                    MenuSelection--;
+                    if ((!LANGUAGE_SWITCH_ENABLED())&&(MenuSelection == 3)&&(MenuPage==0))
+                        MenuSelection--;
+                }
             }
             else
-                CurrentMenu = (MENU_ENTRY_COUNT-1);
+                MenuSelection = MENU_EXTRA+6;
             break;
         case 'M':// fall through
         case 9:  // TAB
         case 10: // DOWN
-            if (CurrentMenu < (MENU_ENTRY_COUNT-1))
+            if (MenuSelection < MenuPageItems-1)
             {
-                CurrentMenu++;
-                if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 3))
-                    CurrentMenu++;
+                MenuSelection++;
+                if ((!LANGUAGE_SWITCH_ENABLED())&&(MenuSelection == 3)&&(MenuPage==0))
+                    MenuSelection++;
             }
             else
-                CurrentMenu = 0;
+            if (MenuSelection < MENU_EXTRA)
+            {
+                MenuSelection = MENU_EXTRA;
+            }
+            else
+            if (MenuSelection < MENU_EXTRA+6)
+                MenuSelection++;
+            else
+                MenuSelection = 0;
             break;
         case 'J':// fall-through
         case 127: // DEL
         case 8:   //LEFT
-            if (CurrentMenu < MENU_OFS_NONCFG)
+            if (MenuSelection <= MENU_EXTRA)
             {
                 Cmd = 0;
             }
             else
-            if (CurrentMenu >= MENU_OFS_NONCFG+3)
+            if (MenuSelection > MENU_EXTRA+3)
             {
-                CurrentMenu -= 3;
+                MenuSelection -= 3;
             }
             break;
         case 13: // fall-through
@@ -902,14 +986,14 @@ static inline bool menuCheckKeys(char key)
             break;
         case 'K':// fall-through
         case 21: //RIGHT
-            if (CurrentMenu < MENU_OFS_NONCFG)
+            if (MenuSelection <= MENU_EXTRA)
             {
                 Cmd = 1;
             }
             else
-            if (CurrentMenu+3 < MENU_ENTRY_COUNT)
+            if (MenuSelection+3 <= MENU_EXTRA+6)
             {
-                CurrentMenu += 3;
+                MenuSelection += 3;
             }
             break;
         case 27: // ESCAPE
@@ -942,7 +1026,8 @@ void DELAYED_COPY_CODE(menuShow)(char key)
     if (key == 0)
     {
         // reset command
-        CurrentMenu = 0;
+        MenuSelection = 0;
+        MenuPage = 0;
         MenuNeedsRedraw = true;
         IgnoreNextKeypress = false;
         MenuSubTitleToggle = (bus_cycle_counter & 1);
@@ -971,47 +1056,73 @@ void DELAYED_COPY_CODE(menuShow)(char key)
     {
         menuShowFrame();
         menuVideo7Text();
+        setLineColor(2, 0xF2); // white, blue
         MenuNeedsRedraw = false;
     }
-    uint Y=1; // y position
-    uint M=0; // menu option number
-    centerY(Y++, MenuTitle, PRINTMODE_NORMAL);
-    Y++;
 
-    //                0123456789012345678
-    menuOption(Y++,M++,  getMenuString(MachineNames, (cfg_machine <= MACHINE_MAX_CFG) ? cfg_machine : 0));
-    menuOption(Y++,M++,  (cfg_local_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_local_charset) : "?");
-    menuOption(Y++,M++,  getMenuString(MenuButtonModes, input_switch_mode));
-    if ((input_switch_mode == ModeSwitchLanguage)||
-        (input_switch_mode == ModeSwitchLangMonochrome)||
-        (input_switch_mode == ModeSwitchLangCycle))
+    MenuOptionNr = 0;
+    centerY(2, MenuTitle, PRINTMODE_NORMAL);
+    printXY(36, 2, (MenuPage==0) ? "1/2" : "2/2", PRINTMODE_NORMAL);
+
+    uint Y=0; // y position
+    if (MenuPage == 0)
     {
-        menuOption(Y,M, (cfg_alt_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_alt_charset) : "?");
+        //                0123456789012345678
+        menuOption(Y++,  getMenuString(MachineNames, (cfg_machine <= MACHINE_MAX_CFG) ? cfg_machine : 0));
+        menuOption(Y++,  (cfg_local_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_local_charset) : "?");
+        menuOption(Y++,  getMenuString(MenuButtonModes, input_switch_mode));
+        if ((input_switch_mode == ModeSwitchLanguage)||
+            (input_switch_mode == ModeSwitchLangMonochrome)||
+            (input_switch_mode == ModeSwitchLangCycle))
+        {
+            menuOption(Y, (cfg_alt_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_alt_charset) : "?");
+        }
+        else
+        {
+            MenuOptionNr++;
+        }
+        Y++;
+        menuOption(Y++, 0);
+        menuOption(Y++, MenuColorMode[color_mode]);
+        menuOption(Y++, getMenuString(MenuForcedMono, IS_IFLAG(IFLAGS_FORCED_MONO)));
+        menuOption(Y++, getMenuString(MenuColorStyle, cfg_color_style));
+        menuOption(Y++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_SCANLINEEMU)));
+        menuOption(Y++, getMenuString(MenuRendering, cfg_rendering_fx));
+        Y++;
+
+        menuOption(Y+1, 0);
     }
-    Y++;
-    Y++;
-    M++;
+    else
+    {
+        menuOption(Y++, getMenuString(MenuVideoMode, cfg_video_mode & 1));
+        menuOption(Y++, getMenuString(MenuPalNtsc, IS_IFLAG(IFLAGS_PAL)));
+        menuOption(Y++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_DEBUG_LINES)));
+        menuOption(Y++, 0);
+        menuOption(Y++, 0);
+        menuOption(Y++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_VIDEO7)));
+        menuOption(Y++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_RAMWORKS)));
+        menuOption(Y++, 0);
+        menuOption(Y++, 0);
+        menuOption(Y++, getMenuString(MenuVidex, cfg_videx_selection));
+    }
 
-    menuOption(Y++,M++, getMenuString(MenuVideoMode, cfg_video_mode & 1));
-    menuOption(Y++,M++, MenuColorMode[color_mode]);
-    menuOption(Y++,M++, getMenuString(MenuForcedMono, IS_IFLAG(IFLAGS_FORCED_MONO)));
-    menuOption(Y++,M++, getMenuString(MenuColorStyle, cfg_color_style));
-    menuOption(Y++,M++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_SCANLINEEMU)));
-    menuOption(Y++,M++, getMenuString(MenuRendering, cfg_rendering_fx));
-    menuOption(Y++,M++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_VIDEO7)));
-    menuOption(Y++,M++, getMenuString(MenuVidex, cfg_videx_selection));
-    menuOption(Y++,M++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_DEBUG_LINES)));
+    // show extra menu items
+    MenuOptionNr = 0x10;
+    menuOption(15, 0);
 
-    menuOption(Y+1,M++, 0);
-    menuOption(Y+2,M++, 0);
-    menuOption(Y+3,M++, 0);
+    menuOption(17, 0);
+    menuOption(18, 0);
+    menuOption(19, 0);
 
-    menuOption(Y+1,M++, 0);
-    menuOption(Y+2,M++, 0);
-    menuOption(Y+3,M++, 0);
+    menuOption(17, 0);
+    menuOption(18, 0);
+    menuOption(19, 0);
 
-    // show some special characters, for immediate feedback when selecting character sets
-    printXY(40-11, 21, MenuSpecialChars, PRINTMODE_NORMAL);
+    if (MenuPage == 0)
+    {
+        // show some special characters, for immediate feedback when selecting character sets
+        printXY(40-11, 21, MenuSpecialChars, PRINTMODE_NORMAL);
+    }
 
     /* We're drawing the menu inside the bus cycle loop. That's too slow, of course.
      * But it doesn't matter, since we know the config utility isn't doing anything
