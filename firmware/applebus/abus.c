@@ -123,6 +123,15 @@ static inline void __time_critical_func(machine_auto_detection)(uint32_t address
                 set_machine(MACHINE_IIE_ENH);
             }
         }
+        else
+        if (Char1 == 0xd3) // 'S': "BASIS108"
+        {
+            if (Char2 == 0xb0) // '0'
+            {
+                detected_machine = MACHINE_BASIS;
+                set_machine(MACHINE_BASIS);
+            }
+        }
     }
 }
 
