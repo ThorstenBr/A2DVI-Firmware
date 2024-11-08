@@ -159,7 +159,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
 
     // set local/main character set
     case 0x5:
-        if (data < MAX_FONT_COUNT)
+        if ((data < MAX_FONT_COUNT)&&(cfg_local_charset != data))
         {
             // load a standard alternate character ROM
             cfg_local_charset = data;
@@ -169,7 +169,7 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
 
     // set alternate character set
     case 0x6:
-        if (data < MAX_FONT_COUNT)
+        if ((data < MAX_FONT_COUNT)&&(cfg_alt_charset != data))
         {
             // load a standard alternate character ROM
             cfg_alt_charset  = data;

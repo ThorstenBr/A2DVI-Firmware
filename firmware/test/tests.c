@@ -42,6 +42,8 @@ SOFTWARE.
 
 #ifdef FEATURE_TEST
 
+const uint32_t SimulatedSlotNr = 1;
+
 #define REG_SW_80STORE_OFF 0xc000
 #define REG_SW_80STORE     0xc001
 #define REG_SW_40COL       0xc00c
@@ -66,7 +68,7 @@ SOFTWARE.
 #define REG_SW_DGR         0xc05e
 #define REG_SW_DGR_OFF     0xc05f
 
-#define REG_CARD          (0xc080 | 0x30)
+#define REG_CARD          (0xc080 | (SimulatedSlotNr << 4))
 
 
 #ifndef TEST_TMDS
@@ -84,11 +86,12 @@ SOFTWARE.
 #define TEST_ALTCHAR_SWITCH
 #endif
 
-//#define TEST_MENU
-
-const uint32_t SimulatedSlotNr = 1;
+#define TEST_MENU
 
 const uint32_t TestDelayMilliseconds = 300;//1*1000;
+
+color_mode_t test_color_mode = COLOR_MODE_GREEN;
+bool         test_scanline_mode = false;
 
 void clearBothPages()
 {
@@ -102,7 +105,7 @@ void clearBothPages()
 static void simulateWrite(uint16_t address, uint8_t data)
 {
     uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_SELECT - CONFIG_PIN_APPLEBUS_DATA_BASE));
-    if ((address & 0xCFF0) == (0xC080+0x10*SimulatedSlotNr)) // Slot register area
+    if ((address & 0xCFF0) == REG_CARD) // Slot register area
         card_select = 0;
     abus_interface((address << 10) | card_select | data);
 }
@@ -112,7 +115,7 @@ static void simulateRead(uint16_t address)
 {
     uint32_t card_select = (1u << (CONFIG_PIN_APPLEBUS_SELECT - CONFIG_PIN_APPLEBUS_DATA_BASE));
     uint32_t read_mode   = (1u << (CONFIG_PIN_APPLEBUS_RW     - CONFIG_PIN_APPLEBUS_DATA_BASE));
-    if ((address & 0xCFF0) == (0xC080+0x10*SimulatedSlotNr)) // Slot register area
+    if ((address & 0xCFF0) == REG_CARD) // Slot register area
         card_select = 0;
     abus_interface((address << 10) | card_select | read_mode);
 }
@@ -142,6 +145,31 @@ void togglePages()
         sleep(500);
     }
 #endif
+}
+
+void showTestConfig()
+{
+    if (language_switch)
+        printXY(3,23, "US", PRINTMODE_NORMAL);
+    else
+        printXY(3,23, "LOCAL", PRINTMODE_NORMAL);
+
+    if (test_color_mode == COLOR_MODE_BW)
+        printXY(10,23, "BW", PRINTMODE_NORMAL);
+    else
+    if (test_color_mode == COLOR_MODE_GREEN)
+        printXY(10,23, "GREEN", PRINTMODE_NORMAL);
+    else
+    if (test_color_mode == COLOR_MODE_AMBER)
+        printXY(10,23, "AMBER", PRINTMODE_NORMAL);
+
+    if (test_scanline_mode)
+        printXY(17,23, "SCANLINES", PRINTMODE_NORMAL);
+
+    if (cfg_video_mode & 1)
+        printXY(27,23, "720", PRINTMODE_NORMAL);
+    else
+        printXY(27,23, "640", PRINTMODE_NORMAL);
 }
 
 void toggleAltChar()
@@ -250,6 +278,8 @@ void test40columns()
         testPrintChar((20-8)+(i&0xf), 4+(i>>4), i);
     }
 
+    showTestConfig();
+
     simulateWrite(REG_SW_40COL, 0);          // disable 80column mode
     sleep(TestDelayMilliseconds);
 
@@ -289,6 +319,8 @@ void test80columns()
     {
         testPrintChar((40-8)+(i&0xf), 4+(i>>4), i);
     }
+
+    showTestConfig();
 
     sleep(TestDelayMilliseconds);
 
@@ -334,6 +366,8 @@ void test40columns_color()
         PrintMode80Column = false;
     }
 
+    showTestConfig();
+
     simulateWrite(REG_SW_40COL,   0);        // disable 80column mode
     simulateWrite(REG_SW_80STORE, 0);        // enable 80STORE
     simulateWrite(REG_SW_DGR,     0);        // enable color mode
@@ -350,7 +384,6 @@ void test40columns_color()
 
 void testLores()
 {
-    cfg_video_mode = (cfg_video_mode^1)|0x100;
 #ifdef TEST_LORES
     simulateWrite(REG_SW_TEXT_OFF, 0);       // enable LORES graphics
 
@@ -376,7 +409,9 @@ void testLoresMix40()
 
     setLoresTestPattern(48-4*2);
     printXY(20-15,20, "A2DVI Test: LORES MIX MODE 40", PRINTMODE_NORMAL);
-    printXY(20-10,23, "A2DVI TEST: FLASHING", PRINTMODE_FLASH);
+    printXY(20-10,21, "A2DVI TEST: FLASHING", PRINTMODE_FLASH);
+    showTestConfig();
+
     // prepare PAGE2
     PrintModePage2 = true;
     printXY(20-3,20, "PAGE 2", PRINTMODE_NORMAL);
@@ -406,7 +441,9 @@ void testLoresMix80()
 
     setLoresTestPattern(48-4*2);
     printXY(40-15,20, "A2DVI Test: LORES MIX MODE 80", PRINTMODE_NORMAL);
-    printXY(40-10,23, "A2DVI TEST: FLASHING", PRINTMODE_FLASH);
+    printXY(40-10,21, "A2DVI TEST: FLASHING", PRINTMODE_FLASH);
+    showTestConfig();
+
     // prepare PAGE2
     PrintModePage2 = true;
     printXY(40-3,20, "PAGE 2", PRINTMODE_NORMAL);
@@ -508,7 +545,7 @@ void test_config()
     simulateWrite(REG_CARD+0x0, 1); // enable scanline emulation
     simulateWrite(REG_CARD+0x1, 3); // set color mode to amber
 
-    simulateWrite(REG_CARD+0x8, 5); // select german character set as main
+    simulateWrite(REG_CARD+0x8, 3); // select german character set as main
     simulateWrite(REG_CARD+0x9, 0); // select US enhanced as alternate
 
     simulateWrite(REG_CARD+0x4, 2); // save config
@@ -517,23 +554,45 @@ void test_config()
 
 void test_debug_menu()
 {
-    showTitle(PRINTMODE_INVERSE);
-    menuShowDebug();
+    simulateWrite(REG_CARD+0xf, 11);  // unlock card
+    simulateWrite(REG_CARD+0xf, 22);  // unlock card
+    simulateWrite(REG_CARD+0x9, 0);   // enable menu
+    simulateWrite(REG_CARD+0x9, 'B'); // debug page
     sleep(3000);
+    simulateWrite(REG_CARD+0x9, 27);  // escape/exit
+    simulateWrite(REG_CARD+0xf, 0);   // lock card
 }
 
 void test_menu()
 {
 #ifdef TEST_MENU
-    showMenu('M');
-    sleep(TestDelayMilliseconds);
+    simulateWrite(REG_CARD+0xf, 11); // unlock card
+    simulateWrite(REG_CARD+0xf, 22); // unlock card
 
-    for (uint i=0;i<4;i++)
+    simulateWrite(REG_CARD+0x9, 0); // enable menu
+    sleep(3000);
+    simulateWrite(REG_CARD+0x9, '6'); // select color style
+    simulateWrite(REG_CARD+0x9, 21);  // right
+    simulateWrite(REG_CARD+0x9, 21);  // right
+
+    for (uint i=0;i<20;i++)
     {
-        showMenu(8);
-        sleep(TestDelayMilliseconds/3);
+        simulateWrite(REG_CARD+0x9, 10); // arrow down
+        sleep(TestDelayMilliseconds/5);
     }
-    sleep(TestDelayMilliseconds);
+    simulateWrite(REG_CARD+0x9, 'N'); // menu page 2
+    sleep(3000);
+    for (uint i=0;i<10;i++)
+    {
+        simulateWrite(REG_CARD+0x9, 10); // arrow down
+        sleep(TestDelayMilliseconds/5);
+    }
+
+    simulateWrite(REG_CARD+0x9, 22);  // CTRL-V: toggle video mode
+    sleep(3000);
+
+    simulateWrite(REG_CARD+0x9, 27); // escape/exit
+    simulateWrite(REG_CARD+0xf, 0); // lock card
 #endif
 }
 
@@ -669,20 +728,75 @@ void test_loop()
     simulateWrite(REG_CARD+0xf, 11);
     simulateWrite(REG_CARD+0xf, 22);
 
+    // disable scanlines
+    simulateWrite(REG_CARD+0x0, 2);
+
 #if 0
     test_config();
 #else
-    simulateWrite(REG_CARD+0x5, 5); // select german character set as main
+    simulateWrite(REG_CARD+0x5, 6); // select swedish/finnish character set as main
     simulateWrite(REG_CARD+0x6, 0); // select US enhanced as alternate
 #endif
 
-    color_mode = COLOR_MODE_GREEN;
     uint iteration = 0;
+    uint32_t last_frame_counter = -1;
+
+    // wait until DVI output is active
+    while (frame_counter == 0);
+
+    uint32_t last_memory_avail = getFreeHeap();
+    uint32_t memory_leak_count = 0;
 
     while (1)
     {
         current_machine = MACHINE_IIE_ENH;
         internal_flags |= IFLAGS_IIE_REGS;
+
+        // check stalled DVI output
+        if (last_frame_counter == frame_counter)
+        {
+            // output has stalled!
+            debug_sos();
+        }
+        last_frame_counter = frame_counter;
+
+        // report memory leaks
+        uint32_t heap_avail = getFreeHeap();
+        if (heap_avail < last_memory_avail)
+        {
+            memory_leak_count++;
+            last_memory_avail = heap_avail;
+            if (memory_leak_count > 2)
+            {
+                /* Available heap may alternate between two values, due
+                 * to different consumption depending on screen resolution,
+                 * which we switch during the tests. But it must not
+                 * decrease continuously. */
+                debug_sos();
+            }
+        }
+
+        {
+            // toggle scanline emulation mode
+            simulateWrite(REG_CARD+0xf, 11); // unlock register area
+            simulateWrite(REG_CARD+0xf, 22);
+
+            test_scanline_mode = !test_scanline_mode;
+            simulateWrite(REG_CARD+0x0, test_scanline_mode ? 1 : 2);
+
+            language_switch = !language_switch;
+
+            // config setting is 1,2,3 for color_mode=0,1,2...
+            test_color_mode = (test_color_mode == 2) ? 0 : test_color_mode+1;
+            simulateWrite(REG_CARD+0x1, test_color_mode+1);
+
+            simulateWrite(REG_CARD+0xf, 00); // lock register area
+        }
+
+        if (iteration & 2)
+        {
+            SET_IFLAG(IS_IFLAG(IFLAGS_INTERP_DHGR), (IFLAGS_INTERP_DGR|IFLAGS_INTERP_DHGR));
+        }
 
         // test text modes
         test40columns();
@@ -690,6 +804,7 @@ void test_loop()
         test40columns_color();
         test_videx();
 
+        // test menu
         test_menu();
 
         // text lo resolution graphics
@@ -708,20 +823,6 @@ void test_loop()
         {
             test_debug_menu();
         } while (a2dvi_scanline_errors());
-
-        // toggle scanline emulation mode
-        simulateWrite(REG_CARD+0x0, (IS_IFLAG(IFLAGS_SCANLINEEMU)) ? 2 : 1);
-
-        language_switch = !language_switch;
-
-        // config setting is 1,2,3 for color_mode=0,1,2...
-        color_mode = (color_mode == 2) ? 0 : color_mode+1;
-        simulateWrite(REG_CARD+0x1, (color_mode >= 2) ? 1 : (color_mode+2));
-
-        if (iteration & 2)
-        {
-            SET_IFLAG(IS_IFLAG(IFLAGS_INTERP_DHGR), (IFLAGS_INTERP_DGR|IFLAGS_INTERP_DHGR));
-        }
 
         iteration++;
     }

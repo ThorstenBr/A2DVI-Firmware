@@ -39,6 +39,7 @@ SOFTWARE.
 
 #ifdef FEATURE_TEST
 volatile bool debug_flash_released;
+extern volatile uint8_t  reload_charsets;
 
 // ATTENTION: This temporarily DISABLES flash access. Not a good idea,
 // since we need the flash at run-time, to read/write config data,
@@ -56,6 +57,10 @@ bool __no_inline_not_in_flash_func(get_bootsel_button)(void)
     // do not access the button (which disables flash), unless we have the
     // go (main init code is complete).
     if (!debug_flash_released)
+        return 1;
+    // do not access button when a charset reload is pending (requires
+    // flash access)
+    if (reload_charsets!=0)
         return 1;
 
   #if 0
