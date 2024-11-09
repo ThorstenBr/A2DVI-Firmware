@@ -28,6 +28,7 @@ SOFTWARE.
 #include "applebus/abus_pin_config.h"
 #include "config/config.h"
 #include "videx/videx_vterm.h"
+#include "dvi/a2dvi.h"
 
 #include "render.h"
 #include "menu/menu.h"
@@ -361,6 +362,12 @@ void DELAYED_COPY_CODE(render_loop)()
         if ((frame_counter&7) == 0)
         {
             update_led();
+        }
+
+        if (cfg_video_mode > 1)
+        {
+            cfg_video_mode &= 1;
+            a2dvi_dvi_enable(cfg_video_mode & 1);
         }
     }
 }

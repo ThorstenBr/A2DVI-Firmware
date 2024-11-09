@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-void     a2dvi_dvi_enable     (void);
+void     a2dvi_dvi_enable     (uint32_t video_mode);
 void     a2dvi_loop           (void);
 void     a2dvi_check_hardware (void);
 uint32_t a2dvi_scanline_errors(void);

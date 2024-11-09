@@ -25,6 +25,10 @@ SOFTWARE.
 #include "tmds.h"
 #include "config/config.h"
 
+uint32_t DELAYED_COPY_DATA(dvi_x_resolution);
+uint32_t DELAYED_COPY_DATA(dvi_words_per_channel);
+uint32_t DELAYED_COPY_DATA(dvi_xofs);
+
 // TMDS data for RGB channels for a double pixel (a perfectly bit balanced pixel)
 uint32_t DELAYED_COPY_DATA(tmds_mono_double_pixel)[3*5] =
 {

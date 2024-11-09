@@ -38,7 +38,7 @@ typedef enum {
     PRINTMODE_RAW     = 3
 } TPrintMode;
 
-extern bool        IgnoreNextKeypress;
+extern bool  IgnoreNextKeypress;
 extern char* TitleGitHub[2];
 extern char* MenuColorMode[COLOR_MODE_AMBER+1];
 

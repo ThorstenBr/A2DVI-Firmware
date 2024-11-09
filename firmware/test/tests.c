@@ -350,6 +350,7 @@ void test40columns_color()
 
 void testLores()
 {
+    cfg_video_mode = (cfg_video_mode^1)|0x100;
 #ifdef TEST_LORES
     simulateWrite(REG_SW_TEXT_OFF, 0);       // enable LORES graphics
 

@@ -33,7 +33,7 @@ SOFTWARE.
 #include "menu.h"
 
 // number of elements in the menu
-#define MENU_ENTRY_COUNT (18)
+#define MENU_ENTRY_COUNT (19)
 
 // number of non-config elements in the two column menu area
 #define MENU_ENTRIES_NONCFG (6)
@@ -216,11 +216,15 @@ char DELAYED_COPY_DATA(MenuForcedMono)[] =
     "MONOCHROME\0"
     "\0";
 
-
 char DELAYED_COPY_DATA(MenuColorStyle)[] =
     "DEFAULT\0"
     "ORIGINAL (IIE)\0"
     "IMPROVED (IIGS/IIE)\0"
+    "\0";
+
+char DELAYED_COPY_DATA(MenuVideoMode)[] =
+    "DVI 640x480\0"
+    "DVI 720x480\0"
     "\0";
 
 char DELAYED_COPY_DATA(MenuFontNames)[] =
@@ -280,12 +284,13 @@ char DELAYED_COPY_DATA(MenuItems)[] =
     "1 CHARACTER SET:\0"
     "2 ALTCHR SWITCH:\0"
     "3 US CHARACTER SET:\0"
-    "4 MONOCHROME MODE:\0"
-    "5 COLOR MODE:\0"
-    "6 RGB COLOR STYLE:\0"
-    "7 SCAN LINES:\0"
-    "8 ANALOG RENDER FX:\0"
-    "9 VIDEO7 (IIE):\0"
+    "4 DVI VIDEO MODE:\0"
+    "5 MONOCHROME MODE:\0"
+    "6 COLOR MODE:\0"
+    "7 RGB COLOR STYLE:\0"
+    "8 SCAN LINES:\0"
+    "9 ANALOG RENDER FX:\0"
+    "V VIDEO7 (IIE):\0"
     "X VIDEX  (II/II+):\0"
     "D DEBUG MONITOR:\0"
     "R RESTORE DEFAULTS\0"
@@ -650,6 +655,25 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             }
             break;
         case 4:
+            cfg_video_mode &= 0x1;
+            if (increase)
+            {
+                if (cfg_video_mode < 1)
+                {
+                    cfg_video_mode++;
+                    cfg_video_mode |= 0x10;
+                }
+            }
+            else
+            {
+                if (cfg_video_mode)
+                {
+                    cfg_video_mode--;
+                    cfg_video_mode |= 0x10;
+                }
+            }
+            break;
+        case 5:
             if (increase)
             {
                 if (color_mode < 2)
@@ -661,10 +685,10 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                     color_mode--;
             }
             break;
-        case 5:
+        case 6:
             SET_IFLAG(!IS_IFLAG(IFLAGS_FORCED_MONO), IFLAGS_FORCED_MONO);
             break;
-        case 6:
+        case 7:
             if (increase)
             {
                 if (cfg_color_style < 2)
@@ -681,12 +705,11 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
                     reload_colors = true;
                 }
             }
-
-            break;
-        case 7:
-            SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
             break;
         case 8:
+            SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
+            break;
+        case 9:
             if (increase)
             {
                 if (cfg_rendering_fx < FX_DGR_ONLY)
@@ -699,14 +722,14 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             }
             config_setflags();
             break;
-        case 9:
+        case 10:
             SET_IFLAG(!IS_IFLAG(IFLAGS_VIDEO7), IFLAGS_VIDEO7);
             if (IS_IFLAG(IFLAGS_VIDEO7))
             {
                 soft_switches |= SOFTSW_V7_MODE3;
             }
             break;
-        case 10:
+        case 11:
             if (increase)
             {
                 if (cfg_videx_selection < VIDEX_FONT_COUNT)
@@ -727,7 +750,7 @@ bool DELAYED_COPY_CODE(menuDoSelection)(bool increase)
             // videx not supported on IIe/IIgs
             videx_enabled = (cfg_videx_selection>0)&&((internal_flags & (IFLAGS_IIGS_REGS|IFLAGS_IIE_REGS)) == 0);
             break;
-        case 11:
+        case 12:
             SET_IFLAG(!IS_IFLAG(IFLAGS_DEBUG_LINES), IFLAGS_DEBUG_LINES);
             SET_IFLAG(0, IFLAGS_TEST);
             break;
@@ -802,11 +825,14 @@ static inline bool menuCheckKeys(char key)
             if ((!LANGUAGE_SWITCH_ENABLED())&&(CurrentMenu == 3))
                 CurrentMenu = 2;
             break;
-        case 'X':
+        case 'V':
             CurrentMenu = 10;
             break;
-        case 'D':
+        case 'X':
             CurrentMenu = 11;
+            break;
+        case 'D':
+            CurrentMenu = 12;
             break;
         case 'R':
             CurrentMenu = MENU_OFS_NONCFG+0;
@@ -947,39 +973,42 @@ void DELAYED_COPY_CODE(menuShow)(char key)
         menuVideo7Text();
         MenuNeedsRedraw = false;
     }
-    uint Y=1;
+    uint Y=1; // y position
+    uint M=0; // menu option number
     centerY(Y++, MenuTitle, PRINTMODE_NORMAL);
     Y++;
 
     //                0123456789012345678
-    menuOption(Y++,0,  getMenuString(MachineNames, (cfg_machine <= MACHINE_MAX_CFG) ? cfg_machine : 0));
-    menuOption(Y++,1,  (cfg_local_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_local_charset) : "?");
-    menuOption(Y++,2,  getMenuString(MenuButtonModes, input_switch_mode));
+    menuOption(Y++,M++,  getMenuString(MachineNames, (cfg_machine <= MACHINE_MAX_CFG) ? cfg_machine : 0));
+    menuOption(Y++,M++,  (cfg_local_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_local_charset) : "?");
+    menuOption(Y++,M++,  getMenuString(MenuButtonModes, input_switch_mode));
     if ((input_switch_mode == ModeSwitchLanguage)||
         (input_switch_mode == ModeSwitchLangMonochrome)||
         (input_switch_mode == ModeSwitchLangCycle))
     {
-        menuOption(Y,3, (cfg_alt_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_alt_charset) : "?");
+        menuOption(Y,M, (cfg_alt_charset < MAX_FONT_COUNT) ? getMenuString(MenuFontNames, cfg_alt_charset) : "?");
     }
     Y++;
     Y++;
+    M++;
 
-    menuOption(Y++,4,  MenuColorMode[color_mode]);
-    menuOption(Y++,5,  getMenuString(MenuForcedMono, IS_IFLAG(IFLAGS_FORCED_MONO)));
-    menuOption(Y++,6,  getMenuString(MenuColorStyle, cfg_color_style));
-    menuOption(Y++,7,  getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_SCANLINEEMU)));
-    menuOption(Y++,8,  getMenuString(MenuRendering, cfg_rendering_fx));
-    menuOption(Y++,9,  getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_VIDEO7)));
-    menuOption(Y++,10, getMenuString(MenuVidex, cfg_videx_selection));
-    menuOption(Y++,11, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_DEBUG_LINES)));
+    menuOption(Y++,M++, getMenuString(MenuVideoMode, cfg_video_mode & 1));
+    menuOption(Y++,M++, MenuColorMode[color_mode]);
+    menuOption(Y++,M++, getMenuString(MenuForcedMono, IS_IFLAG(IFLAGS_FORCED_MONO)));
+    menuOption(Y++,M++, getMenuString(MenuColorStyle, cfg_color_style));
+    menuOption(Y++,M++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_SCANLINEEMU)));
+    menuOption(Y++,M++, getMenuString(MenuRendering, cfg_rendering_fx));
+    menuOption(Y++,M++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_VIDEO7)));
+    menuOption(Y++,M++, getMenuString(MenuVidex, cfg_videx_selection));
+    menuOption(Y++,M++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_DEBUG_LINES)));
 
-    menuOption(Y+1,12, 0);
-    menuOption(Y+2,13, 0);
-    menuOption(Y+3,14, 0);
+    menuOption(Y+1,M++, 0);
+    menuOption(Y+2,M++, 0);
+    menuOption(Y+3,M++, 0);
 
-    menuOption(Y+1,15, 0);
-    menuOption(Y+2,16, 0);
-    menuOption(Y+3,17, 0);
+    menuOption(Y+1,M++, 0);
+    menuOption(Y+2,M++, 0);
+    menuOption(Y+3,M++, 0);
 
     // show some special characters, for immediate feedback when selecting character sets
     printXY(40-11, 21, MenuSpecialChars, PRINTMODE_NORMAL);

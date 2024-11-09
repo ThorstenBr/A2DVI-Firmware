@@ -28,9 +28,21 @@ SOFTWARE.
 
 extern struct dvi_inst dvi0;
 
-#define DVI_X_RESOLUTION       640
-#define DVI_WORDS_PER_CHANNEL (DVI_X_RESOLUTION/2)
-#define DVI_APPLE2_XOFS_560   ((DVI_X_RESOLUTION/2-560/2)/2)
+extern uint32_t dvi_x_resolution;
+extern uint32_t dvi_words_per_channel;
+extern uint32_t dvi_xofs;
+
+#define DVI_X_RESOLUTION      dvi_x_resolution
+#define DVI_WORDS_PER_CHANNEL dvi_words_per_channel
+#define DVI_APPLE2_XOFS_560   dvi_xofs
+
+// set some DVI parameters for A2DVI
+#define DVI_INIT_RESOLUTION(x_resolution)\
+{\
+    dvi_x_resolution      = x_resolution;\
+    dvi_words_per_channel = x_resolution/2;\
+    dvi_xofs              = ((x_resolution/2-560/2)/2);\
+}
 
 // DVI TMDS encoding data (Transition-Minimized Differential Signaling)
 // each TMDS symbol needs to cover two pixels (2x10bit) and the pair

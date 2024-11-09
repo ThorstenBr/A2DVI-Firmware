@@ -170,7 +170,7 @@ void DELAYED_COPY_CODE(render_splash)()
     printXY(X1, LINE_6502+3, "PC         : ?", PRINTMODE_NORMAL);
 
     // enable DVI output now
-    a2dvi_dvi_enable();
+    a2dvi_dvi_enable(cfg_video_mode);
 
     dvi0.scanline_emulation = false;
 

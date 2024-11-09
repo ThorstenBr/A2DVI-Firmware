@@ -74,6 +74,15 @@ If you do not want the automatic font switching (i.e. you want to use an Apple I
 
 If your A2DVI is installed in a specific/fixed machine, it's recommended to set "machine type" to the matching fixed type.
 
+## DVI/HDMI Resolution
+Choose between **640x480@60Hz** or **720x480@60Hz** video output:
+
+* 640x480p60 is the default. This is still supported by most displays, especially computer displays.
+* However, some displays, especially some TVs, may not support 640x480, so you can try 720x480 instead.
+720x480 is the DVD resolution, which even TVs should still support.
+Note that switching between 640x480 and 720x480 also (slightly) changes the aspect ratio of the *Apple II display area*.
+* ![A2DVI 640x480 vs 720x480](images/A2DVI_640vs720.jpg)
+
 ## Rendering Options
 * **Monochrome Mode**: configures the display of monochrome video modes. Selects display as black & white, green or amber (the most popular 1980s CRT types).
 * **Color Mode**: configures the display of color video modes. Selects "color" or "monochrome". When "monochrome" is selected, then all video modes are in monochrome.
@@ -309,6 +318,7 @@ Firmware updates of an A2DVI card are easy and safe:
 * **Multiple color palettes**
 * **Simple Startup Diagnostics**
 * **RAMWorks memory expansion compatibility**
+* **640x480 and optional 720x480 DVI video output**
 
 # License
 The A2DVI firmware is released under the [MIT License](https://github.com/ThorstenBr/A2DVI-Firmware/blob/master/LICENSE):

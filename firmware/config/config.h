@@ -51,11 +51,19 @@ typedef enum {
     FX_DGR_ONLY   = 3
 } rendering_fx_t;
 
+typedef enum
+{
+    Dvi640x480   = 0,
+    Dvi720x480   = 1,
+    DviInvalid   = 0xff
+} DviVideoMode_t;
+
 extern volatile compat_t detected_machine;
 extern volatile compat_t cfg_machine;
 extern volatile compat_t current_machine;
 
 extern    rendering_fx_t cfg_rendering_fx;
+extern    DviVideoMode_t cfg_video_mode;
 
 typedef enum
 {

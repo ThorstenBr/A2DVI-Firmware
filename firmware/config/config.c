@@ -51,6 +51,7 @@ uint32_t           invalid_fonts = 0xffffffff;
 uint8_t            cfg_color_style;
 volatile uint8_t   color_mode = 1;
 rendering_fx_t     cfg_rendering_fx = FX_ENABLED;
+DviVideoMode_t     cfg_video_mode;
 ToggleSwitchMode_t input_switch_mode = ModeSwitchCycleVideo;
 
 // A block of flash is reserved for storing configuration persistently across power cycles
@@ -89,6 +90,7 @@ struct __attribute__((__packed__)) config_t
     uint8_t  videx_selection;
     uint8_t  color_style;
     uint8_t  ramworks_enabled;
+    uint8_t  video_mode;
 
     // Add new fields after here. When reading the config use the IS_STORED_IN_CONFIG macro
     // to determine if the field you're looking for is actually present in the stored config.
@@ -353,6 +355,11 @@ void config_load(void)
         SET_IFLAG(cfg->ramworks_enabled, IFLAGS_RAMWORKS);
     }
 
+    if(IS_STORED_IN_CONFIG(cfg, video_mode))
+    {
+        cfg_video_mode = cfg->video_mode & 1;
+    }
+
     config_setflags();
     set_machine(cfg_machine);
 
@@ -385,6 +392,7 @@ void config_load_defaults(void)
     SET_IFLAG(0, IFLAGS_TEST);
     SET_IFLAG(0, IFLAGS_RAMWORKS);
 
+    cfg_video_mode          = Dvi640x480;
     cfg_color_style         = 2; // improved
     color_mode              = COLOR_MODE_BW;
     cfg_machine             = MACHINE_AUTO;
@@ -426,6 +434,7 @@ void DELAYED_COPY_CODE(config_save)(void)
     new_config->rendering_fx            = cfg_rendering_fx;
     new_config->color_style             = cfg_color_style;
     new_config->color_mode              = color_mode;
+    new_config->video_mode              = cfg_video_mode & 1;
     new_config->machine_type            = (cfg_machine>MACHINE_AUTO) ? cfg_machine-1 : 0xff; // old encoding
     new_config->local_charset           = cfg_local_charset;
     new_config->alt_charset             = cfg_alt_charset;

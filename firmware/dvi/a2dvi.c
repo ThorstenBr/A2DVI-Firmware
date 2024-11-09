@@ -35,17 +35,6 @@ SOFTWARE.
 #include "config/config.h"
 #include "debug/debug.h"
 
-// clock/DVI configuration
-#if DVI_X_RESOLUTION == 640
-    #define DVI_TIMING        dvi_timing_640x480p_60hz
-#endif
-#if DVI_X_RESOLUTION == 720
-    #define DVI_TIMING        dvi_timing_720x480p_60hz
-#endif
-#ifndef DVI_TIMING
-    #error Unsupported DVI resolution.
-#endif
-
 #define DVI_SERIAL_CONFIG pico_a2dvi_cfg
 
 struct dvi_inst __attribute__((section (".appledata."))) dvi0;
@@ -55,15 +44,39 @@ static void a2dvi_init(void)
     // wait a bit, until the raised core VCC has settled
     sleep_ms(2);
     // shift into higher gears...
-    set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
+    set_sys_clock_khz(dvi_timing_640x480p_60hz.bit_clk_khz, true);
 }
 
-void DELAYED_COPY_CODE(a2dvi_dvi_enable)(void)
+void DELAYED_COPY_CODE(a2dvi_dvi_enable)(uint32_t video_mode)
 {
+    static uint32_t current_video_mode = DviInvalid;
+    static uint     spinlock1;
+    static uint     spinlock2;
+
+    if (current_video_mode == DviInvalid)
+    {
+        spinlock1 = next_striped_spin_lock_num();
+        spinlock2 = next_striped_spin_lock_num();
+    }
+    else
+    {
+        if (current_video_mode == video_mode)
+            return;
+        dvi_destroy(&dvi0, DMA_IRQ_0);
+    }
+
+    // remember current mode
+    current_video_mode = video_mode;
+
+    // select timing
+    struct dvi_timing* p_dvi_timing = (video_mode == Dvi720x480) ? &dvi_timing_720x480p_60hz : &dvi_timing_640x480p_60hz;
+
     // configure DVI
-    dvi0.timing = &DVI_TIMING;
+    set_sys_clock_khz(p_dvi_timing->bit_clk_khz, true);
+    DVI_INIT_RESOLUTION(p_dvi_timing->h_active_pixels);
+    dvi0.timing = p_dvi_timing;
     dvi0.ser_cfg = &DVI_SERIAL_CONFIG;
-    dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
+    dvi_init(&dvi0, spinlock1, spinlock2);
     dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
     dvi_start(&dvi0);
 }
