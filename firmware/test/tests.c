@@ -38,7 +38,8 @@ SOFTWARE.
 #include "render/render.h"
 #include "config/config.h"
 #include "dvi/a2dvi.h"
-#include "duck.h"
+#include "testpattern_hgr.h"
+#include "testpattern_dhgr.h"
 
 #ifdef FEATURE_TEST
 
@@ -79,6 +80,7 @@ const uint32_t SimulatedSlotNr = 1;
 #define TEST_LORES
 #define TEST_HIRES
 #define TEST_DOUBLE_LORES
+#define TEST_DOUBLE_HIRES
 
 #define TEST_MIX_MODES
 
@@ -241,11 +243,29 @@ void setLoresTestPattern(uint lines)
 
 void setHiresTestPattern()
 {
-    for (uint i=0;i<sizeof(A_DUCK_BIN)/4;i++)
+    for (uint i=0;i<sizeof(TESTPATTERN_HGR_BIN)/4;i++)
     {
-        uint32_t data = ((uint32_t*)A_DUCK_BIN)[i];
+        uint32_t data = ((uint32_t*)TESTPATTERN_HGR_BIN)[i];
         ((uint32_t*)hgr_p1)[i] = data;
         ((uint32_t*)hgr_p2)[i] = data ^ 0xffffffff;
+    }
+}
+
+void setDoubleHiresTestPattern()
+{
+    for (uint i=0;i<sizeof(TESTPATTERN_DHGR_BIN)/4;i++)
+    {
+        uint32_t data = ((uint32_t*)TESTPATTERN_DHGR_BIN)[i];
+        if (i>0x2000/4)
+        {
+            ((uint32_t*)hgr_p1)[i&0x7ff] = data;
+            ((uint32_t*)hgr_p2)[i&0x7ff] = data ^ 0xffffffff;
+        }
+        else
+        {
+            ((uint32_t*)hgr_p3)[i&0x7ff] = data;
+            ((uint32_t*)hgr_p4)[i&0x7ff] = data ^ 0xffffffff;
+        }
     }
 }
 
@@ -499,6 +519,33 @@ void testHires()
     togglePages();                          // test both pages
 
     simulateWrite(REG_SW_MONOCHROME, 0);    // disable MONOCHROME mode
+    simulateWrite(REG_SW_HIRES_OFF,  0);    // disable HIRES
+    simulateWrite(REG_SW_TEXT,       0);    // enable text mode
+#endif
+}
+
+void testDoubleHires()
+{
+#ifdef TEST_DOUBLE_HIRES
+    simulateWrite(REG_SW_HIRES, 0);         // enable HIRES graphics
+    simulateWrite(REG_SW_DGR, 0);           // enable DOUBLE HIRES mode
+    simulateWrite(REG_SW_TEXT_OFF, 0);      // disable TEXT mode
+    simulateWrite(REG_SW_MONOCHROME, 0);    // disable MONOCHROME mode
+
+    soft_switches |= SOFTSW_V7_MODE3;
+
+    setDoubleHiresTestPattern();
+    sleep(TestDelayMilliseconds);
+
+    togglePages();                          // test both pages
+
+    simulateWrite(REG_SW_MONOCHROME, 0x80); // enable MONOCHROME mode
+    sleep(TestDelayMilliseconds);
+
+    togglePages();                          // test both pages
+
+    simulateWrite(REG_SW_MONOCHROME, 0);    // disable MONOCHROME mode
+    simulateWrite(REG_SW_DGR_OFF, 0);       // disable DOUBLE HIRES mode
     simulateWrite(REG_SW_HIRES_OFF,  0);    // disable HIRES
     simulateWrite(REG_SW_TEXT,       0);    // enable text mode
 #endif
@@ -817,6 +864,7 @@ void test_loop()
 
         // test hires modes
         testHires();
+        testDoubleHires();
 
         // show debug menu. And lock up when scanline errors occurred.
         do

@@ -62,7 +62,7 @@ uint32_t DELAYED_COPY_DATA(tmds_mono_pixel_pair)[4*3*3] =
 
 void DELAYED_COPY_CODE(tmds_color_load)(void)
 {
-    reload_colors = false;
     tmds_color_load_lores(cfg_color_style);
     tmds_color_load_dhgr(cfg_color_style);
+    reload_colors = false;
 }
