@@ -1002,6 +1002,12 @@ static inline bool menuCheckKeys(char key)
             soft_switches |= SOFTSW_TEXT_MODE;
             // abort the menu: do not redraw
             return true;
+        case 22: // CTRL-V, shortcut to directly toggle 640x480 vs 720x480
+        {
+            cfg_video_mode ^= 1;
+            cfg_video_mode |= 0x10;
+            break;
+        }
         case '!': // special debug feature
             if (IS_IFLAG(IFLAGS_DEBUG_LINES))
             {

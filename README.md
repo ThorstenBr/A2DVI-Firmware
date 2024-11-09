@@ -83,6 +83,7 @@ Choose between **640x480@60Hz** or **720x480@60Hz** video output:
 * However, some displays, especially some TVs, may not support 640x480, so you can try 720x480 instead.
 720x480 is the DVD resolution, which even TVs should still support.
 Note that switching between 640x480 and 720x480 also (slightly) changes the aspect ratio of the *Apple II display area*.
+* The menu has a keyboard shortcut to toggle the resolution: **CTRL-V**. This may be helpful when the current resolution is not supported by your display, so the menu isn't visible.
 * ![A2DVI 640x480 vs 720x480](images/A2DVI_640vs720.jpg)
 
 ## Rendering Options
