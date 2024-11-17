@@ -2,22 +2,28 @@
 
 The firmware supports various configuration properties.
 
-![Config Utility](/images/A2DVI_Config.jpg)
+![Config Utility](../images/A2DVI_Config.jpg)
+
+![Config Utility](../images/A2DVI_Config2.jpg)
 
 ## Configuration Disks
-There are configuration [utility disks for ProDOS](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_PRODOS.po) and [DOS3.3](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_DOS33.dsk).
-The disk support the configuration of the card and uploading custom fonts (video ROMs).
+There are configuration utility disks
 
-Download the files and transfer them to a disk using ADTpro or similar.
+* based on [ProDOS](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_PRODOS.po) (requires a //e with 48K RAM or more).
 
-## Configuration Program
+* based on [DOS3.3](https://github.com/ThorstenBr/A2DVI-Firmware/raw/master/configutil/A2DVICONFIG_DOS33.dsk) (any Apple II).
+
+These support configuration of the card and also uploading custom fonts (video ROMs).
+
+Download the files and transfer them to a disk, for example, using ADTPro.
+
+## Configuration Utility
 Alternatively, you can type the program and save it to a disk manually.
-It takes just a couple of lines to activate the menu,
-since the menu is implemented inside the A2DVI firmware.
+The menu is implemented inside the A2DVI firmware, so it takes just a
+couple of lines to activate it.
 
-This is just how we would have done it in the 80s, when we manually copied and typed program listings from magazines... :)
-
-The A2DVI configuration utility:
+This is just how you would have done it back in the 80s, when manually
+copying and typing program listings from magazines was common... :)
 
     10 HOME : PRINT "ENTER A2DVI SLOT (1-7): ";
     20 GET S
@@ -33,6 +39,7 @@ The A2DVI configuration utility:
     120 POKE S+9,C
     130 IF C <> 27 THEN GOTO 100
     140 POKE S+15,0
-    150 HOME : PRINT "GOOD BYE!"
+    150 HOME : PRINT "GOODBYE!"
 
-Uploading of custom video ROMs is not supported by this shortened version. The full utility is available [here](A2DVICONFIG.BAS).
+This is a shortened version, which does not support uploading custom video ROMs.
+The full version of the utility, which is used on the disk images above, is also available [here](A2DVICONFIG.BAS).
