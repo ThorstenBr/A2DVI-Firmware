@@ -30,18 +30,25 @@ extern struct dvi_inst dvi0;
 
 extern uint32_t dvi_x_resolution;
 extern uint32_t dvi_words_per_channel;
-extern uint32_t dvi_xofs;
+extern uint32_t dvi_xofs560;
+extern uint32_t dvi_xofs640;
 
+// DVI x resolution in pixels
 #define DVI_X_RESOLUTION      dvi_x_resolution
+// DVI words per channel and for each scanline
 #define DVI_WORDS_PER_CHANNEL dvi_words_per_channel
-#define DVI_APPLE2_XOFS_560   dvi_xofs
+// DVI x offset (in words) when showing content with 560px horizontally
+#define DVI_APPLE2_XOFS_560   dvi_xofs560
+// DVI x offset (in words) when showing content with 640px horizontally
+#define DVI_APPLE2_XOFS_640   dvi_xofs640
 
 // set some DVI parameters for A2DVI
 #define DVI_INIT_RESOLUTION(x_resolution)\
 {\
     dvi_x_resolution      = x_resolution;\
     dvi_words_per_channel = x_resolution/2;\
-    dvi_xofs              = ((x_resolution/2-560/2)/2);\
+    dvi_xofs560           = ((x_resolution/2-560/2)/2);\
+    dvi_xofs640           = ((x_resolution/2-640/2)/2);\
 }
 
 // DVI TMDS encoding data (Transition-Minimized Differential Signaling)
@@ -68,15 +75,21 @@ extern uint32_t dvi_xofs;
     uint32_t* tmdsbuf;\
     queue_remove_blocking_u32(&dvi0.q_tmds_free, &tmdsbuf);
 
+// get scanline rgb pointers
+#define dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue) \
+        uint32_t *tmdsbuf_blue  = tmdsbuf; \
+        uint32_t* tmdsbuf_green = tmdsbuf_blue  + DVI_WORDS_PER_CHANNEL; \
+        uint32_t* tmdsbuf_red   = tmdsbuf_green + DVI_WORDS_PER_CHANNEL;
+
 // get scanline rgb pointers for 640pixel/line rendering
 #define dvi_scanline_rgb640(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue) \
-        uint32_t *tmdsbuf_blue  = tmdsbuf; \
+        uint32_t *tmdsbuf_blue  = tmdsbuf+DVI_APPLE2_XOFS_640; \
         uint32_t* tmdsbuf_green = tmdsbuf_blue  + DVI_WORDS_PER_CHANNEL; \
         uint32_t* tmdsbuf_red   = tmdsbuf_green + DVI_WORDS_PER_CHANNEL;
 
 // get scanline rgb pointers for 560pixel/line rendering: this automatically fills the left/right border (40 pixels each)
 #define dvi_scanline_rgb560(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue) \
-        dvi_scanline_rgb640(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue); \
+        dvi_scanline_rgb(tmdsbuf, tmdsbuf_red, tmdsbuf_green, tmdsbuf_blue); \
         for (uint32_t i=0;i<DVI_APPLE2_XOFS_560;i++) \
         {\
             *(tmdsbuf_red+(600/2))   = TMDS_SYMBOL_0_0; \

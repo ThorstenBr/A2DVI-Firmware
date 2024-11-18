@@ -72,6 +72,9 @@ pack:
 	cp ../configutil/A2DVICONFIG_DOS33.dsk ZIP/.
 	cd ZIP && zip $(ZIP) README.txt A2DVI_$(VERSION)*.uf2 A2DVICONFIG_*
 	mv ZIP/$(ZIP) $(ZIP)
+	@echo
+	@unzip -l $(ZIP)
+	@echo
 endif
 
 # create directories and call cmake

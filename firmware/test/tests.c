@@ -554,6 +554,11 @@ void testDoubleHires()
 void test_videx()
 {
 #ifdef TEST_VIDEX
+    // change machine type to Apple II
+    compat_t orig_machine = current_machine;
+    set_machine(MACHINE_II);
+
+    // enable Videx
     bool saved_videx_enabled = videx_enabled;
     if (!videx_enabled)
     {
@@ -578,10 +583,13 @@ void test_videx()
         }
     }
 
-    sleep(TestDelayMilliseconds);
+    sleep(TestDelayMilliseconds*5);
     simulateRead(REG_SW_VIDEX_OFF);
 
     videx_enabled = saved_videx_enabled;
+
+    // restore machine type
+    set_machine(orig_machine);
 #endif
 }
 
