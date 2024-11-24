@@ -180,7 +180,7 @@ char* DELAYED_COPY_DATA(TitleGitHub)[2] = {TitleGitHub0, TitleGitHub1};
 char DELAYED_COPY_DATA(MachineNames)[] =
 {
     "AUTO DETECT\0"
-    "APPLE II\0"
+    "APPLE II/II+\0"
     "APPLE IIE\0"
     "APPLE IIE ENHANCED\0"
     "AGAT7\0"
@@ -244,8 +244,8 @@ char DELAYED_COPY_DATA(MenuColorStyle)[] =
     "\0";
 
 char DELAYED_COPY_DATA(MenuVideoMode)[] =
-    "640x480p60\0"
-    "720x480p60\0"
+    "640X480/60HZ\0"
+    "720X480/60HZ\0"
     "\0";
 
 char DELAYED_COPY_DATA(MenuFontNames)[] =
