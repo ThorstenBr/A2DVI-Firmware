@@ -130,7 +130,7 @@ extern volatile uint32_t internal_flags;
 #define IFLAGS_DEBUG_LINES    0x00100000ul
 //                            0x00200000ul
 #define IFLAGS_FORCED_MONO    0x00400000ul
-#define IFLAGS_SCANLINEEMU    0x00800000ul
+//                            0x00800000ul
 #define IFLAGS_INTERP_DGR     0x01000000ul
 #define IFLAGS_INTERP_DHGR    0x02000000ul
 #define IFLAGS_VIDEO7         0x04000000ul

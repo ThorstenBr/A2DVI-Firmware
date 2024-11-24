@@ -69,7 +69,7 @@ void DELAYED_COPY_CODE(show_display_mode)()
         (input_switch_mode==ModeSwitchLangCycle))
     {
         // show these properties only when a "cycling video modes" is set
-        if (IS_IFLAG(IFLAGS_SCANLINEEMU))
+        if (cfg_scanline_mode)
         {
             copy_str(&line2[4], "SCANLINES");
         }
@@ -117,7 +117,7 @@ void DELAYED_COPY_CODE(cycle_display_modes)()
         }
         else
         {
-            SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
+            cfg_scanline_mode = (cfg_scanline_mode) ? ScanlinesOff : ScanlinesOn;
             SET_IFLAG(true, IFLAGS_FORCED_MONO);
         }
     }
@@ -128,7 +128,7 @@ void DELAYED_COPY_CODE(cycle_display_modes)()
         else
         {
             color_mode = COLOR_MODE_BW;
-            SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
+            cfg_scanline_mode = (cfg_scanline_mode) ? ScanlinesOff : ScanlinesOn;
         }
     }
 
@@ -278,7 +278,7 @@ void DELAYED_COPY_CODE(render_loop)()
         color_support = (current_softsw & SOFTSW_MONOCHROME) ? false : true;
 #else
         // no scanlines/no videx when running the TMDS test
-        internal_flags &= ~IFLAGS_SCANLINEEMU;
+        cfg_scanline_mode = ScanlinesOff;
         IsVidex = false;
         render_debug(IsVidex, true);
         if (1)
@@ -354,7 +354,9 @@ void DELAYED_COPY_CODE(render_loop)()
 
         update_toggle_switch();
 
-        dvi0.scanline_emulation = (internal_flags & IFLAGS_SCANLINEEMU) != 0;
+        dvi0.scanline_emulation = ((cfg_scanline_mode==ScanlinesOn)||
+                                   ((cfg_scanline_mode==ScanlinesMonochrome)&&
+                                    (mono_rendering || (color_support == false))));
 
         frame_counter++;
 

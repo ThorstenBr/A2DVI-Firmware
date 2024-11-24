@@ -58,12 +58,20 @@ typedef enum
     DviInvalid   = 0xff
 } DviVideoMode_t;
 
+typedef enum
+{
+    ScanlinesOff = 0,
+    ScanlinesOn  = 1,
+    ScanlinesMonochrome = 2 // scanlines shown for monochrome modes only
+} ScanlineMode_t;
+
 extern volatile compat_t detected_machine;
 extern volatile compat_t cfg_machine;
 extern volatile compat_t current_machine;
 
 extern    rendering_fx_t cfg_rendering_fx;
 extern    DviVideoMode_t cfg_video_mode;
+extern    ScanlineMode_t cfg_scanline_mode;
 
 typedef enum
 {

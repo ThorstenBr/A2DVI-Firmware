@@ -90,9 +90,9 @@ void device_write(uint_fast8_t reg, uint_fast8_t data)
     {
     case 0x0:
         if(data & 0x01)
-            SET_IFLAG(1, IFLAGS_SCANLINEEMU);
+            cfg_scanline_mode = ScanlinesOn;
         if(data & 0x02)
-            SET_IFLAG(0, IFLAGS_SCANLINEEMU);
+            cfg_scanline_mode = ScanlinesOff;
 #ifdef APPLE_MODEL_IIPLUS
         if(data & 0x04)
             videx_vterm_enable();

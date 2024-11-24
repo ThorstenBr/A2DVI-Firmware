@@ -237,6 +237,12 @@ char DELAYED_COPY_DATA(MenuForcedMono)[] =
     "MONOCHROME\0"
     "\0";
 
+char DELAYED_COPY_DATA(MenuScanlines)[] =
+    "DISABLED\0"
+    "ALWAYS ENABLED\0"
+    "MONOCHROME MODE ONLY\0"
+    "\0";
+
 char DELAYED_COPY_DATA(MenuColorStyle)[] =
     "DEFAULT\0"
     "ORIGINAL (IIE)\0"
@@ -564,7 +570,7 @@ void DELAYED_COPY_CODE(menuShowDebug)()
         int2str(frame_counter, s, 14);
         printXY(X2, 8, s, PRINTMODE_NORMAL);
 
-        printXY(X1, 9, "SCALINE ERRORS:", PRINTMODE_NORMAL);
+        printXY(X1, 9, "SCAN LINE ERRORS:", PRINTMODE_NORMAL);
         int2str(a2dvi_scanline_errors(), s, 14);
         printXY(X2, 9, s, PRINTMODE_NORMAL);
 
@@ -743,7 +749,16 @@ bool DELAYED_COPY_CODE(menuDoSelectionPage0)(bool increase)
             }
             break;
         case 7: // SCANLINE EMULATION
-            SET_IFLAG(!IS_IFLAG(IFLAGS_SCANLINEEMU), IFLAGS_SCANLINEEMU);
+            if (increase)
+            {
+                if (cfg_scanline_mode < 2)
+                    cfg_scanline_mode++;
+            }
+            else
+            {
+                if (cfg_scanline_mode > 0)
+                    cfg_scanline_mode--;
+            }
             break;
         case 8: // RENDERING
             if (increase)
@@ -1092,7 +1107,7 @@ void DELAYED_COPY_CODE(menuShow)(char key)
         menuOption(Y++, MenuColorMode[color_mode]);
         menuOption(Y++, getMenuString(MenuForcedMono, IS_IFLAG(IFLAGS_FORCED_MONO)));
         menuOption(Y++, getMenuString(MenuColorStyle, cfg_color_style));
-        menuOption(Y++, getMenuString(MenuOnOff, IS_IFLAG(IFLAGS_SCANLINEEMU)));
+        menuOption(Y++, getMenuString(MenuScanlines, cfg_scanline_mode));
         menuOption(Y++, getMenuString(MenuRendering, cfg_rendering_fx));
         Y++;
 

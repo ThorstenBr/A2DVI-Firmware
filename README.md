@@ -94,7 +94,8 @@ Note that switching between 640x480 and 720x480 also (slightly) changes the aspe
 * Note that the original IIe only displayed 15 different colors,
 since both gray tones were identical. This was improved with the IIgs. Many games make use of both gray tones. So you may be missing some graphics details when picking the "original IIe" palette.
 * ![A2DVI color style details](images/A2DVI_ColorStyleDetails.jpg)
-* **Scan Lines**: enables an effect to mimic the look of original CRT screens with scan lines.
+* **Scan Lines**: enables an effect to mimic the look of original CRT screens with scan lines. Scan line emulation can also be limited to monochrome modes only.
+* ![A2DVI Scan Lines](images/A2DVI_ScanLines.jpg)
 * **Analog Rendering Effects**: configures the rendering of double-LORES and double-HIRES video modes.
 You can disable the effects, enable them for all modes, or only enable them for double-LORES/HIRES selectively.
 Analog rendering effects try to mimic effects of original composite monitors. Graphics of sophisticated games often relied on these display effects.
@@ -154,7 +155,7 @@ Menu options for switching behavior:
 * **DISABLED**: input switch does nothing.
 * **TOGGLE CHARACTER SET**: switch controls the character set only (original Euro-Apple IIe default behavior).
 * **TOGGLE MONO/COLOR**: switch selects monochrome or color display mode.
-* **CYCLE DISPLAY MODE**: switch cycles through various display modes (color, black&white, green, amber - with/without scanlines). The cycled options depend on the currently active video mode.
+* **CYCLE DISPLAY MODE**: switch cycles through various display modes (color, black&white, green, amber - with/without scan lines). The cycled options depend on the currently active video mode.
 * **CHARSET+TOGGLE M/C**: switch controls the character set. Quickly rocking the switch back and forth toggles color vs monochrome mode.
 * **CHARSET+CYCLE MODES**: switch controls the character set. Quickly rocking the switch back and forth cycles through available display modes (see above).
 
@@ -309,7 +310,7 @@ Firmware updates of an A2DVI card are easy and safe:
 * **Graphics/text mix modes**
 * **Video-7 40 column color mode**
 * **Advanced Video7 graphics modes**
-* **Scanline emulation**
+* **Scan line emulation**
 * **Monochrome mode**, configurable **monochrome color** (b/w, green, amber).
 * **Character sets** configurable (16 builtin, 16 custom fonts).
 * **Language/rocker switch** support for Euro-machines.

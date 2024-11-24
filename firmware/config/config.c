@@ -50,6 +50,7 @@ uint8_t            cfg_alt_charset   = 0;
 uint32_t           invalid_fonts = 0xffffffff;
 uint8_t            cfg_color_style;
 volatile uint8_t   color_mode = 1;
+ScanlineMode_t     cfg_scanline_mode = ScanlinesMonochrome;
 rendering_fx_t     cfg_rendering_fx = FX_ENABLED;
 DviVideoMode_t     cfg_video_mode;
 ToggleSwitchMode_t input_switch_mode = ModeSwitchCycleVideo;
@@ -332,7 +333,7 @@ void config_load(void)
         cfg_machine = MACHINE_IIE_ENH;
     }
 
-    SET_IFLAG(cfg->scanline_emulation,   IFLAGS_SCANLINEEMU);
+    cfg_scanline_mode = cfg->scanline_emulation;
     SET_IFLAG(cfg->forced_monochrome,    IFLAGS_FORCED_MONO);
     SET_IFLAG(cfg->video7_enabled,       IFLAGS_VIDEO7);
     SET_IFLAG(cfg->debug_lines_enabled,  IFLAGS_DEBUG_LINES);
@@ -391,7 +392,6 @@ void config_load(void)
 
 void config_load_defaults(void)
 {
-    SET_IFLAG(1, IFLAGS_SCANLINEEMU);
     SET_IFLAG(0, IFLAGS_DEBUG_LINES);
     SET_IFLAG(0, IFLAGS_FORCED_MONO);
     SET_IFLAG(1, IFLAGS_VIDEO7);
@@ -399,6 +399,7 @@ void config_load_defaults(void)
     SET_IFLAG(0, IFLAGS_RAMWORKS);
     SET_IFLAG(0, IFLAGS_PAL);
 
+    cfg_scanline_mode       = ScanlinesMonochrome;
     cfg_video_mode          = Dvi640x480;
     cfg_color_style         = 2; // improved
     color_mode              = COLOR_MODE_BW;
@@ -432,7 +433,7 @@ void DELAYED_COPY_CODE(config_save)(void)
     new_config->size       = sizeof(struct config_t);
 
     // set config properties
-    new_config->scanline_emulation      = IS_IFLAG(IFLAGS_SCANLINEEMU);
+    new_config->scanline_emulation      = cfg_scanline_mode;
     new_config->forced_monochrome       = IS_IFLAG(IFLAGS_FORCED_MONO);
     new_config->video7_enabled          = IS_IFLAG(IFLAGS_VIDEO7);
     new_config->debug_lines_enabled     = IS_IFLAG(IFLAGS_DEBUG_LINES);
